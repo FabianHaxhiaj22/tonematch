@@ -40,6 +40,13 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 | @types/node | 24.19.2 | 26.6.6 | Matches the Node 24 runtime. |
 | @types/react / @types/react-dom | 19.3.0 | 19.3.0 | |
 
+## Installed in M1
+
+| Package | Pinned | Latest on 2026-11-07 | Notes |
+|---|---|---|---|
+| culori | 4.0.2 | 4.0.2 | **Dev dependency only**: cross-checks `src/lib/color` in tests; never shipped. |
+| @types/culori | 4.0.1 | 4.0.1 | Types for the above. |
+
 ## Self-hosted model
 
 | File | Source | Size | SHA-256 |
@@ -61,7 +68,6 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 
 | Package | Latest on 2026-11-07 | Milestone |
 |---|---|---|
-| culori | 4.0.2 | M1 (test cross-checks) |
 | zustand | 5.1.0 | M4 |
 | shadcn (CLI) | 4.23.0 | M6 |
 | motion | 14.10.1 | M6 |
