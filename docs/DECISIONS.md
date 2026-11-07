@@ -85,11 +85,12 @@ WASM needs `'wasm-unsafe-eval'` in `script-src`; the worker likely needs `worker
 ### R-002 · MediaPipe in a module Web Worker (README item P) · owner: M2
 The tasks-vision loader has historically used `importScripts`, which module workers (what Turbopack creates) don't support. tasks-vision 1.2.2 ships a `vision_wasm_module_internal.*` variant that may solve this. M2 proves the worker setup first, with a main-thread fallback.
 
-### R-003 · Dependabot and pnpm 12 · owner: first Dependabot version-update PR
-**Partly resolved 2026-11-07:** Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Still to confirm: that its version-update PRs produce a valid lockfile and pass CI. If they don't, options: Renovate, or manual monthly bumps.
+### R-003 · Dependabot and pnpm 12 · ✅ closed 2026-11-07
+Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Its first version-update PRs (#1 typescript, #2 @types/node) produced valid lockfiles and passed CI. Both were closed because they bumped majors held back by D-012; `dependabot.yml` now ignores those majors.
 
 ### R-005 · Dev-only `minimatch` advisory (GHSA-g3hv-75wg-m249, medium) · owner: next typescript-eslint release
-`minimatch@10.2.6` comes in through `@typescript-eslint/typescript-estree@8.72.1` (`^10.2.2`); the fix is in `11.0.1`, a major that typescript-eslint doesn't accept yet, so Dependabot's security update can't apply it. Impact: denial of service via crafted glob patterns, in **lint-time tooling only** (not shipped to users; inputs are our own files). Options: wait for typescript-eslint to bump; dismiss the alert as tolerable risk; or force `minimatch@11` with a pnpm override (may break typescript-eslint). *Owner to decide.*
+`minimatch@10.2.6` comes in through `@typescript-eslint/typescript-estree@8.72.1` (`^10.2.2`); the fix is in `11.0.1`, a major that typescript-eslint doesn't accept yet, so Dependabot's security update can't apply it. Impact: denial of service via crafted glob patterns, in **lint-time tooling only** (not shipped to users; inputs are our own files). Options were: wait for typescript-eslint to bump; dismiss the alert as tolerable risk; or force `minimatch@11` with a pnpm override (may break typescript-eslint).
+**Decision (owner, 2026-11-07):** alert #1 dismissed via the API as `tolerable_risk`. **Recheck when typescript-eslint updates:** run `pnpm why minimatch`; once no installed version is in the vulnerable range (`>=7.0.0 <11.0.1`), close this risk. If the alert is reopened or a higher-severity advisory appears, revisit.
 
 ### R-004 · Coverage threshold has nothing to measure yet · ✅ closed 2026-11-07 (M1)
 With `src/lib/color` in place (100% covered), two checks confirmed the 90% threshold fails the run (exit 1) when it should: running only `tests/unit/color/srgb.test.ts` gave 54.5% statements, 26.7% branches, 36.4% functions and 56.3% lines → 4 threshold errors; and a throwaway `src/lib` file imported by no test was reported at 0% and pulled the totals below 90% → threshold errors. So untested files can't slip through.
