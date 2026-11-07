@@ -1,0 +1,23 @@
+# PR titles must be Conventional Commits: squash-merge uses the PR title as the commit message
+# on main, and release-please reads those commits (README §9.4, §9.5).
+# The job name `pr-title` is a required status check on main (docs/REPO_SETUP.md).
+#
+# Uses `pull_request` (not `pull_request_target`) so the workflow never has access to secrets.
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: amannn/action-semantic-pull-request@2252a14e810aa9b85c2d560bd7070c802206ecf6 # v6.1.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
