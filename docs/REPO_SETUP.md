@@ -3,7 +3,7 @@
 Every GitHub setting for this repo, so it can be audited or recreated (README §9.1). **No secret values are ever written here**, only names, scopes and dates. Update this file in the same PR as any settings change.
 
 - **Repo:** `FabianHaxhiaj22/tonematch`
-- **Status:** *Planned during M0. Values are confirmed with the commands in "Verify" after they're applied.*
+- **Status:** Applied and verified on **2026-11-07** with the commands in "Verify" (repo created, first push `c96e9df`, CI green, then branch protection on).
 
 ## Account and visibility
 

@@ -78,8 +78,11 @@ WASM needs `'wasm-unsafe-eval'` in `script-src`; the worker likely needs `worker
 ### R-002 · MediaPipe in a module Web Worker (README item P) · owner: M2
 The tasks-vision loader has historically used `importScripts`, which module workers (what Turbopack creates) don't support. tasks-vision 1.2.2 ships a `vision_wasm_module_internal.*` variant that may solve this. M2 proves the worker setup first, with a main-thread fallback.
 
-### R-003 · Dependabot and pnpm 12 · owner: first Dependabot run
-Not yet confirmed that Dependabot can update a pnpm 12 lockfile. If its PRs fail, options: pin Dependabot to npm-only manifest updates, or use Renovate.
+### R-003 · Dependabot and pnpm 12 · owner: first Dependabot version-update PR
+**Partly resolved 2026-11-07:** Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Still to confirm: that its version-update PRs produce a valid lockfile and pass CI. If they don't, options: Renovate, or manual monthly bumps.
+
+### R-005 · Dev-only `minimatch` advisory (GHSA-g3hv-75wg-m249, medium) · owner: next typescript-eslint release
+`minimatch@10.2.6` comes in through `@typescript-eslint/typescript-estree@8.72.1` (`^10.2.2`); the fix is in `11.0.1`, a major that typescript-eslint doesn't accept yet, so Dependabot's security update can't apply it. Impact: denial of service via crafted glob patterns, in **lint-time tooling only** (not shipped to users; inputs are our own files). Options: wait for typescript-eslint to bump; dismiss the alert as tolerable risk; or force `minimatch@11` with a pnpm override (may break typescript-eslint). *Owner to decide.*
 
 ### R-004 · Coverage threshold has nothing to measure yet · owner: M1
 With `src/lib` empty, Vitest reports 0/0 and the 90% threshold passes trivially. M1 must confirm the threshold actually fails when coverage drops.
