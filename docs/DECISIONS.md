@@ -75,15 +75,33 @@ Lightweight ADR log (README §15 rule 9). Newest at the bottom. Each entry: date
 - **Hue for greys:** `hueAngle` returns 0 when a* = b* = 0 (hue undefined); callers check `chroma` first when it matters.
 - **Alternatives:** culori's chromaticity-derived matrix and D65 (differs by ≤ 0.011 in L*, a*, b*); depending on culori at runtime (rejected: extra bundle weight for a few lines of maths).
 
+### D-016 · 2026-11-07 · Face Landmarker setup (M2)
+- **Source:** official guide https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker/web_js (`ai.google.dev` redirects there; no date shown), plus `vision.d.ts` and the bundle of the installed `@mediapipe/tasks-vision@1.2.2`. The guide doesn't cover workers, self-hosting or the matrix layout; those were taken from the package and verified by running it.
+- **Worker:** `src/workers/landmarker.worker.ts`, classic WASM loader (see R-002). Main thread sends an `ImageBitmap` as a *transfer*; the worker closes it after `detect()`. The image is never stored.
+- **Options:** `runningMode: "IMAGE"`, `outputFacialTransformationMatrixes: true`, blendshapes off, **`numFaces: 2`** (the quality gate must be able to see a second face to report `MULTIPLE_FACES`), **CPU delegate** (one still image is ~250 ms on 1280×1600; the GPU path in a worker needs OffscreenCanvas/WebGL and is revisited for the live camera in M7).
+- **Matrix layout:** MediaPipe returns `{ rows, columns, data }`; the docs don't say the order. Measured on a real portrait: `data` is **column-major** (translation at `data[12..14]`, ≈ (0.9, 15.8, −63.2) cm). `src/lib/analysis/matrix.ts` converts it to row-major.
+- **Dev-only route:** files named `page.dev.tsx` are pages only when `NODE_ENV=development` (`pageExtensions` in `next.config.ts`). In production builds they're not routes and aren't bundled: the build lists only `/` and `/_not-found`, no MediaPipe code ends up in `.next/static`, and `tests/e2e/dev-routes.spec.ts` checks `/dev/landmarks` → 404. Alternative rejected: `notFound()` in production, which still ships the page.
+- **Placeholder regions:** M2 draws forehead and cheek *boxes* derived only from landmark sets MediaPipe exports (`FACE_LANDMARKS_FACE_OVAL`, `_LEFT_EYE`, `_RIGHT_EYE`, `_LIPS`), so no mesh indices were guessed. M3 replaces them with polygons from the canonical mesh map, with a cited source (README §6.2).
+- **Test photo:** verification used a public-domain NASA portrait from Wikimedia Commons, kept outside the repo. Committing a face fixture for CI is the owner's decision (M3).
+
 ---
 
 ## Open risks
 
-### R-001 · CSP for MediaPipe (README item K) · owner: M8
-WASM needs `'wasm-unsafe-eval'` in `script-src`; the worker likely needs `worker-src 'self'` (maybe `blob:`). In Next.js, a nonce-based CSP makes every page dynamic; a hash-based CSP keeps static rendering but is harder to maintain. Decide in M8 and record it here.
+### R-001 · CSP for MediaPipe (README item K) · owner: M8 · *partly answered in M2*
+**Measured in M2** (2026-11-07) on a production build: a candidate CSP was injected into every response (page and worker) with Playwright, then a portrait was analysed.
 
-### R-002 · MediaPipe in a module Web Worker (README item P) · owner: M2
-The tasks-vision loader has historically used `importScripts`, which module workers (what Turbopack creates) don't support. tasks-vision 1.2.2 ships a `vision_wasm_module_internal.*` variant that may solve this. M2 proves the worker setup first, with a main-thread fallback.
+| Policy | Result |
+|---|---|
+| `script-src 'self' 'unsafe-inline'` (no wasm keyword) | ✗ `CompileError: WebAssembly.instantiate() … violates … script-src` |
+| + `'wasm-unsafe-eval'` (no `'unsafe-eval'`), `worker-src 'self'`, `connect-src 'self'` | ✓ face detected, **no CSP violations** |
+| same, but `worker-src 'none'` | ✗ worker creation blocked |
+| same, but `connect-src 'none'` | ✗ `.wasm` download blocked |
+
+So the MediaPipe part of the M8 policy is: `script-src 'self' 'wasm-unsafe-eval'`, `worker-src 'self'` (**no `blob:`**: Turbopack's worker is a same-origin file), `connect-src 'self'`. `'unsafe-eval'` is **not** needed. **Still open for M8:** replacing `'unsafe-inline'` for Next's inline scripts. A nonce-based CSP makes every page dynamic; a hash-based one keeps static rendering but is harder to maintain. Decide in M8 and record it here.
+
+### R-002 · MediaPipe in a module Web Worker (README item P) · ✅ closed 2026-11-07 (M2)
+**Finding:** Turbopack starts workers as **classic** scripts even when the code asks for `{ type: "module" }` (its `turbopack-worker-*.js` bootstrap loads the bundle with `importScripts`). With the ES-module loader (`forVisionTasks(path, true)`), MediaPipe's `importScripts` *succeeds* and then fails on module syntax: `Failed to execute 'importScripts' on 'WorkerGlobalScope': Cannot use 'import.meta' outside a module`. **Fix:** the classic loader (`forVisionTasks("/models/wasm", false)`), whose `var ModuleFactory` becomes a worker global. Verified under `next dev` *and* a production build (`next start`): face detected, 478 landmarks, matrix returned, 0 cross-origin requests. No main-thread fallback needed. If Turbopack ever starts real module workers, MediaPipe fails loudly with "ModuleFactory not set": flip `USE_MODULE_LOADER` in the worker.
 
 ### R-003 · Dependabot and pnpm 12 · ✅ closed 2026-11-07
 Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Its first version-update PRs (#1 typescript, #2 @types/node) produced valid lockfiles and passed CI. Both were closed because they bumped majors held back by D-012; `dependabot.yml` now ignores those majors.
