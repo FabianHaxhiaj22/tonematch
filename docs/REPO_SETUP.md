@@ -79,6 +79,13 @@ Workflows: `ci.yml` (job `ci`), `pr-title.yml` (job `pr-title`), `release.yml` (
 ## Dependabot version updates (`.github/dependabot.yml`)
 
 - **npm:** weekly (Monday); minor and patch updates grouped into one PR, majors as separate PRs; commit prefix `chore(deps)`.
+- **Ignored majors** (DECISIONS.md D-012): `typescript` (stay on 5.x until typescript-eslint supports newer), `eslint` (stay on 9 until jsx-a11y supports 10), `@types/node` (must match Node 24). Remove a rule when its reason is gone.
+
+## Dismissed security alerts
+
+| Alert | Package | Dismissed | Reason | Recheck |
+|---|---|---|---|---|
+| #1 GHSA-g3hv-75wg-m249 (medium) | `minimatch@10.2.6` (via typescript-eslint) | 2026-11-07, `tolerable_risk` | Dev-only, lint-time; fix needs a major typescript-eslint doesn't accept yet | When typescript-eslint updates its `minimatch` range (DECISIONS.md R-005) |
 - **GitHub Actions:** weekly (Monday); minor and patch grouped; commit prefix `ci(deps)`.
 
 ## Secrets
