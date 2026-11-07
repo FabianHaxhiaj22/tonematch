@@ -1,0 +1,41 @@
+name: Bug report
+description: Something doesn't work as expected
+title: "fix: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please don't attach face photos.** Describe the lighting and device instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: e.g. Pixel 8, Chrome 150
+  - type: dropdown
+    id: step
+    attributes:
+      label: Which step?
+      options:
+        - Landing / guide
+        - Camera or upload
+        - Calibration
+        - Quiz
+        - Results / share card
+        - Other

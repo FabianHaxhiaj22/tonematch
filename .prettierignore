@@ -1,0 +1,14 @@
+# Generated or downloaded
+pnpm-lock.yaml
+public/models/
+.next/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+next-env.d.ts
+CHANGELOG.md
+
+# Markdown is hand-written prose with long tables; keep it out of Prettier to avoid churn.
+*.md

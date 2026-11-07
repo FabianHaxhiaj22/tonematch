@@ -1,0 +1,8 @@
+# pnpm 12 project settings (pnpm reads settings from this file, not .npmrc).
+# allowBuilds: dependency install scripts are blocked unless listed here as true.
+allowBuilds:
+  esbuild: true # verifies its platform binary; used by tsx
+  sharp: false # prebuilt binaries ship as optional deps; no build needed
+  unrs-resolver: false # prebuilt binaries ship as optional deps; no build needed
+engineStrict: true
+saveExact: true
