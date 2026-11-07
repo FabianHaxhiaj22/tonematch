@@ -68,6 +68,13 @@ Lightweight ADR log (README §15 rule 9). Newest at the bottom. Each entry: date
 - **`PROMPTS.md` is gitignored:** it's the owner's private prompt list and the repo is public (confirmed by the owner 2026-11-07).
 - **Placeholder page:** M0's home page has inline English text; i18n (`en`/`sq` message files) arrives in M8.
 
+### D-015 · 2026-11-07 · Colour engine: published sRGB matrix, D65 white, ITA guard as a parameter
+- **Decision:** `src/lib/color` uses Lindbloom's published 7-decimal sRGB→XYZ (D65) matrix with D65 = (0.95047, 1, 1.08883), and the exact CIE ε = 216/24389, κ = 24389/27. It is dependency-free; culori is a dev-only cross-check.
+- **Why:** These are the most widely published values, so results match common reference tables (red = 53.2408, 80.0925, 67.2032). The published Y row sums to 1.0000001, so greys get |a*| ≤ 1.7e-5: tens of thousands of times below a visible difference. We keep the published values rather than re-deriving them.
+- **ITA guard:** `ita(lab, minB)` returns `null` when b* < `minB`, and throws if `minB` isn't a finite number > 0. The threshold value isn't hard-coded in `src/lib/color`; it will live in `src/lib/analysis/config.ts` as `ITA_MIN_B` (M4), and `depth.ts` falls back to L* on `null` (README §6.4).
+- **Hue for greys:** `hueAngle` returns 0 when a* = b* = 0 (hue undefined); callers check `chroma` first when it matters.
+- **Alternatives:** culori's chromaticity-derived matrix and D65 (differs by ≤ 0.011 in L*, a*, b*); depending on culori at runtime (rejected: extra bundle weight for a few lines of maths).
+
 ---
 
 ## Open risks
@@ -85,5 +92,5 @@ Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Its first ve
 `minimatch@10.2.6` comes in through `@typescript-eslint/typescript-estree@8.72.1` (`^10.2.2`); the fix is in `11.0.1`, a major that typescript-eslint doesn't accept yet, so Dependabot's security update can't apply it. Impact: denial of service via crafted glob patterns, in **lint-time tooling only** (not shipped to users; inputs are our own files). Options were: wait for typescript-eslint to bump; dismiss the alert as tolerable risk; or force `minimatch@11` with a pnpm override (may break typescript-eslint).
 **Decision (owner, 2026-11-07):** alert #1 dismissed via the API as `tolerable_risk`. **Recheck when typescript-eslint updates:** run `pnpm why minimatch`; once no installed version is in the vulnerable range (`>=7.0.0 <11.0.1`), close this risk. If the alert is reopened or a higher-severity advisory appears, revisit.
 
-### R-004 · Coverage threshold has nothing to measure yet · owner: M1
-With `src/lib` empty, Vitest reports 0/0 and the 90% threshold passes trivially. M1 must confirm the threshold actually fails when coverage drops.
+### R-004 · Coverage threshold has nothing to measure yet · ✅ closed 2026-11-07 (M1)
+With `src/lib/color` in place (100% covered), two checks confirmed the 90% threshold fails the run (exit 1) when it should: running only `tests/unit/color/srgb.test.ts` gave 54.5% statements, 26.7% branches, 36.4% functions and 56.3% lines → 4 threshold errors; and a throwaway `src/lib` file imported by no test was reported at 0% and pulled the totals below 90% → threshold errors. So untested files can't slip through.
