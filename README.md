@@ -145,12 +145,12 @@ Design responses to these:
 Implement in `src/lib/analysis/`. Every function must be **pure and unit-tested**. All thresholds go in `src/lib/analysis/config.ts` as named constants with comments, because they **will** need calibration.
 
 ### 6.1 Quality gate (`quality.ts`)
-Return `{ ok: boolean, issues: QualityIssue[] }`. Issues:
+Return `{ ok: boolean, issues: QualityIssue[] }` (plus the raw metrics, for the debug view and calibration). `NO_FACE`/`MULTIPLE_FACES` are blocking; the rest are warnings. Issues:
 - `NO_FACE`, `MULTIPLE_FACES`
 - `FACE_TOO_SMALL` (face bbox < ~25% of image width)
 - `TOO_DARK` / `TOO_BRIGHT`, judged on **exposure, not skin lightness**: the fraction of clipped pixels (near 0 or 255 in any channel) in the face region, plus the whole-image luminance histogram. **Never use the skin sample's mean L\* for this**: deep skin in good light has a naturally low L\* and must not be flagged as "too dark".
-- `COLOR_CAST` (mean a\*/b\* of non-face background strongly shifted; suggest calibration)
-- `BLURRY` (variance of Laplacian below threshold)
+- `COLOR_CAST` (mean a\*/b\* of the **brightest 1%** of non-face pixels strongly shifted; those are the likeliest white/neutral surfaces, so a blue wall or red shirt isn't read as a cast; suggest calibration; D-021)
+- `BLURRY` (variance of Laplacian of the central face area, resampled to a fixed width, below threshold)
 - `HEAD_TILTED` (yaw/pitch from the face transformation matrix beyond ±20°)
 
 Warnings can be overridden by the user ("analyse anyway"), and that lowers confidence.
@@ -161,12 +161,13 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
 - Use Face Landmarker (IMAGE mode, `outputFacialTransformationMatrixes: true`), in `src/workers/landmarker.worker.ts`. The matrix arrives as column-major flat data; convert it with `src/lib/analysis/matrix.ts` (see `docs/DECISIONS.md` D-016).
 - Build polygons for **left cheek, right cheek, forehead** from mesh landmarks. **Choose the indices from the official MediaPipe canonical face mesh map, and document the chosen indices in a comment with a link to the source.** Don't guess them.
 - Exclude eyes, brows, lips, nostrils, and hairline.
+- Clip each polygon to the face outline moved inwards by a configurable margin (`FACE_OUTLINE_INSET_FRACTION`), so a turned head doesn't push a cheek onto hair or the face side (D-020).
 - Rasterise polygons to a mask; collect pixels.
 - Filtering:
   1. Drop pixels in the top 10% and bottom 10% of luminance (specular highlights, shadows).
   2. Drop pixels far from the region's median in Lab (ΔE > configurable threshold, ~15) to remove blemishes/hair.
   3. Require at least N valid pixels per region (e.g. 300) or flag low confidence.
-- Per region compute the **median** Lab. Overall = weighted median (cheeks 0.4 each, forehead 0.2). Report the disagreement between left and right cheek (uneven lighting signal → lowers confidence).
+- Per region compute the **median** Lab. Overall = weighted median (cheeks 0.4 each, forehead 0.2). Report the disagreement between left and right cheek (uneven lighting signal → lowers confidence), as ΔE and split into lightness and colour parts.
 
 ### 6.3 White balance (`whiteBalance.ts`)
 - **Calibrated mode:** the user taps a white paper region → average linear RGB of a small patch → per-channel gains so the patch becomes neutral. Apply to skin pixels before conversion.
