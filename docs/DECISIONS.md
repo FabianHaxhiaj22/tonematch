@@ -100,6 +100,11 @@ Lightweight ADR log (README §15 rule 9). Newest at the bottom. Each entry: date
 - **Onboarding:** `docs/ONBOARDING.md` (nvm/Node 24, corepack/pnpm, `gh auth login` with your own account, repo-local noreply identity, install, `models:fetch`, all checks, workflow, co-author rule).
 - **Alternatives:** GitHub's "Co-authored-by" only on the squash commit (rejected: the owner wants it on every commit of shared work); a CI check enforcing trailers (not now: can't tell automatically whether work was shared).
 
+### D-019 · 2026-11-13 · LF line endings via `.gitattributes`; Windows setup documented
+- **Problem:** on Windows, Git for Windows sets `core.autocrlf=true` in its system config, so files check out with CRLF. Prettier expects LF, and `pnpm format:check` failed on 39 untouched files on a fresh Windows setup (CI on Linux was green).
+- **Decision:** add `.gitattributes` with `* text=auto eol=lf` (binaries marked `binary`), so every OS checks out LF regardless of the developer's git config. Windows setup (nvm-windows, corepack, Git Bash/PowerShell notes) added to `docs/ONBOARDING.md`.
+- **Alternatives:** ask each developer to set `core.autocrlf=false` (rejected: touches global/system config, which README §9.1 forbids, and is easy to forget); Prettier `"endOfLine": "auto"` (rejected: hides the problem and lets CRLF into commits).
+
 ---
 
 ## Open risks

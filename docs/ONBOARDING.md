@@ -36,7 +36,32 @@ pnpm -v                 # inside the repo, must match "packageManager" in packag
 If corepack asks to download pnpm, answer yes (or set `COREPACK_ENABLE_DOWNLOAD_PROMPT=0`).
 
 ### GitHub CLI
-Install from https://cli.github.com (Fedora: `sudo dnf install gh`; Ubuntu/Debian: see the site).
+Install from https://cli.github.com (Fedora: `sudo dnf install gh`; Ubuntu/Debian: see the site; Windows: `winget install GitHub.cli`).
+
+### Windows
+The `nvm` above is the Linux/macOS tool. On Windows use **nvm-windows**, a separate project with similar commands.
+
+```powershell
+winget install --id CoreyButler.NVMforWindows -e
+# Close and reopen the terminal (and VS Code) so the new PATH is picked up.
+nvm install 24          # pass the version explicitly
+nvm use 24
+node -v                 # v24.x
+corepack enable pnpm
+pnpm -v                 # inside the repo: must match "packageManager" in package.json
+```
+- If `nvm use` fails with a permissions error, run the terminal as administrator once or turn on Windows **Developer Mode** (it creates a symlink at `C:\nvm4w\nodejs`).
+- If `node` is still not found, check that `NVM_HOME` and `NVM_SYMLINK` are on your `PATH`, then open a new terminal.
+- Playwright on Windows needs no `--with-deps`: `pnpm exec playwright install chromium` is enough.
+- The first `pnpm install` can be slow. pnpm retries timed-out downloads by itself.
+
+**Line endings.** Git for Windows sets `core.autocrlf=true` by default, which checks files out with CRLF, and `pnpm format:check` then fails on files you didn't touch. The repo's `.gitattributes` forces LF, so a fresh clone is fine. If you cloned before `.gitattributes` existed and have **no uncommitted changes**, re-check out the files once (Git Bash):
+```bash
+git ls-files -z | xargs -0 rm -f && git checkout -- .
+```
+Don't change `core.autocrlf` globally to fix this.
+
+**Shells.** Git Bash and PowerShell both work once the steps above are done. The Husky hooks run through Git Bash's `sh` either way. In Windows PowerShell 5.1, pnpm's normal stderr output (e.g. `$ eslint .`) shows up red as `NativeCommandError`: that's PowerShell wrapping the text, not a failure. Check the exit code (`$LASTEXITCODE`) or use Git Bash. Bash commands in this guide that use `\` line continuations or `$(…)` should be run in Git Bash.
 
 ## 2. Log in to GitHub with your own account
 ```bash
