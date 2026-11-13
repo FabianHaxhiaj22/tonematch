@@ -14,15 +14,31 @@ Every GitHub setting for this repo, so it can be audited or recreated (README §
 | Licence | None: all rights reserved (`"license": "UNLICENSED"`). See DECISIONS.md D-001. |
 | Default branch | `main` |
 
-## Local git config (this repo only, `git config --local`)
+## Collaborators
 
-| Key | Value |
-|---|---|
-| `user.name` | `Fabian Haxhiaj` |
-| `user.email` | `187953086+FabianHaxhiaj22@users.noreply.github.com` |
-| `core.hooksPath` | `.husky/_` (set by `husky` on install) |
+| Login | Name | GitHub id | Role | Since | Checked |
+|---|---|---|---|---|---|
+| `FabianHaxhiaj22` | Fabian Haxhiaj | 187953086 | **admin** (owner) | 2026-11-07 | 2026-11-13 |
+| `tolaerdiona-commits` | Erdiona Tola | 353759092 | **write** (push, triage, pull; no admin/maintain) | before 2026-11-13 (invited by owner) | 2026-11-13 |
 
-Credentials come from gh (`gh auth login` → "authenticate Git: Yes" added gh as the credential helper in `~/.gitconfig`). No global identity is set.
+- Branch protection applies to **both** (`enforce_admins: true`): PRs only, required checks, squash-merge.
+- Only the owner changes repo settings, roles or secrets. Roles were checked, not changed, on 2026-11-13 (DECISIONS.md D-018).
+
+## Local git config (per developer, this repo only, `git config --local`)
+
+Each developer sets their **own** identity on their own machine (`docs/ONBOARDING.md` §4). Nobody changes their global git config for this repo.
+
+| Developer | `user.name` | `user.email` (GitHub noreply) |
+|---|---|---|
+| Fabian | `Fabian Haxhiaj` | `187953086+FabianHaxhiaj22@users.noreply.github.com` |
+| Erdiona | `Erdiona Tola` | `353759092+tolaerdiona-commits@users.noreply.github.com` |
+
+`core.hooksPath` = `.husky/_` (set by `husky` on `pnpm install`). Credentials come from each developer's own `gh auth login` ("authenticate Git: Yes" adds gh as the credential helper in their `~/.gitconfig`; it sets no identity).
+
+## Commit conventions
+
+- Conventional Commits; PR titles are checked by `pr-title` because the squash commit takes the PR title.
+- **Co-author rule** (from 2026-11-13): when a PR is done by both developers, every commit and the squash commit end with `Co-authored-by:` for the developer who isn't that commit's author (addresses in the table above). Single-author work: no human co-author trailer. Never rewrite existing history. See README §9.3 and `docs/ONBOARDING.md` §8.
 
 ## Merge settings
 
@@ -113,4 +129,6 @@ gh api repos/$R/actions/permissions/workflow
 gh api repos/$R --jq .security_and_analysis
 gh api repos/$R/vulnerability-alerts -i 2>&1 | head -1     # 204 = alerts enabled
 gh secret list --repo $R                                   # names only
+gh api repos/$R/collaborators --jq '.[] | "\(.login) \(.role_name)"'   # roles
+gh api repos/$R/invitations --jq '.[].invitee.login'                    # pending invitations
 ```
