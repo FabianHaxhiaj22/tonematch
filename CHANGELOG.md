@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/FabianHaxhiaj22/tonematch/compare/v0.1.0...v0.2.0) (2026-11-13)
+
+
+### Features
+
+* run Face Landmarker in a web worker with a dev-only debug route ([#8](https://github.com/FabianHaxhiaj22/tonematch/issues/8)) ([549a98d](https://github.com/FabianHaxhiaj22/tonematch/commit/549a98dc173f0a2d036081ebd6bde3699180d643))
+
 ## 0.1.0 (2026-11-13)
 
 
