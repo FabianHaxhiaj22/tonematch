@@ -1,9 +1,21 @@
 {
   "name": "tonematch",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "UNLICENSED",
   "description": "Jewellery metal & style advisor with on-device skin-tone analysis",
+  "contributors": [
+    {
+      "name": "Fabian Haxhiaj",
+      "email": "187953086+FabianHaxhiaj22@users.noreply.github.com",
+      "url": "https://github.com/FabianHaxhiaj22"
+    },
+    {
+      "name": "Erdiona Tola",
+      "email": "353759092+tolaerdiona-commits@users.noreply.github.com",
+      "url": "https://github.com/tolaerdiona-commits"
+    }
+  ],
   "engines": {
     "node": ">=24.15.0 <25"
   },

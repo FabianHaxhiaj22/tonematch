@@ -82,7 +82,23 @@ Lightweight ADR log (README §15 rule 9). Newest at the bottom. Each entry: date
 - **Matrix layout:** MediaPipe returns `{ rows, columns, data }`; the docs don't say the order. Measured on a real portrait: `data` is **column-major** (translation at `data[12..14]`, ≈ (0.9, 15.8, −63.2) cm). `src/lib/analysis/matrix.ts` converts it to row-major.
 - **Dev-only route:** files named `page.dev.tsx` are pages only when `NODE_ENV=development` (`pageExtensions` in `next.config.ts`). In production builds they're not routes and aren't bundled: the build lists only `/` and `/_not-found`, no MediaPipe code ends up in `.next/static`, and `tests/e2e/dev-routes.spec.ts` checks `/dev/landmarks` → 404. Alternative rejected: `notFound()` in production, which still ships the page.
 - **Placeholder regions:** M2 draws forehead and cheek *boxes* derived only from landmark sets MediaPipe exports (`FACE_LANDMARKS_FACE_OVAL`, `_LEFT_EYE`, `_RIGHT_EYE`, `_LIPS`), so no mesh indices were guessed. M3 replaces them with polygons from the canonical mesh map, with a cited source (README §6.2).
-- **Test photo:** verification used a public-domain NASA portrait from Wikimedia Commons, kept outside the repo. Committing a face fixture for CI is the owner's decision (M3).
+- **Test photo:** verification used a public-domain NASA portrait from Wikimedia Commons. The owner later decided to commit it as a CI fixture (D-017).
+
+### D-017 · 2026-11-13 · First real-face fixture: public-domain NASA portrait
+- **Decision (owner):** commit `tests/fixtures/faces/nasa-watkins-2017.jpg` (official NASA portrait of astronaut Jessica Watkins, 2017, photographer Bill Stafford / NASA; 1280×1600 rendition from Wikimedia Commons) for pipeline tests in CI. Source, licence and SHA-256 are in `tests/fixtures/SOURCES.md`.
+- **Why:** M2 verification used this image locally; M3's e2e tests need a real face (synthetic patches can't exercise face detection). It's **public domain** (work of a US federal agency; Commons: not copyrighted), so it meets README §11 and rule 6.
+- **Usage rules** (in SOURCES.md): test structure only (face found, landmarks, regions), **never publish analysis results about the person**, and don't imply NASA or the person endorses the project.
+- **Alternatives:** images the owner provides with consent (still possible later); keeping real faces out of the repo entirely (rejected: CI couldn't test detection).
+- **Limitation:** one portrait, one skin depth, studio lighting. See R-006.
+
+### D-018 · 2026-11-13 · Second developer, co-author rule, per-developer identity
+- **Who:** Erdiona Tola (`tolaerdiona-commits`, GitHub id 353759092) joins as co-developer. Repo role checked with `gh api repos/FabianHaxhiaj22/tonematch/collaborators/tolaerdiona-commits/permission` on 2026-11-13: **`write`** (push, triage, pull; no admin or maintain). Not changed. Branch protection (`enforce_admins: true`, required `ci` + `pr-title`) applies to both of us.
+- **Listed as authors:** README §18 "Authors" and `contributors` in `package.json` (name, GitHub noreply email, profile URL).
+- **Emails:** each developer commits with their own **GitHub noreply** address, set repo-locally: Fabian `187953086+FabianHaxhiaj22@users.noreply.github.com`, Erdiona `353759092+tolaerdiona-commits@users.noreply.github.com`. A personal Gmail address was mentioned for Erdiona but is **deliberately not used**: the repo is public and commit trailers are permanent, and GitHub links co-authors through the noreply address just as well.
+- **Co-author rule (from 2026-11-13):** when a PR is done by both of us, every commit **and** the squash commit end with `Co-authored-by:` for whichever of us isn't that commit's author. Single-author work gets no human co-author trailer. **Existing history is never rewritten.** Details and commands: README §9.3, `docs/ONBOARDING.md` §8.
+- **Claude Code on more than one machine:** the old rule "active gh account must be `FabianHaxhiaj22`" would block Erdiona's machine. It's now "the developer at this machine, who must be a listed author"; repo **settings** stay owner-only (README §9.1, §15 rules 12–13).
+- **Onboarding:** `docs/ONBOARDING.md` (nvm/Node 24, corepack/pnpm, `gh auth login` with your own account, repo-local noreply identity, install, `models:fetch`, all checks, workflow, co-author rule).
+- **Alternatives:** GitHub's "Co-authored-by" only on the squash commit (rejected: the owner wants it on every commit of shared work); a CI check enforcing trailers (not now: can't tell automatically whether work was shared).
 
 ---
 
@@ -112,3 +128,6 @@ Dependabot detects pnpm and installs 12.18.0 from `packageManager`. Its first ve
 
 ### R-004 · Coverage threshold has nothing to measure yet · ✅ closed 2026-11-07 (M1)
 With `src/lib/color` in place (100% covered), two checks confirmed the 90% threshold fails the run (exit 1) when it should: running only `tests/unit/color/srgb.test.ts` gave 54.5% statements, 26.7% branches, 36.4% functions and 56.3% lines → 4 threshold errors; and a throwaway `src/lib` file imported by no test was reported at 0% and pulled the totals below 90% → threshold errors. So untested files can't slip through.
+
+### R-006 · Test portraits cover only one skin depth · owner: M3/M4
+The only real-face fixture (D-017) is one studio portrait at one skin depth. README §2 requires testing **across the full range of skin depths** (MST 1–10), and M3 (sampling, quality gate) and M4 (depth/undertone) need varied faces, lighting and cameras to avoid building in bias. **Needed:** more **openly licensed** portraits (public domain, CC0 or CC BY with attribution; e.g. other US-government official portraits) spanning light to very deep skin, plus some natural-light and phone-camera photos, each listed in `tests/fixtures/SOURCES.md` with source, licence and SHA-256. Images from consenting volunteers stay **on their devices** (README §11 calibration set): only numbers are recorded. Close this when the fixture set spans the MST range.

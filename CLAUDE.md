@@ -47,9 +47,12 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
 - Use the Monk Skin Tone scale, not Fitzpatrick (§2). Label MST values as approximate.
 - No hard-coded UI strings: everything goes in the `en` and `sq` message files (§13).
 - Target WCAG 2.2 AA and respect `prefers-reduced-motion` (§13).
-- GitHub (§9.1): never change the global git config; use `git config --local` only. Before any
-  GitHub action, confirm the active `gh` account is the repo owner; if not, stop and ask.
-  Never write tokens or credentials to any file. Record repo settings in `docs/REPO_SETUP.md`.
+- GitHub (§9.1): never change the global git config; `git config --local` only, with the
+  developer's own noreply email. Before any GitHub action, confirm the active `gh` account is
+  the developer at this machine (an author in §18); if not, stop and ask. Repo settings: owner
+  only, recorded in `docs/REPO_SETUP.md`. Never write tokens or credentials to any file.
+- Shared PRs (§9.3): every commit + the squash commit get `Co-authored-by:` for the other
+  author. Not for single-author work. Never rewrite history. New devs: `docs/ONBOARDING.md`.
 
 ## Key commands (README §17)
 `pnpm dev` · `pnpm lint` · `pnpm typecheck` · `pnpm test` · `pnpm validate:data`
