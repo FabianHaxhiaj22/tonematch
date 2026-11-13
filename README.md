@@ -158,7 +158,7 @@ Warnings can be overridden by the user ("analyse anyway"), and that lowers confi
 Not detected, because there is no reliable signal: beauty filters, skin smoothing, sunglasses/tinted glasses. The guide screen covers these, and the UI must not claim to detect them.
 
 ### 6.2 Skin sampling (`sampler.ts`)
-- Use Face Landmarker (IMAGE mode, `outputFacialTransformationMatrixes: true`).
+- Use Face Landmarker (IMAGE mode, `outputFacialTransformationMatrixes: true`), in `src/workers/landmarker.worker.ts`. The matrix arrives as column-major flat data; convert it with `src/lib/analysis/matrix.ts` (see `docs/DECISIONS.md` D-016).
 - Build polygons for **left cheek, right cheek, forehead** from mesh landmarks. **Choose the indices from the official MediaPipe canonical face mesh map, and document the chosen indices in a comment with a link to the source.** Don't guess them.
 - Exclude eyes, brows, lips, nostrils, and hairline.
 - Rasterise polygons to a mask; collect pixels.
@@ -284,12 +284,13 @@ type Recommendation = {
 │   ├── app/[locale]/          # pages: /, /analyze, /quiz, /results, /privacy, /about
 │   ├── app/api/explain/route.ts   # Phase 2
 │   ├── components/            # UI (shadcn in components/ui)
-│   ├── features/analyze/      # camera, upload, calibration, quality UI
+│   ├── app/dev/               # dev-only routes (`page.dev.tsx`): exist under `next dev` only, never in production builds
+│   ├── features/analyze/      # camera, upload, calibration, quality UI; landmarkerClient.ts (worker wrapper)
 │   ├── features/results/      # results, share card, try-on (Phase 2)
 │   ├── lib/color/             # colour math (pure)
 │   ├── lib/analysis/          # quality, sampler, depth, undertone, fusion, config
 │   ├── lib/recommend/         # rules engine (pure)
-│   ├── workers/landmarker.worker.ts
+│   ├── workers/landmarker.worker.ts   # + landmarker.protocol.ts (message types)
 │   ├── data/                  # metals/styles/gemstones/copy JSON
 │   ├── i18n/                  # next-intl config + messages/en.json, messages/sq.json
 │   ├── store/                 # zustand store
