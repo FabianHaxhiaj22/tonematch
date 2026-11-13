@@ -97,7 +97,8 @@ Workflows: `ci.yml` (job `ci`), `pr-title.yml` (job `pr-title`), `release.yml` (
 
 ## release-please
 
-- Config: `release-please-config.json` (release type `node`, `bump-minor-pre-major`), state: `.release-please-manifest.json` (starts at `0.0.0`).
+- Config: `release-please-config.json` (release type `node`, `bump-minor-pre-major`, `initial-version: 0.1.0`), state: `.release-please-manifest.json` (starts at `0.0.0`).
+- `initial-version` matters: with a `0.0.0` manifest, release-please treats the project as never released and otherwise proposes **1.0.0** as the first version (it did, in #6). The first release must be `0.1.0`.
 - On every push to `main` it opens or updates a release PR. Merging that PR bumps `package.json`, updates `CHANGELOG.md`, tags `vX.Y.Z` and creates a GitHub Release.
 - SemVer: `0.x` until the public MVP, `1.0.0` at launch (README §9.4).
 
