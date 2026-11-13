@@ -6,6 +6,7 @@
 import { linearRgbToXyz, xyzToLab, type Lab } from "@/lib/color";
 import {
   CHEEK_DISAGREEMENT_DELTA_E,
+  CHEEK_MIN_PIXEL_RATIO,
   LUMINANCE_TRIM_HIGH,
   LUMINANCE_TRIM_LOW,
   MIN_VALID_PIXELS,
@@ -48,7 +49,18 @@ export type SkinSample = {
   overall: Lab | null;
   /** Regions below the minimum pixel count (lowers confidence). */
   lowPixelRegions: RegionName[];
-  /** ΔE*ab between the cheek medians; null unless both cheeks have enough pixels. */
+  /**
+   * Set when one cheek has fewer than CHEEK_MIN_PIXEL_RATIO × the other cheek's valid pixels
+   * (head turned, clipped, shadowed). The smaller cheek is then left out of `overall` (the
+   * larger cheek carries the weight) and of the cheek comparison. Lowers confidence (M4).
+   */
+  cheekImbalance: { ratio: number; smaller: "leftCheek" | "rightCheek" } | null;
+  /** Regions that contributed to `overall`. */
+  usedRegions: RegionName[];
+  /**
+   * ΔE*ab between the cheek medians; null unless both cheeks have enough pixels and aren't
+   * imbalanced.
+   */
   cheekDeltaE: number | null;
   /**
    * The same difference split into lightness |ΔL*| and colour sqrt(Δa*² + Δb*²). Side light
@@ -126,7 +138,20 @@ export function sampleSkin(
     regions[name] = sampleRegionPixels(img, pixels, opts);
   }
   const lowPixelRegions = REGION_NAMES.filter((n) => !regions[n].enough);
-  const usable = REGION_NAMES.filter((n) => regions[n].enough);
+
+  const left = regions.leftCheek;
+  const right = regions.rightCheek;
+  const larger = Math.max(left.validPixels, right.validPixels);
+  const ratio = larger > 0 ? Math.min(left.validPixels, right.validPixels) / larger : null;
+  const cheekImbalance =
+    ratio !== null && ratio < CHEEK_MIN_PIXEL_RATIO
+      ? {
+          ratio,
+          smaller: (left.validPixels < right.validPixels ? "leftCheek" : "rightCheek") as
+            "leftCheek" | "rightCheek",
+        }
+      : null;
+  const usable = REGION_NAMES.filter((n) => regions[n].enough && n !== cheekImbalance?.smaller);
 
   // Weighted median over pixels: each region contributes its weight, split over its pixels, so
   // a large forehead can't outvote the cheeks. Weights are renormalised over usable regions.
@@ -150,9 +175,7 @@ export function sampleSkin(
     overall = { L: weightedMedian(L, w), a: weightedMedian(a, w), b: weightedMedian(b, w) };
   }
 
-  const left = regions.leftCheek;
-  const right = regions.rightCheek;
-  const both = left.enough && right.enough && left.median && right.median;
+  const both = left.enough && right.enough && left.median && right.median && !cheekImbalance;
   const cheekDeltaE = both ? deltaE76(left.median!, right.median!) : null;
   const cheekDifference = both
     ? {
@@ -166,6 +189,8 @@ export function sampleSkin(
     geometry,
     overall,
     lowPixelRegions,
+    cheekImbalance,
+    usedRegions: usable,
     cheekDeltaE,
     cheekDifference,
     unevenLighting: cheekDeltaE !== null && cheekDeltaE > CHEEK_DISAGREEMENT_DELTA_E,

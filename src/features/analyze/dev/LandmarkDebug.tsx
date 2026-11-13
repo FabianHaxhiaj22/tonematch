@@ -10,7 +10,7 @@
 import { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useRef, useState } from "react";
 import type { Lab } from "@/lib/color";
-import { SKIN_REGION_INDICES, WB_PATCH_RADIUS, type RegionName } from "@/lib/analysis/config";
+import { REGION_LANDMARKS, WB_PATCH_RADIUS, type RegionName } from "@/lib/analysis/config";
 import type { RgbaImage } from "@/lib/analysis/image";
 import { toMat4, translationOf } from "@/lib/analysis/matrix";
 import { assessQuality, type QualityResult } from "@/lib/analysis/quality";
@@ -261,6 +261,7 @@ function SampleTable({ sample }: { sample: SkinSample }) {
         <thead>
           <tr className="text-left">
             <th className="pr-3">Region</th>
+            <th className="pr-3">Area kept by clip</th>
             <th className="pr-3">Pixels in region</th>
             <th className="pr-3">Kept</th>
             <th className="pr-3">Enough</th>
@@ -273,6 +274,10 @@ function SampleTable({ sample }: { sample: SkinSample }) {
             return (
               <tr key={n}>
                 <td className="pr-3">{n}</td>
+                <td className="pr-3">
+                  {Math.round(sample.geometry.keptAreaFraction[n] * 100)}%
+                  {sample.geometry.reordered.includes(n) && " (reordered)"}
+                </td>
                 <td className="pr-3">{r.totalPixels}</td>
                 <td className="pr-3">{r.validPixels}</td>
                 <td className="pr-3">{r.enough ? "yes" : "NO"}</td>
@@ -290,6 +295,9 @@ function SampleTable({ sample }: { sample: SkinSample }) {
         {sample.unevenLighting && " · uneven lighting"}
         {sample.lowPixelRegions.length > 0 &&
           ` · too few pixels: ${sample.lowPixelRegions.join(", ")}`}
+        {sample.cheekImbalance &&
+          ` · cheek imbalance: ${sample.cheekImbalance.smaller} has ${Math.round(sample.cheekImbalance.ratio * 100)}% of the other cheek's pixels, left out`}
+        {` · used: ${sample.usedRegions.join(", ") || "none"}`}
       </p>
     </>
   );
@@ -341,7 +349,7 @@ function draw(
       strokeConnections(ctx, px, set, "rgba(255,255,255,0.6)");
     }
     if (showIndices) {
-      for (const name of REGION_NAMES) labelIndices(ctx, px, SKIN_REGION_INDICES[name]);
+      for (const name of REGION_NAMES) labelIndices(ctx, px, REGION_LANDMARKS[name]);
     }
   }
 

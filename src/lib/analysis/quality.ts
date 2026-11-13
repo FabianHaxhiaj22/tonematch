@@ -4,28 +4,41 @@
  * angle. Beauty filters, skin smoothing and tinted glasses are NOT detected (no reliable
  * signal); the guide screen covers them.
  */
-import { srgbToLab } from "@/lib/color";
+import { linearRgbToXyz, xyzToLab } from "@/lib/color";
 import {
   BLUR_ANALYSIS_WIDTH,
   BLUR_BOX_INSET_FRACTION,
   BLUR_MIN_LAPLACIAN_VARIANCE,
   CLIP_BRIGHT_LEVEL,
   CLIP_DARK_LEVEL,
-  COLOR_CAST_BRIGHT_FRACTION,
+  COLOR_CAST_CANDIDATE_MAX_CHROMA,
+  COLOR_CAST_CLUSTER_RADIUS,
+  COLOR_CAST_ITERATIONS,
   COLOR_CAST_MAX_CHROMA,
+  COLOR_CAST_MAX_L,
+  COLOR_CAST_MIN_L,
   COLOR_CAST_MIN_PIXELS,
+  COLOR_CAST_SAMPLE_STEP,
   FACE_CLIPPED_MAX_FRACTION,
   FACE_MIN_WIDTH_FRACTION,
   IMAGE_HIGH_PERCENTILE,
   IMAGE_LOW_PERCENTILE,
   IMAGE_MAX_P1_LUMA,
   IMAGE_MIN_P99_LUMA,
-  MAX_HEAD_ANGLE_DEG,
+  MAX_PITCH_DEG,
+  MAX_YAW_DEG,
 } from "./config";
 import { boundingBox, type Box, type Point } from "./geometry";
-import { lumaAt, maskFromIndices, rasterizePolygon, type RgbaImage } from "./image";
+import {
+  SRGB_TO_LINEAR_LUT,
+  lumaAt,
+  maskFromIndices,
+  rasterizePolygon,
+  type RgbaImage,
+} from "./image";
 import { headAngles, toMat4, type FlatMatrix, type HeadAngles } from "./matrix";
 import { faceOutline } from "./regions";
+import { median } from "./stats";
 
 export type QualityCode =
   | "NO_FACE"
@@ -56,8 +69,10 @@ export type QualityMetrics = {
   faceBrightClippedFraction: number;
   imageP99Luma: number;
   imageP1Luma: number;
-  /** null when there weren't enough background pixels to judge. */
+  /** Chroma of the neutral-background cluster; null when too few neutral pixels to judge. */
   backgroundCastChroma: number | null;
+  /** Near-neutral background pixels used for the cast check (sampled grid). */
+  backgroundNeutralPixels: number;
   laplacianVariance: number;
   angles: HeadAngles | null;
 };
@@ -94,7 +109,7 @@ export function assessQuality(img: RgbaImage, faces: readonly QualityFace[]): Qu
     faceWidthFraction: outline.width / img.width,
     ...faceClipping(img, facePixels),
     ...lumaPercentiles(img),
-    backgroundCastChroma: backgroundCast(img, hullMask),
+    ...backgroundCast(img, hullMask),
     laplacianVariance: laplacianVariance(
       img,
       insetBox(boundingBox(outline.oval), BLUR_BOX_INSET_FRACTION),
@@ -129,8 +144,13 @@ export function assessQuality(img: RgbaImage, faces: readonly QualityFace[]): Qu
     warn("BLURRY", metrics.laplacianVariance, BLUR_MIN_LAPLACIAN_VARIANCE);
   }
   if (metrics.angles) {
-    const worst = Math.max(Math.abs(metrics.angles.yaw), Math.abs(metrics.angles.pitch));
-    if (worst > MAX_HEAD_ANGLE_DEG) warn("HEAD_TILTED", worst, MAX_HEAD_ANGLE_DEG);
+    // Report the axis that is furthest past its own limit.
+    const yaw = Math.abs(metrics.angles.yaw);
+    const pitch = Math.abs(metrics.angles.pitch);
+    if (yaw > MAX_YAW_DEG || pitch > MAX_PITCH_DEG) {
+      if (yaw / MAX_YAW_DEG >= pitch / MAX_PITCH_DEG) warn("HEAD_TILTED", yaw, MAX_YAW_DEG);
+      else warn("HEAD_TILTED", pitch, MAX_PITCH_DEG);
+    }
   }
   return { ok: issues.length === 0, issues, metrics };
 }
@@ -180,53 +200,61 @@ export function lumaPercentiles(img: RgbaImage): { imageP99Luma: number; imageP1
 }
 
 /**
- * Mean chroma of the brightest non-clipped background pixels (outside `faceMask`), or null if
- * too few. See config.ts COLOR_CAST_* and DECISIONS D-021.
+ * Colour cast from **near-neutral, well-exposed** background pixels (outside `faceMask`): find
+ * the main cluster of such pixels in the a*b* plane and return the chroma of its centre.
+ * Returns null chroma when there are too few neutral pixels to judge (check skipped).
+ * See config.ts COLOR_CAST_* and DECISIONS D-023.
  */
-export function backgroundCast(img: RgbaImage, faceMask: Uint8Array): number | null {
-  const n = img.width * img.height;
-  const hist = new Uint32Array(256);
-  const lumas = new Uint16Array(n); // luma + 1 (1–256); 0 = excluded
-  let count = 0;
-  for (let p = 0; p < n; p++) {
-    if (faceMask[p]) continue;
-    const o = p * 4;
-    const r = img.data[o]!;
-    const g = img.data[o + 1]!;
-    const b = img.data[o + 2]!;
-    const clipped =
-      r >= CLIP_BRIGHT_LEVEL ||
-      g >= CLIP_BRIGHT_LEVEL ||
-      b >= CLIP_BRIGHT_LEVEL ||
-      r <= CLIP_DARK_LEVEL ||
-      g <= CLIP_DARK_LEVEL ||
-      b <= CLIP_DARK_LEVEL;
-    if (clipped) continue;
-    const y = Math.round(lumaAt(img, p));
-    lumas[p] = y + 1; // 0 = excluded
-    hist[y]!++;
-    count++;
+export function backgroundCast(
+  img: RgbaImage,
+  faceMask: Uint8Array,
+): { backgroundCastChroma: number | null; backgroundNeutralPixels: number } {
+  const as: number[] = [];
+  const bs: number[] = [];
+  for (let y = 0; y < img.height; y += COLOR_CAST_SAMPLE_STEP) {
+    for (let x = 0; x < img.width; x += COLOR_CAST_SAMPLE_STEP) {
+      const p = y * img.width + x;
+      if (faceMask[p]) continue;
+      const o = p * 4;
+      const r = img.data[o]!;
+      const g = img.data[o + 1]!;
+      const b = img.data[o + 2]!;
+      if (Math.max(r, g, b) >= CLIP_BRIGHT_LEVEL || Math.min(r, g, b) <= CLIP_DARK_LEVEL) continue;
+      const lab = xyzToLab(
+        linearRgbToXyz({
+          r: SRGB_TO_LINEAR_LUT[r]!,
+          g: SRGB_TO_LINEAR_LUT[g]!,
+          b: SRGB_TO_LINEAR_LUT[b]!,
+        }),
+      );
+      if (lab.L < COLOR_CAST_MIN_L || lab.L > COLOR_CAST_MAX_L) continue;
+      if (Math.hypot(lab.a, lab.b) > COLOR_CAST_CANDIDATE_MAX_CHROMA) continue;
+      as.push(lab.a);
+      bs.push(lab.b);
+    }
   }
-  const want = Math.ceil(count * COLOR_CAST_BRIGHT_FRACTION);
-  if (count < COLOR_CAST_MIN_PIXELS || want === 0) return null;
-  // Luma threshold so that roughly the top `want` pixels are included.
-  let threshold = 255;
-  for (let acc = 0; threshold > 0; threshold--) {
-    acc += hist[threshold]!;
-    if (acc >= want) break;
+  const n = as.length;
+  if (n < COLOR_CAST_MIN_PIXELS) return { backgroundCastChroma: null, backgroundNeutralPixels: n };
+  let ca = median(as);
+  let cb = median(bs);
+  let members = n;
+  for (let it = 0; it < COLOR_CAST_ITERATIONS; it++) {
+    let sa = 0;
+    let sb = 0;
+    members = 0;
+    for (let i = 0; i < n; i++) {
+      if (Math.hypot(as[i]! - ca, bs[i]! - cb) > COLOR_CAST_CLUSTER_RADIUS) continue;
+      sa += as[i]!;
+      sb += bs[i]!;
+      members++;
+    }
+    if (members < COLOR_CAST_MIN_PIXELS) {
+      return { backgroundCastChroma: null, backgroundNeutralPixels: members };
+    }
+    ca = sa / members;
+    cb = sb / members;
   }
-  let sa = 0;
-  let sb = 0;
-  let k = 0;
-  for (let p = 0; p < n; p++) {
-    if (lumas[p]! === 0 || lumas[p]! - 1 < threshold) continue;
-    const o = p * 4;
-    const lab = srgbToLab({ r: img.data[o]!, g: img.data[o + 1]!, b: img.data[o + 2]! });
-    sa += lab.a;
-    sb += lab.b;
-    k++;
-  }
-  return Math.hypot(sa / k, sb / k);
+  return { backgroundCastChroma: Math.hypot(ca, cb), backgroundNeutralPixels: members };
 }
 
 /**

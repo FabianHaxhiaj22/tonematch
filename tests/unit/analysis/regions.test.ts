@@ -1,48 +1,84 @@
 import { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { describe, expect, it } from "vitest";
 import {
+  CHEEK_INDICES,
   FACE_OUTLINE_INSET_FRACTION,
   FACE_OVAL_RING,
-  SKIN_REGION_INDICES,
+  FOREHEAD_HEIGHT_FRACTION,
+  FOREHEAD_LOWER_RING,
+  FOREHEAD_UPPER_RING,
+  REGION_LANDMARKS,
 } from "@/lib/analysis/config";
-import { pointInPolygon, polygonArea, type Point, type Polygon } from "@/lib/analysis/geometry";
+import {
+  isSimplePolygon,
+  pointInPolygon,
+  polygonArea,
+  type Point,
+  type Polygon,
+} from "@/lib/analysis/geometry";
 import {
   REGION_NAMES,
   buildSampledRegions,
   buildSkinRegions,
   faceOutline,
+  foreheadPolygon,
   indicesOf,
 } from "@/lib/analysis/regions";
-import { loadFixtureLandmarks, toPixels } from "./helpers";
+import { canonicalVertices, loadFixtureLandmarks, poseLandmarks, toPixels } from "./helpers";
 
 const centroid = (poly: Polygon): Point => ({
   x: poly.reduce((s, p) => s + p.x, 0) / poly.length,
   y: poly.reduce((s, p) => s + p.y, 0) / poly.length,
 });
 
-describe("buildSkinRegions", () => {
-  it("maps each configured index to its landmark, in order", () => {
-    const points: Point[] = Array.from({ length: 478 }, (_, i) => ({ x: i, y: 2 * i }));
-    const regions = buildSkinRegions(points);
-    for (const name of REGION_NAMES) {
-      expect(regions[name]).toEqual(SKIN_REGION_INDICES[name].map((i) => ({ x: i, y: 2 * i })));
+const set = (connections: readonly { start: number; end: number }[][]) =>
+  new Set(connections.flatMap(indicesOf));
+const BROWS = set([
+  FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+  FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+]);
+
+/** Mirror partner of each canonical vertex (x → −x). */
+function mirrorOf(i: number): number {
+  const v = canonicalVertices();
+  const [x, y, z] = v[i]!;
+  let best = -1;
+  let bestD = Infinity;
+  v.forEach(([a, b, c], k) => {
+    const d = Math.hypot(a + x, b - y, c - z);
+    if (d < bestD) {
+      bestD = d;
+      best = k;
     }
+  });
+  expect(bestD).toBeLessThan(1e-5);
+  return best;
+}
+
+describe("buildSkinRegions", () => {
+  const points: Point[] = Array.from({ length: 478 }, (_, i) => ({ x: i, y: 2 * i }));
+
+  it("maps each cheek index to its landmark, in order", () => {
+    const r = buildSkinRegions(points);
+    expect(r.rightCheek).toEqual(CHEEK_INDICES.rightCheek.map((i) => ({ x: i, y: 2 * i })));
+    expect(r.leftCheek).toEqual(CHEEK_INDICES.leftCheek.map((i) => ({ x: i, y: 2 * i })));
+  });
+
+  it("builds the forehead from the lower ring and a top edge part-way to the face oval", () => {
+    const f = foreheadPolygon(points, 0.5);
+    expect(f).toHaveLength(2 * FOREHEAD_LOWER_RING.length);
+    expect(f.slice(0, 5)).toEqual(FOREHEAD_LOWER_RING.map((i) => ({ x: i, y: 2 * i })));
+    // Top edge, reversed: midpoint between 299 and 297 first, between 69 and 67 last.
+    expect(f[5]).toEqual({ x: (299 + 297) / 2, y: 299 + 297 });
+    expect(f[9]).toEqual({ x: (69 + 67) / 2, y: 69 + 67 });
+    expect(buildSkinRegions(points).forehead).toEqual(
+      foreheadPolygon(points, FOREHEAD_HEIGHT_FRACTION),
+    );
   });
 
   it("copies points (doesn't keep extra fields such as z)", () => {
-    const points = Array.from({ length: 478 }, () => ({ x: 1, y: 2, z: 3 }));
-    expect(buildSkinRegions(points).forehead[0]).toStrictEqual({ x: 1, y: 2 });
-  });
-
-  it("accepts custom indices", () => {
-    const points: Point[] = [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 1, y: 1 },
-    ];
-    const r = buildSkinRegions(points, { rightCheek: [0, 1, 2], leftCheek: [2, 1], forehead: [0] });
-    expect(r.leftCheek).toEqual([points[2], points[1]]);
-    expect(r.forehead).toEqual([points[0]]);
+    const pts = Array.from({ length: 478 }, () => ({ x: 1, y: 2, z: 3 }));
+    expect(buildSkinRegions(pts).rightCheek[0]).toStrictEqual({ x: 1, y: 2 });
   });
 
   it("throws when a landmark is missing", () => {
@@ -63,7 +99,7 @@ describe("indicesOf", () => {
 });
 
 describe("config indices", () => {
-  const all = REGION_NAMES.flatMap((n) => [...SKIN_REGION_INDICES[n]]);
+  const all = REGION_NAMES.flatMap((n) => [...REGION_LANDMARKS[n]]);
 
   it("uses valid mesh indices (0–467, no irises) without duplicates", () => {
     for (const i of all) {
@@ -73,36 +109,29 @@ describe("config indices", () => {
     expect(new Set(all).size).toBe(all.length);
   });
 
-  it("cheeks have the same number of vertices (mirror pair)", () => {
-    expect(SKIN_REGION_INDICES.leftCheek.length).toBe(SKIN_REGION_INDICES.rightCheek.length);
-  });
-
-  it("never uses eye, iris, lip or face-oval landmarks (MediaPipe's own sets)", () => {
-    const excluded = new Set(
-      [
-        FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
-        FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
-        FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
-        FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
-        FaceLandmarker.FACE_LANDMARKS_LIPS,
-        FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-      ].flatMap(indicesOf),
-    );
+  it("never uses eye, iris, brow, lip or face-oval landmarks as region vertices", () => {
+    const excluded = set([
+      FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
+      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
+      FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
+      FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
+      FaceLandmarker.FACE_LANDMARKS_LIPS,
+      FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+      FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+    ]);
     expect(all.filter((i) => excluded.has(i))).toEqual([]);
   });
 
-  it("only the forehead touches the brows, and only along their top edge", () => {
-    const brows = new Set(
-      [
-        FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
-        FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
-      ].flatMap(indicesOf),
-    );
-    expect(SKIN_REGION_INDICES.rightCheek.filter((i) => brows.has(i))).toEqual([]);
-    expect(SKIN_REGION_INDICES.leftCheek.filter((i) => brows.has(i))).toEqual([]);
-    expect(SKIN_REGION_INDICES.forehead.filter((i) => brows.has(i)).sort((a, b) => a - b)).toEqual([
-      66, 107, 296, 336,
-    ]);
+  it("the forehead's upper ring is the face oval (only used to place the top edge)", () => {
+    const oval = new Set<number>(FACE_OVAL_RING);
+    for (const i of FOREHEAD_UPPER_RING) expect(oval.has(i)).toBe(true);
+  });
+
+  it("is mirror-symmetric on the canonical mesh (x → −x)", () => {
+    expect(CHEEK_INDICES.rightCheek.map(mirrorOf)).toEqual([...CHEEK_INDICES.leftCheek]);
+    expect(FOREHEAD_LOWER_RING.map(mirrorOf)).toEqual([...FOREHEAD_LOWER_RING].reverse());
+    expect(FOREHEAD_UPPER_RING.map(mirrorOf)).toEqual([...FOREHEAD_UPPER_RING].reverse());
   });
 
   it("FACE_OVAL_RING is MediaPipe's face oval, as one closed ring of its edges", () => {
@@ -118,6 +147,62 @@ describe("config indices", () => {
   });
 });
 
+describe("head poses (canonical mesh rotated and projected)", () => {
+  const poses: { yaw: number; pitch: number; roll: number }[] = [];
+  for (const yaw of [-30, -19, -10, 0, 10, 19, 30]) {
+    for (const pitch of [-20, 0, 20]) {
+      for (const roll of [-20, -16.5, 0, 16.5, 20]) poses.push({ yaw, pitch, roll });
+    }
+  }
+
+  it.each(poses)("no region polygon self-intersects at %o", (pose) => {
+    const { landmarks } = poseLandmarks(pose, 800, 1000);
+    const raw = buildSkinRegions(landmarks);
+    for (const name of REGION_NAMES) expect(isSimplePolygon(raw[name])).toBe(true);
+    expect(buildSampledRegions(landmarks).reordered).toEqual([]);
+  });
+
+  it("the forehead lies above every brow landmark when the face is level", () => {
+    for (const pitch of [-20, 0, 20]) {
+      const { landmarks } = poseLandmarks({ pitch }, 800, 1000);
+      const browTop = Math.min(...[...BROWS].map((i) => landmarks[i]!.y));
+      const foreheadBottom = Math.max(...buildSkinRegions(landmarks).forehead.map((p) => p.y));
+      expect(foreheadBottom).toBeLessThan(browTop);
+    }
+  });
+
+  it("frontal: nothing is clipped and both cheeks match", () => {
+    const g = buildSampledRegions(poseLandmarks({}, 800, 1000).landmarks);
+    expect(g.keptAreaFraction.rightCheek).toBeCloseTo(1, 6);
+    expect(g.keptAreaFraction.leftCheek).toBeCloseTo(1, 6);
+    expect(polygonArea(g.regions.leftCheek)).toBeCloseTo(polygonArea(g.regions.rightCheek), 6);
+  });
+
+  it("a strong head turn clips the far cheek much more than the near one", () => {
+    // Negative yaw turns the subject's right cheek away (it appears on the image's left).
+    const g = buildSampledRegions(poseLandmarks({ yaw: -25 }, 800, 1000).landmarks);
+    expect(g.keptAreaFraction.rightCheek).toBeLessThan(0.5);
+    expect(g.keptAreaFraction.leftCheek).toBeCloseTo(1, 6);
+  });
+
+  it("reorders a self-intersecting cheek (swapped landmarks) instead of losing its area", () => {
+    const { landmarks } = poseLandmarks({}, 800, 1000);
+    const good = buildSampledRegions(landmarks);
+    const swapped = [...landmarks];
+    const [a, b] = [CHEEK_INDICES.rightCheek[1], CHEEK_INDICES.rightCheek[4]];
+    [swapped[a], swapped[b]] = [swapped[b]!, swapped[a]!];
+    expect(isSimplePolygon(buildSkinRegions(swapped).rightCheek)).toBe(false);
+    const fixed = buildSampledRegions(swapped);
+    expect(fixed.reordered).toEqual(["rightCheek"]);
+    expect(isSimplePolygon(fixed.regions.rightCheek)).toBe(true);
+    // The cheek is star-shaped, so angle order gives back its convex-ish outline: at least as
+    // much area as the intended polygon (the notch at 50 may fill in), never a lost lobe.
+    expect(polygonArea(fixed.regions.rightCheek)).toBeGreaterThanOrEqual(
+      polygonArea(good.regions.rightCheek) * 0.99,
+    );
+  });
+});
+
 /**
  * Structure only, on the real-face fixture (tests/fixtures/SOURCES.md: never assert the
  * person's colour values). Landmarks were exported once from /dev/landmarks, so no WASM here.
@@ -127,7 +212,7 @@ describe("regions on the NASA fixture landmarks", () => {
   const face = fx.faces[0]!;
   const px = toPixels(face.landmarks, fx.imageWidth, fx.imageHeight);
   const raw = buildSkinRegions(px);
-  const { outline, regions } = buildSampledRegions(px);
+  const { outline, regions, reordered } = buildSampledRegions(px);
   const at = (i: number) => px[i]!;
 
   it("has one face with 478 landmarks", () => {
@@ -135,10 +220,21 @@ describe("regions on the NASA fixture landmarks", () => {
     expect(face.landmarks).toHaveLength(478);
   });
 
-  it("every configured region vertex lies inside the face oval", () => {
+  it("region polygons are simple (no self-intersection) and weren't reordered", () => {
+    for (const name of REGION_NAMES) expect(isSimplePolygon(raw[name])).toBe(true);
+    expect(reordered).toEqual([]);
+  });
+
+  it("every region vertex lies inside the face oval", () => {
     for (const name of REGION_NAMES) {
       for (const p of raw[name]) expect(pointInPolygon(p, outline.oval)).toBe(true);
     }
+  });
+
+  it("the forehead lies entirely above the brows and contains no brow landmark", () => {
+    const browTop = Math.min(...[...BROWS].map((i) => at(i).y));
+    for (const p of regions.forehead) expect(p.y).toBeLessThan(browTop);
+    for (const i of BROWS) expect(pointInPolygon(at(i), regions.forehead)).toBe(false);
   });
 
   it("clipped regions stay at least the inset away from the outline", () => {
@@ -146,7 +242,6 @@ describe("regions on the NASA fixture landmarks", () => {
     for (const name of REGION_NAMES) {
       expect(regions[name].length).toBeGreaterThanOrEqual(3);
       for (const p of regions[name]) {
-        // Moving the point outwards by just under the inset in any direction stays inside.
         for (const [dx, dy] of [
           [1, 0],
           [-1, 0],
@@ -173,9 +268,9 @@ describe("regions on the NASA fixture landmarks", () => {
   });
 
   it("regions sit in the right places relative to eyes, nose tip and mouth", () => {
-    const eyesTop = Math.min(at(159).y, at(386).y); // upper eyelids (RIGHT_EYE / LEFT_EYE sets)
+    const eyesTop = Math.min(at(159).y, at(386).y); // upper eyelids
     const eyesBottom = Math.max(at(145).y, at(374).y); // lower eyelids
-    const mouthTop = at(0).y; // upper lip, centre (LIPS set)
+    const mouthTop = at(0).y; // upper lip, centre
     const f = centroid(regions.forehead);
     const r = centroid(regions.rightCheek);
     const l = centroid(regions.leftCheek);
@@ -184,8 +279,7 @@ describe("regions on the NASA fixture landmarks", () => {
       expect(c.y).toBeGreaterThan(eyesBottom);
       expect(c.y).toBeLessThan(mouthTop);
     }
-    // Subject's right cheek appears on the image's left.
-    expect(r.x).toBeLessThan(at(1).x); // 1 = nose tip (NOSE set)
+    expect(r.x).toBeLessThan(at(1).x); // 1 = nose tip; subject's right is on the image's left
     expect(l.x).toBeGreaterThan(at(1).x);
   });
 

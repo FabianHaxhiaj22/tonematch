@@ -61,6 +61,28 @@ describe("rasterizePolygon", () => {
   });
 });
 
+describe("rasterizePolygon fill rule (nonzero)", () => {
+  it("keeps both lobes of a bow-tie", () => {
+    const bowTie: Point[] = [
+      { x: 0, y: 0 },
+      { x: 20, y: 20 },
+      { x: 20, y: 0 },
+      { x: 0, y: 20 },
+    ];
+    const idx = new Set(rasterizePolygon(bowTie, 20, 20));
+    expect(idx.has(10 * 20 + 2)).toBe(true); // left lobe
+    expect(idx.has(10 * 20 + 17)).toBe(true); // right lobe
+  });
+
+  it("keeps the overlapping centre of a pentagram (even-odd would drop it)", () => {
+    const star: Point[] = [0, 2, 4, 1, 3].map((k) => ({
+      x: 50 + 40 * Math.cos((2 * Math.PI * k) / 5 - Math.PI / 2),
+      y: 50 + 40 * Math.sin((2 * Math.PI * k) / 5 - Math.PI / 2),
+    }));
+    expect(new Set(rasterizePolygon(star, 100, 100)).has(50 * 100 + 50)).toBe(true);
+  });
+});
+
 describe("maskFromIndices", () => {
   it("sets 1 at the given indices only", () => {
     expect(Array.from(maskFromIndices(Uint32Array.from([0, 3]), 2, 2))).toEqual([1, 0, 0, 1]);

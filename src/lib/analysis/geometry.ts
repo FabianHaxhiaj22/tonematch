@@ -50,6 +50,41 @@ export function pointInPolygon(p: Point, poly: readonly Point[]): boolean {
   return inside;
 }
 
+/** Do the open segments p1–p2 and p3–p4 cross (proper intersection, not just touch)? */
+function segmentsCross(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
+  const d1 = cross(p3, p4, p1);
+  const d2 = cross(p3, p4, p2);
+  const d3 = cross(p1, p2, p3);
+  const d4 = cross(p1, p2, p4);
+  return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+/**
+ * True if no two non-adjacent edges of the closed polygon cross. A self-intersecting
+ * ("bow-tie") polygon means the vertex order no longer describes the intended area.
+ */
+export function isSimplePolygon(poly: readonly Point[]): boolean {
+  const n = poly.length;
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 2; j < n; j++) {
+      if (i === 0 && j === n - 1) continue; // adjacent through the closing edge
+      if (segmentsCross(poly[i]!, poly[(i + 1) % n]!, poly[j]!, poly[(j + 1) % n]!)) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Reorder vertices by angle around their centroid. For a star-shaped region (all our skin
+ * regions are, seen from their centroid) this gives back a simple polygon whatever order the
+ * points arrived in.
+ */
+export function orderByAngle(poly: readonly Point[]): Polygon {
+  const cx = poly.reduce((s, p) => s + p.x, 0) / poly.length;
+  const cy = poly.reduce((s, p) => s + p.y, 0) / poly.length;
+  return [...poly].sort((a, b) => Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx));
+}
+
 /** Convex hull (Andrew's monotone chain), counter-clockwise in maths orientation. */
 export function convexHull(points: readonly Point[]): Polygon {
   const pts = [...points].sort((a, b) => a.x - b.x || a.y - b.y);

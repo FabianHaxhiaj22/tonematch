@@ -4,7 +4,8 @@ import {
   BLUR_MIN_LAPLACIAN_VARIANCE,
   COLOR_CAST_MAX_CHROMA,
   IMAGE_MIN_P99_LUMA,
-  MAX_HEAD_ANGLE_DEG,
+  MAX_PITCH_DEG,
+  MAX_YAW_DEG,
 } from "@/lib/analysis/config";
 import type { RgbaImage } from "@/lib/analysis/image";
 import {
@@ -20,6 +21,7 @@ import {
   noisy,
   rotationMatrix,
   syntheticFace,
+  syntheticPoseFace,
   toPixels,
   type SyntheticFace,
 } from "./helpers";
@@ -155,6 +157,14 @@ describe("colour cast", () => {
     expect(r.issues.map((i) => i.code)).toContain("COLOR_CAST");
   });
 
+  it.each([
+    ["cool", { r: 0.75, g: 1, b: 1.4 }],
+    ["strong tungsten", { r: 1.5, g: 1, b: 0.5 }],
+  ])("a %s cast on a neutral scene is flagged", (_name, k) => {
+    const f = syntheticFace(W, H, { background: studio, skin });
+    expect(codes(transform(f.img, k), [asFace(f)])).toContain("COLOR_CAST");
+  });
+
   it("a coloured wall with something white in view is NOT a cast", () => {
     const blueWall = (x: number, y: number): Rgb255 =>
       x < 90 && y < 90 ? WHITE_CARD : { r: 60, g: 110, b: 190 };
@@ -162,9 +172,49 @@ describe("colour cast", () => {
     expect(codes(f.img, [asFace(f)])).not.toContain("COLOR_CAST");
   });
 
-  it("skips the check when there is too little background", () => {
+  /** Saturated red folds: bright and dark stripes, as a curtain under neutral light. */
+  const redCurtain = (x: number): Rgb255 => {
+    const shade = 0.55 + 0.45 * Math.sin(x / 9);
+    return { r: Math.round(200 * shade), g: Math.round(22 * shade), b: Math.round(28 * shade) };
+  };
+
+  it("a saturated red curtain in neutral light is NOT a cast (check skipped)", () => {
+    const f = syntheticFace(W, H, { background: redCurtain, skin });
+    const r = assessQuality(f.img, [asFace(f)]);
+    expect(r.metrics!.backgroundCastChroma).toBeNull();
+    expect(r.issues.map((i) => i.code)).not.toContain("COLOR_CAST");
+  });
+
+  it("a red curtain next to a grey wall in neutral light is NOT a cast", () => {
+    const bg = (x: number): Rgb255 => (x < W / 2 ? redCurtain(x) : GREY);
+    const f = syntheticFace(W, H, { background: bg, skin });
+    const r = assessQuality(f.img, [asFace(f)]);
+    expect(r.metrics!.backgroundCastChroma).toBeLessThan(COLOR_CAST_MAX_CHROMA);
+    expect(r.issues.map((i) => i.code)).not.toContain("COLOR_CAST");
+  });
+
+  it("the real-photo case: red curtain, head turned (yaw -19, roll -16.5)", () => {
+    const f = syntheticPoseFace(W, H, { yaw: -19, roll: -16.5 }, { background: redCurtain, skin });
+    const found = codes(f.img, [asFace(f)]);
+    expect(found).not.toContain("COLOR_CAST");
+    expect(found).toContain("HEAD_TILTED"); // yaw 19 > 15
+  });
+
+  it("skips the check when there are too few neutral background pixels", () => {
     const img = syntheticFace(20, 20, { background: GREY, skin: GREY }).img;
-    expect(backgroundCast(img, new Uint8Array(400))).toBeNull();
+    expect(backgroundCast(img, new Uint8Array(400))).toEqual({
+      backgroundCastChroma: null,
+      backgroundNeutralPixels: 100, // 20 x 20 sampled every 2 px
+    });
+  });
+
+  it("skips the check when the neutral pixels don't form one cluster", () => {
+    // Half warm-grey, half cool-grey: both within the candidate chroma, more than the radius apart.
+    const img = syntheticFace(80, 80, {
+      background: (x) => (x < 40 ? { r: 150, g: 120, b: 95 } : { r: 95, g: 120, b: 150 }),
+      skin: GREY,
+    }).img;
+    expect(backgroundCast(img, new Uint8Array(80 * 80)).backgroundCastChroma).toBeNull();
   });
 });
 
@@ -193,18 +243,21 @@ describe("head angle", () => {
     );
 
   it.each([
-    [25, 0, 0, 25],
-    [-30, 0, 0, 30],
-    [0, 22, 0, 22],
-    [0, -28, 0, 28],
-  ])("yaw %d / pitch %d / roll %d → HEAD_TILTED (%d°)", (yaw, pitch, roll, worst) => {
+    [16, 0, 0, 16, MAX_YAW_DEG],
+    [-19, 0, -16.5, 19, MAX_YAW_DEG],
+    [-30, 0, 0, 30, MAX_YAW_DEG],
+    [0, 22, 0, 22, MAX_PITCH_DEG],
+    [0, -28, 0, 28, MAX_PITCH_DEG],
+    [16, 30, 0, 30, MAX_PITCH_DEG], // pitch is further past its limit (1.5x) than yaw
+  ])("yaw %d / pitch %d / roll %d → HEAD_TILTED (%d° vs %d°)", (yaw, pitch, roll, v, limit) => {
     const issue = tilt(yaw, pitch, roll)!;
-    expect(issue.value).toBeCloseTo(worst, 6);
-    expect(issue.limit).toBe(MAX_HEAD_ANGLE_DEG);
+    expect(issue.value).toBeCloseTo(v, 6);
+    expect(issue.limit).toBe(limit);
   });
 
-  it("small angles and pure roll are fine", () => {
-    expect(tilt(15, -10, 0)).toBeUndefined();
+  it("angles within the limits and pure roll are fine", () => {
+    expect(tilt(14, -18, 0)).toBeUndefined();
+    expect(tilt(-15, 20, 0)).toBeUndefined();
     expect(tilt(0, 0, 45)).toBeUndefined();
   });
 

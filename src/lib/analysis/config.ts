@@ -7,7 +7,7 @@
 // ─── Skin regions (README §6.2) ─────────────────────────────────────────────────────────────
 
 /**
- * Landmark indices of the skin-sampling polygons, in drawing order.
+ * Landmark indices of the skin-sampling regions.
  *
  * **Source:** MediaPipe's canonical face mesh, which is the topology the Face Landmarker's
  * 478-point output uses (indices 0–467; 468–477 are the irises):
@@ -24,21 +24,41 @@
  *   clipping to the inset face outline (FACE_OUTLINE_INSET_FRACTION).
  * - Left cheek = exact 3D mirror of the right cheek (vertex with x → −x in the .obj), so both
  *   cheeks cover the same anatomy and their disagreement is a fair lighting signal.
- * - Forehead: the central band from the top edge of the brows (66–107, 336–296) up to one row
- *   below the face-oval top (10/109/338), where the hairline usually is. Brow hairs at the
- *   lower edge are removed by the pixel filters.
- * - Checked by script and in tests: no eye, iris, lip, nose or face-oval landmark is a vertex
- *   of, or lies inside, any region (the forehead's lower edge is the brows' top edge, by design).
+ * - Forehead (revised 2026-11-13 after a real-photo test, D-023): the first version used the
+ *   brows' top edge (66–107–9–336–296) as its lower edge, which overlapped the brows on a real
+ *   face. It now starts **one vertex ring higher**: FOREHEAD_LOWER_RING, each vertex of which
+ *   shares a mesh triangle with a brow-top vertex but is not a brow landmark. The ring above it
+ *   is the face oval (FOREHEAD_UPPER_RING = 67–109–10–338–297), i.e. the hairline, so the top
+ *   edge is interpolated FOREHEAD_HEIGHT_FRACTION of the way towards it instead of using it.
+ * - Checked by script and in tests: no eye, iris, brow, lip, nose or face-oval landmark is a
+ *   vertex of, or lies inside, any region (the face-oval ring is only used to place the
+ *   forehead's top edge).
  *
  * "Left"/"right" follow MediaPipe: the **subject's** left, which appears on the image's right.
  */
-export const SKIN_REGION_INDICES = {
+export const CHEEK_INDICES = {
   rightCheek: [117, 118, 101, 36, 205, 187, 50],
   leftCheek: [346, 347, 330, 266, 425, 411, 280],
-  forehead: [69, 108, 151, 337, 299, 296, 336, 9, 107, 66],
 } as const;
 
-export type RegionName = keyof typeof SKIN_REGION_INDICES;
+/** Forehead lower edge, from the image's left (subject's right) to the image's right. */
+export const FOREHEAD_LOWER_RING = [69, 108, 151, 337, 299] as const;
+/** Face-oval landmarks above FOREHEAD_LOWER_RING, pairwise (69→67, 108→109, 151→10, …). */
+export const FOREHEAD_UPPER_RING = [67, 109, 10, 338, 297] as const;
+/**
+ * The forehead's top edge lies this fraction of the way from the lower ring to the face oval
+ * (hairline). 0.5 keeps clear of fringes and low hairlines; the ΔE filter removes stray hair.
+ */
+export const FOREHEAD_HEIGHT_FRACTION = 0.5;
+
+export type RegionName = "rightCheek" | "leftCheek" | "forehead";
+
+/** Every landmark index a region uses (for labels and tests). */
+export const REGION_LANDMARKS: Readonly<Record<RegionName, readonly number[]>> = {
+  rightCheek: CHEEK_INDICES.rightCheek,
+  leftCheek: CHEEK_INDICES.leftCheek,
+  forehead: FOREHEAD_LOWER_RING,
+};
 
 /**
  * Face outline as an ordered ring: MediaPipe's FACEMESH_FACE_OVAL edges (same source as
@@ -89,6 +109,13 @@ export const REGION_WEIGHTS: Readonly<Record<RegionName, number>> = {
  */
 export const CHEEK_DISAGREEMENT_DELTA_E = 6;
 
+/**
+ * If one cheek keeps fewer than this fraction of the other cheek's valid pixels (head turned,
+ * clipped, shadowed), the smaller cheek is left out of the overall median so the larger cheek
+ * carries its weight, and the sample is flagged (lower confidence in M4).
+ */
+export const CHEEK_MIN_PIXEL_RATIO = 0.4;
+
 // ─── Quality gate (README §6.1) ─────────────────────────────────────────────────────────────
 
 /** FACE_TOO_SMALL when the face-oval width is below this fraction of the image width. */
@@ -119,24 +146,34 @@ export const IMAGE_MIN_P99_LUMA = 90;
 export const IMAGE_MAX_P1_LUMA = 150;
 
 /**
- * Colour cast (README §6.1, refined in DECISIONS D-021): mean a* and b* of the **brightest**
- * background pixels (outside the face outline), which are most likely to be white/neutral
- * surfaces. Using the whole background would read a blue wall or a red shirt as a "cast".
- * - Take the top COLOR_CAST_BRIGHT_FRACTION of non-clipped background pixels by luma.
- * - COLOR_CAST when the chroma of their mean, sqrt(ā² + b̄²), exceeds COLOR_CAST_MAX_CHROMA.
- * - Skip the check (no issue) if fewer than COLOR_CAST_MIN_PIXELS background pixels remain.
- * 1% rather than 5%: on the NASA fixture (neutral studio white balance) the top 1% read as
- * neutral (chroma ≈ 3), while 5% reached mid-bright coloured objects and hands (≈ 11). The
- * "background" is everything outside the face, so it includes hands, neck and clothing.
+ * Colour cast (README §6.1; revised 2026-11-13, D-023). Measured only on **near-neutral,
+ * well-exposed** background pixels (outside the face outline), so saturated objects (a red
+ * curtain, a blue wall) can't read as a cast:
+ * 1. Candidates: not clipped, L* in [COLOR_CAST_MIN_L, COLOR_CAST_MAX_L], chroma ≤
+ *    COLOR_CAST_CANDIDATE_MAX_CHROMA. Sampled on a grid every COLOR_CAST_SAMPLE_STEP px.
+ * 2. Start at the candidates' median (a*, b*), then COLOR_CAST_ITERATIONS times re-centre on the
+ *    mean of candidates within COLOR_CAST_CLUSTER_RADIUS: this follows the main cluster of
+ *    neutral surfaces wherever a cast has moved it. (A fixed low-chroma cut alone hides strong
+ *    casts: they push neutrals above the cut.)
+ * 3. COLOR_CAST when the cluster centre's chroma exceeds COLOR_CAST_MAX_CHROMA. Skip the check
+ *    (no issue) if fewer than COLOR_CAST_MIN_PIXELS candidates, or cluster members, remain.
+ * Limitation: a tinted wall in neutral light and a grey wall in tinted light look the same;
+ * white-paper calibration (README §6.3) is the answer to that.
  */
-export const COLOR_CAST_BRIGHT_FRACTION = 0.01;
-export const COLOR_CAST_MAX_CHROMA = 10;
+export const COLOR_CAST_SAMPLE_STEP = 2;
+export const COLOR_CAST_MIN_L = 35;
+export const COLOR_CAST_MAX_L = 90;
+export const COLOR_CAST_CANDIDATE_MAX_CHROMA = 30;
+export const COLOR_CAST_CLUSTER_RADIUS = 10;
+export const COLOR_CAST_ITERATIONS = 4;
 export const COLOR_CAST_MIN_PIXELS = 500;
+export const COLOR_CAST_MAX_CHROMA = 10;
 
 /**
  * Blur: variance of the 4-neighbour Laplacian of the face's luma, after resampling the central
- * face box (BLUR_BOX_INSET_FRACTION) to BLUR_ANALYSIS_WIDTH px wide (makes the threshold independent of image size).
- * BLURRY when the variance is below BLUR_MIN_LAPLACIAN_VARIANCE. Heuristic; calibrate.
+ * face box (BLUR_BOX_INSET_FRACTION) to BLUR_ANALYSIS_WIDTH px wide, so the threshold doesn't
+ * depend on image size. BLURRY when the variance is below BLUR_MIN_LAPLACIAN_VARIANCE.
+ * Heuristic; calibrate.
  */
 export const BLUR_ANALYSIS_WIDTH = 256;
 /**
@@ -147,8 +184,16 @@ export const BLUR_ANALYSIS_WIDTH = 256;
 export const BLUR_BOX_INSET_FRACTION = 0.2;
 export const BLUR_MIN_LAPLACIAN_VARIANCE = 40;
 
-/** HEAD_TILTED when |yaw| or |pitch| from the transformation matrix exceeds this (README §6.1). */
-export const MAX_HEAD_ANGLE_DEG = 20;
+/**
+ * HEAD_TILTED when |yaw| or |pitch| from the transformation matrix exceeds its limit
+ * (README §6.1 started at ±20° for both). Yaw tightened to ±15° (D-023): turning the head
+ * shrinks the far cheek fast. On the canonical mesh the far/near cheek pixel ratio after the
+ * outline clip is 0.73 at 15°, 0.59 at 19° and 0.18 at 25°, and a real selfie at 19° (with
+ * perspective) lost about 90% of the far cheek. Roll isn't limited: it doesn't change which
+ * skin faces the camera.
+ */
+export const MAX_YAW_DEG = 15;
+export const MAX_PITCH_DEG = 20;
 
 // ─── White balance (README §6.3) ────────────────────────────────────────────────────────────
 

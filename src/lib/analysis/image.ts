@@ -30,8 +30,12 @@ export const SRGB_TO_LINEAR_LUT: Float64Array = (() => {
 })();
 
 /**
- * Indices (y·width + x) of the pixels whose **centres** lie inside `poly` (even-odd rule),
- * in row-major order. Scanline rasterisation over the polygon's bounding box only.
+ * Indices (y·width + x) of the pixels whose **centres** lie inside `poly`, in row-major
+ * order. Scanline rasterisation over the polygon's bounding box only.
+ *
+ * Uses the **nonzero winding** rule: a pixel is inside if the polygon winds around it at all.
+ * For simple polygons this equals even-odd; for a self-intersecting one it keeps the overlap
+ * instead of dropping it (even-odd would silently lose pixels if landmarks cross over).
  */
 export function rasterizePolygon(poly: Polygon, width: number, height: number): Uint32Array {
   if (poly.length < 3) return new Uint32Array(0);
@@ -44,7 +48,7 @@ export function rasterizePolygon(poly: Polygon, width: number, height: number): 
   const y0 = Math.max(0, Math.ceil(minY - 0.5));
   const y1 = Math.min(height - 1, Math.floor(maxY - 0.5));
   const out: number[] = [];
-  const xs: number[] = [];
+  const xs: { x: number; dir: number }[] = [];
   for (let y = y0; y <= y1; y++) {
     const cy = y + 0.5;
     xs.length = 0;
@@ -52,12 +56,17 @@ export function rasterizePolygon(poly: Polygon, width: number, height: number): 
       const a = poly[i]!;
       const b = poly[j]!;
       // Half-open rule (a.y > cy) !== (b.y > cy) counts each crossing once.
-      if (a.y > cy !== b.y > cy) xs.push(a.x + ((cy - a.y) * (b.x - a.x)) / (b.y - a.y));
+      if (a.y > cy !== b.y > cy) {
+        xs.push({ x: a.x + ((cy - a.y) * (b.x - a.x)) / (b.y - a.y), dir: b.y > a.y ? 1 : -1 });
+      }
     }
-    xs.sort((p, q) => p - q);
-    for (let k = 0; k + 1 < xs.length; k += 2) {
-      const xa = Math.max(0, Math.ceil(xs[k]! - 0.5));
-      const xb = Math.min(width - 1, Math.ceil(xs[k + 1]! - 0.5) - 1);
+    xs.sort((p, q) => p.x - q.x);
+    let winding = 0;
+    for (let k = 0; k + 1 < xs.length; k++) {
+      winding += xs[k]!.dir;
+      if (winding === 0) continue;
+      const xa = Math.max(0, Math.ceil(xs[k]!.x - 0.5));
+      const xb = Math.min(width - 1, Math.ceil(xs[k + 1]!.x - 0.5) - 1);
       for (let x = xa; x <= xb; x++) out.push(y * width + x);
     }
   }

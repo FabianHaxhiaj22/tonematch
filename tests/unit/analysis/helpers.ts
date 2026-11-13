@@ -13,6 +13,7 @@ import type { FlatMatrix } from "@/lib/analysis/matrix";
 
 export const FIXTURE_JPG = "tests/fixtures/faces/nasa-watkins-2017.jpg";
 export const FIXTURE_LANDMARKS = "tests/fixtures/faces/nasa-watkins-2017.landmarks.json";
+export const CANONICAL_MESH = "tests/fixtures/mediapipe/canonical_face_model.vertices.json";
 
 type LandmarkFile = {
   imageWidth: number;
@@ -93,6 +94,16 @@ export function syntheticFace(
     x: w / 2 + (p.x - cx) * zoom,
     y: h / 2 + (p.y - cy) * zoom,
   }));
+  return { img: paintFace(w, h, landmarks, opts), landmarks, matrix: face.matrix };
+}
+
+type Paint = {
+  background: Rgb255 | ((x: number, y: number) => Rgb255);
+  skin: Rgb255 | ((x: number, y: number) => Rgb255);
+};
+
+/** Background everywhere, `skin` inside the face oval of the given landmarks. */
+export function paintFace(w: number, h: number, landmarks: readonly Point[], opts: Paint) {
   const bg = opts.background;
   const skin = opts.skin;
   const img = imageFrom(w, h, (x, y) => (typeof bg === "function" ? bg(x, y) : bg));
@@ -102,7 +113,52 @@ export function syntheticFace(
     const y = Math.floor(p / w);
     setPixel(img, x, y, typeof skin === "function" ? skin(x, y) : skin);
   }
-  return { img, landmarks, matrix: face.matrix };
+  return img;
+}
+
+/** MediaPipe's canonical face mesh (468 vertices, cm; Apache-2.0, see SOURCES.md). */
+let canonical: [number, number, number][] | null = null;
+export function canonicalVertices(): [number, number, number][] {
+  canonical ??= (
+    JSON.parse(readFileSync(CANONICAL_MESH, "utf8")) as { vertices: [number, number, number][] }
+  ).vertices;
+  return canonical;
+}
+
+/**
+ * Landmarks for a head pose: rotate the canonical mesh by R = Ry(yaw)·Rx(pitch)·Rz(roll) (same
+ * convention as headAngles) and project orthographically, centred in a w × h image with the
+ * frontal face oval about `faceWidthFraction` of the width. Returns pixel landmarks and the
+ * matching matrix.
+ */
+export function poseLandmarks(
+  pose: { yaw?: number; pitch?: number; roll?: number },
+  w: number,
+  h: number,
+  faceWidthFraction = 0.4,
+): { landmarks: Point[]; matrix: FlatMatrix } {
+  const matrix = rotationMatrix(pose.yaw ?? 0, pose.pitch ?? 0, pose.roll ?? 0);
+  const m = matrix.data; // column-major: element (row r, col c) at c * 4 + r
+  const v = canonicalVertices();
+  const xs = v.map((p) => p[0]);
+  const scale = (faceWidthFraction * w) / (Math.max(...xs) - Math.min(...xs));
+  const landmarks = v.map(([x, y, z]) => {
+    const X = m[0]! * x + m[4]! * y + m[8]! * z;
+    const Y = m[1]! * x + m[5]! * y + m[9]! * z;
+    return { x: w / 2 + X * scale, y: h / 2 - Y * scale };
+  });
+  return { landmarks, matrix };
+}
+
+/** A synthetic photo of a face in the given pose (face oval filled with `skin`). */
+export function syntheticPoseFace(
+  w: number,
+  h: number,
+  pose: { yaw?: number; pitch?: number; roll?: number },
+  opts: Paint & { faceWidthFraction?: number },
+): SyntheticFace {
+  const { landmarks, matrix } = poseLandmarks(pose, w, h, opts.faceWidthFraction);
+  return { img: paintFace(w, h, landmarks, opts), landmarks, matrix };
 }
 
 /** Deterministic PRNG (mulberry32) for reproducible noise. */

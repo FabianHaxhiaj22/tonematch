@@ -3,6 +3,8 @@ import {
   boundingBox,
   clipToInsetConvex,
   convexHull,
+  isSimplePolygon,
+  orderByAngle,
   pointInPolygon,
   polygonArea,
   signedArea,
@@ -110,5 +112,49 @@ describe("clipToInsetConvex", () => {
   it("rejects a degenerate clip polygon or a negative inset", () => {
     expect(() => clipToInsetConvex(square(1), square(1).slice(0, 2), 0)).toThrow(RangeError);
     expect(() => clipToInsetConvex(square(1), square(10), -1)).toThrow(RangeError);
+  });
+});
+
+describe("isSimplePolygon", () => {
+  const bowTie: Point[] = [
+    { x: 0, y: 0 },
+    { x: 10, y: 10 },
+    { x: 10, y: 0 },
+    { x: 0, y: 10 },
+  ];
+
+  it("accepts triangles, squares and concave polygons", () => {
+    expect(isSimplePolygon(square(10).slice(0, 3))).toBe(true);
+    expect(isSimplePolygon(square(10))).toBe(true);
+    expect(
+      isSimplePolygon([
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+        { x: 10, y: 4 },
+        { x: 4, y: 4 },
+        { x: 4, y: 6 },
+        { x: 10, y: 6 },
+        { x: 10, y: 10 },
+        { x: 0, y: 10 },
+      ]),
+    ).toBe(true);
+  });
+
+  it("rejects a self-intersecting (bow-tie) polygon", () => {
+    expect(isSimplePolygon(bowTie)).toBe(false);
+  });
+
+  it("rejects a pentagram", () => {
+    const star = [0, 2, 4, 1, 3].map((k) => ({
+      x: 50 + 40 * Math.cos((2 * Math.PI * k) / 5),
+      y: 50 + 40 * Math.sin((2 * Math.PI * k) / 5),
+    }));
+    expect(isSimplePolygon(star)).toBe(false);
+  });
+
+  it("orderByAngle turns the bow-tie back into the square", () => {
+    const fixed = orderByAngle(bowTie);
+    expect(isSimplePolygon(fixed)).toBe(true);
+    expect(polygonArea(fixed)).toBe(100);
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { linearToSrgb, srgbToLab, srgbToLinear, type Rgb255 } from "@/lib/color";
-import { MIN_VALID_PIXELS, OUTLIER_DELTA_E } from "@/lib/analysis/config";
+import { CHEEK_MIN_PIXEL_RATIO, MIN_VALID_PIXELS, OUTLIER_DELTA_E } from "@/lib/analysis/config";
 import { pixelLab, sampleRegionPixels, sampleSkin } from "@/lib/analysis/sampler";
 import { REGION_NAMES } from "@/lib/analysis/regions";
 import { deltaE76 } from "@/lib/analysis/stats";
@@ -13,6 +13,7 @@ import {
   setPixel,
   solidImage,
   syntheticFace,
+  syntheticPoseFace,
   toPixels,
 } from "./helpers";
 
@@ -175,6 +176,44 @@ describe("weighting and cheek disagreement", () => {
     const d = srgbToLab(shaded);
     expect(s.cheekDifference!.lightness).toBeCloseTo(Math.abs(l.L - d.L), 9);
     expect(s.cheekDifference!.chromatic).toBeCloseTo(Math.hypot(l.a - d.a, l.b - d.b), 9);
+  });
+});
+
+describe("cheek imbalance", () => {
+  it("frontal face: no imbalance, all regions used", () => {
+    const f = syntheticPoseFace(W, H, {}, { background: GREY, skin: SKIN });
+    const s = sampleSkin(f.img, f.landmarks);
+    expect(s.cheekImbalance).toBeNull();
+    expect(s.usedRegions).toEqual(REGION_NAMES);
+  });
+
+  it("strong head turn: the far cheek is flagged and left out; the near cheek carries it", () => {
+    const near: Rgb255 = SKIN;
+    const far: Rgb255 = { r: 120, g: 84, b: 66 };
+    const { landmarks } = syntheticPoseFace(W, H, { yaw: -28 }, { background: GREY, skin: SKIN });
+    const midX = landmarks[1]!.x;
+    const f = syntheticPoseFace(
+      W,
+      H,
+      { yaw: -28 },
+      { background: GREY, skin: (x) => (x < midX ? far : near) },
+    );
+    const s = sampleSkin(f.img, f.landmarks);
+    const ratio = s.regions.rightCheek.validPixels / s.regions.leftCheek.validPixels;
+    expect(ratio).toBeLessThan(CHEEK_MIN_PIXEL_RATIO);
+    expect(s.cheekImbalance).toEqual({ ratio, smaller: "rightCheek" });
+    expect(s.usedRegions).toEqual(["leftCheek", "forehead"]);
+    expect(s.cheekDeltaE).toBeNull();
+    expect(s.unevenLighting).toBe(false);
+    // The far cheek's colour no longer pulls the overall median.
+    expect(deltaE76(s.overall!, srgbToLab(near))).toBeLessThan(1e-9);
+  });
+
+  it("reports the clip per region, so a lost cheek can be traced", () => {
+    const f = syntheticPoseFace(W, H, { yaw: -28 }, { background: GREY, skin: SKIN });
+    const g = sampleSkin(f.img, f.landmarks).geometry;
+    expect(g.keptAreaFraction.rightCheek).toBeLessThan(0.5);
+    expect(g.keptAreaFraction.leftCheek).toBeCloseTo(1, 6);
   });
 });
 

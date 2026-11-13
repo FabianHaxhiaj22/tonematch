@@ -149,9 +149,9 @@ Return `{ ok: boolean, issues: QualityIssue[] }` (plus the raw metrics, for the 
 - `NO_FACE`, `MULTIPLE_FACES`
 - `FACE_TOO_SMALL` (face bbox < ~25% of image width)
 - `TOO_DARK` / `TOO_BRIGHT`, judged on **exposure, not skin lightness**: the fraction of clipped pixels (near 0 or 255 in any channel) in the face region, plus the whole-image luminance histogram. **Never use the skin sample's mean L\* for this**: deep skin in good light has a naturally low L\* and must not be flagged as "too dark".
-- `COLOR_CAST` (mean a\*/b\* of the **brightest 1%** of non-face pixels strongly shifted; those are the likeliest white/neutral surfaces, so a blue wall or red shirt isn't read as a cast; suggest calibration; D-021)
+- `COLOR_CAST`, judged only on **near-neutral, well-exposed** non-face pixels (low chroma, mid L\*): the centre of their main cluster in the a\*b\* plane, so a red curtain or blue wall isn't read as a cast. If there are too few such pixels the check is skipped. Suggest calibration (D-023).
 - `BLURRY` (variance of Laplacian of the central face area, resampled to a fixed width, below threshold)
-- `HEAD_TILTED` (yaw/pitch from the face transformation matrix beyond ±20°)
+- `HEAD_TILTED` (from the face transformation matrix: yaw beyond ±15°, pitch beyond ±20°; yaw was tightened from ±20° because turning shrinks the far cheek fast, D-023)
 
 Warnings can be overridden by the user ("analyse anyway"), and that lowers confidence.
 
@@ -160,14 +160,14 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
 ### 6.2 Skin sampling (`sampler.ts`)
 - Use Face Landmarker (IMAGE mode, `outputFacialTransformationMatrixes: true`), in `src/workers/landmarker.worker.ts`. The matrix arrives as column-major flat data; convert it with `src/lib/analysis/matrix.ts` (see `docs/DECISIONS.md` D-016).
 - Build polygons for **left cheek, right cheek, forehead** from mesh landmarks. **Choose the indices from the official MediaPipe canonical face mesh map, and document the chosen indices in a comment with a link to the source.** Don't guess them.
-- Exclude eyes, brows, lips, nostrils, and hairline.
+- Exclude eyes, brows, lips, nostrils, and hairline. The forehead starts one mesh ring above the brows and stops part-way to the hairline (D-023).
 - Clip each polygon to the face outline moved inwards by a configurable margin (`FACE_OUTLINE_INSET_FRACTION`), so a turned head doesn't push a cheek onto hair or the face side (D-020).
-- Rasterise polygons to a mask; collect pixels.
+- Rasterise polygons to a mask (nonzero winding rule; a polygon that crosses itself is reordered by angle first); collect pixels.
 - Filtering:
   1. Drop pixels in the top 10% and bottom 10% of luminance (specular highlights, shadows).
   2. Drop pixels far from the region's median in Lab (ΔE > configurable threshold, ~15) to remove blemishes/hair.
   3. Require at least N valid pixels per region (e.g. 300) or flag low confidence.
-- Per region compute the **median** Lab. Overall = weighted median (cheeks 0.4 each, forehead 0.2). Report the disagreement between left and right cheek (uneven lighting signal → lowers confidence), as ΔE and split into lightness and colour parts.
+- Per region compute the **median** Lab. Overall = weighted median (cheeks 0.4 each, forehead 0.2). Report the disagreement between left and right cheek (uneven lighting signal → lowers confidence), as ΔE and split into lightness and colour parts. If one cheek keeps under 40% of the other's pixels, leave it out (the larger cheek carries its weight) and flag it (lower confidence).
 
 ### 6.3 White balance (`whiteBalance.ts`)
 - **Calibrated mode:** the user taps a white paper region → average linear RGB of a small patch → per-channel gains so the patch becomes neutral. Apply to skin pixels before conversion.

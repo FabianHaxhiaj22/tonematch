@@ -1,19 +1,31 @@
 /**
  * Skin-sampling polygons from Face Landmarker landmarks (README §6.2). Indices and their source
- * are in config.ts (SKIN_REGION_INDICES, FACE_OVAL_RING).
+ * are in config.ts (CHEEK_INDICES, FOREHEAD_*_RING, FACE_OVAL_RING).
  */
 import {
+  CHEEK_INDICES,
   FACE_OUTLINE_INSET_FRACTION,
   FACE_OVAL_RING,
-  SKIN_REGION_INDICES,
+  FOREHEAD_HEIGHT_FRACTION,
+  FOREHEAD_LOWER_RING,
+  FOREHEAD_UPPER_RING,
   type RegionName,
 } from "./config";
-import { boundingBox, clipToInsetConvex, convexHull, type Point, type Polygon } from "./geometry";
+import {
+  boundingBox,
+  clipToInsetConvex,
+  convexHull,
+  isSimplePolygon,
+  orderByAngle,
+  polygonArea,
+  type Point,
+  type Polygon,
+} from "./geometry";
 
 export type { Point, Polygon } from "./geometry";
 export type SkinRegions = Record<RegionName, Polygon>;
 
-export const REGION_NAMES = Object.keys(SKIN_REGION_INDICES) as RegionName[];
+export const REGION_NAMES: readonly RegionName[] = ["rightCheek", "leftCheek", "forehead"];
 
 function pick(points: readonly Point[], indices: readonly number[], what: string): Polygon {
   return indices.map((i) => {
@@ -24,17 +36,31 @@ function pick(points: readonly Point[], indices: readonly number[], what: string
 }
 
 /**
- * The three skin polygons, straight from the configured indices. Pass landmarks in **pixel**
+ * Forehead polygon: the lower ring, then the top edge (FOREHEAD_HEIGHT_FRACTION of the way to
+ * the face oval above each lower vertex) back in reverse order.
+ */
+export function foreheadPolygon(
+  points: readonly Point[],
+  heightFraction: number = FOREHEAD_HEIGHT_FRACTION,
+): Polygon {
+  const lower = pick(points, FOREHEAD_LOWER_RING, "foreheadPolygon");
+  const upper = pick(points, FOREHEAD_UPPER_RING, "foreheadPolygon");
+  const top = lower.map((p, i) => ({
+    x: p.x + (upper[i]!.x - p.x) * heightFraction,
+    y: p.y + (upper[i]!.y - p.y) * heightFraction,
+  }));
+  return [...lower, ...top.reverse()];
+}
+
+/**
+ * The three skin polygons as configured, before any clipping. Pass landmarks in **pixel**
  * coordinates (multiply MediaPipe's normalised x/y by image width/height first).
  */
-export function buildSkinRegions(
-  points: readonly Point[],
-  indices: Readonly<Record<RegionName, readonly number[]>> = SKIN_REGION_INDICES,
-): SkinRegions {
+export function buildSkinRegions(points: readonly Point[]): SkinRegions {
   return {
-    rightCheek: pick(points, indices.rightCheek, "buildSkinRegions"),
-    leftCheek: pick(points, indices.leftCheek, "buildSkinRegions"),
-    forehead: pick(points, indices.forehead, "buildSkinRegions"),
+    rightCheek: pick(points, CHEEK_INDICES.rightCheek, "buildSkinRegions"),
+    leftCheek: pick(points, CHEEK_INDICES.leftCheek, "buildSkinRegions"),
+    forehead: foreheadPolygon(points),
   };
 }
 
@@ -57,11 +83,19 @@ export type SampledRegions = {
   outline: FaceOutline;
   /** Polygons after clipping to the inset face outline. A region may be empty ([]). */
   regions: SkinRegions;
+  /** Clipped area / configured area, per region (1 = nothing clipped). For diagnostics. */
+  keptAreaFraction: Record<RegionName, number>;
+  /**
+   * Regions whose landmark polygon crossed itself on this face and were reordered by angle
+   * around their centroid before clipping (should be rare; logged for diagnostics).
+   */
+  reordered: RegionName[];
 };
 
 /**
- * Skin polygons clipped to the face outline moved inwards by
- * `insetFraction × face width` (keeps cheeks off hair and the face side when the head turns).
+ * Skin polygons ready for sampling: self-intersecting ones are reordered, then each is clipped
+ * to the face outline moved inwards by `insetFraction × face width` (keeps cheeks off hair and
+ * the face side when the head turns).
  */
 export function buildSampledRegions(
   points: readonly Point[],
@@ -70,15 +104,21 @@ export function buildSampledRegions(
   const outline = faceOutline(points);
   const raw = buildSkinRegions(points);
   const inset = insetFraction * outline.width;
-  const clip = (poly: Polygon) => clipToInsetConvex(poly, outline.hull, inset);
-  return {
-    outline,
-    regions: {
-      rightCheek: clip(raw.rightCheek),
-      leftCheek: clip(raw.leftCheek),
-      forehead: clip(raw.forehead),
-    },
-  };
+  const regions = {} as SkinRegions;
+  const keptAreaFraction = {} as Record<RegionName, number>;
+  const reordered: RegionName[] = [];
+  for (const name of REGION_NAMES) {
+    let poly = raw[name];
+    if (!isSimplePolygon(poly)) {
+      poly = orderByAngle(poly);
+      reordered.push(name);
+    }
+    const clipped = clipToInsetConvex(poly, outline.hull, inset);
+    regions[name] = clipped;
+    const before = polygonArea(poly);
+    keptAreaFraction[name] = before > 0 ? polygonArea(clipped) / before : 0;
+  }
+  return { outline, regions, keptAreaFraction, reordered };
 }
 
 /** Unique landmark indices used by a MediaPipe connection list ({ start, end } pairs). */
