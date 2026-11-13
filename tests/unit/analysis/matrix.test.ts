@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { toMat4, translationOf, type FlatMatrix } from "@/lib/analysis/matrix";
+import { headAngles, toMat4, translationOf, type FlatMatrix } from "@/lib/analysis/matrix";
+import { rotationMatrix } from "./helpers";
 
 /** Real output from MediaPipe on a frontal portrait (M2), rounded to 4 decimals. */
 const REAL: FlatMatrix = {
@@ -57,5 +58,33 @@ describe("translationOf", () => {
       y: 0,
       z: 0,
     });
+  });
+});
+
+describe("headAngles", () => {
+  it("is zero for the identity rotation", () => {
+    const a = headAngles(toMat4(rotationMatrix(0, 0, 0)));
+    expect(a.yaw).toBeCloseTo(0, 9);
+    expect(a.pitch).toBeCloseTo(0, 9);
+    expect(a.roll).toBeCloseTo(0, 9);
+  });
+
+  it.each([
+    [20, 0, 0],
+    [0, -15, 0],
+    [0, 0, 30],
+    [-25, 10, 5],
+    [35, -20, -40],
+  ])("recovers yaw %d, pitch %d, roll %d (with scale 2)", (yaw, pitch, roll) => {
+    const a = headAngles(toMat4(rotationMatrix(yaw, pitch, roll, 2)));
+    expect(a.yaw).toBeCloseTo(yaw, 6);
+    expect(a.pitch).toBeCloseTo(pitch, 6);
+    expect(a.roll).toBeCloseTo(roll, 6);
+  });
+
+  it("gives small angles for the real frontal portrait", () => {
+    const a = headAngles(toMat4(REAL));
+    expect(Math.abs(a.yaw)).toBeLessThan(20);
+    expect(Math.abs(a.pitch)).toBeLessThan(20);
   });
 });
