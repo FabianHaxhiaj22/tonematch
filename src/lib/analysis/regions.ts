@@ -53,13 +53,14 @@ export function foreheadPolygon(
 }
 
 /**
- * The three skin polygons as configured, before any clipping. Pass landmarks in **pixel**
+ * The three skin polygons as configured (cheeks as convex hulls), before any clipping. Pass landmarks in **pixel**
  * coordinates (multiply MediaPipe's normalised x/y by image width/height first).
  */
 export function buildSkinRegions(points: readonly Point[]): SkinRegions {
   return {
-    rightCheek: pick(points, CHEEK_INDICES.rightCheek, "buildSkinRegions"),
-    leftCheek: pick(points, CHEEK_INDICES.leftCheek, "buildSkinRegions"),
+    // Cheeks are meant to be convex (config.ts); the hull keeps them so despite landmark noise.
+    rightCheek: convexHull(pick(points, CHEEK_INDICES.rightCheek, "buildSkinRegions")),
+    leftCheek: convexHull(pick(points, CHEEK_INDICES.leftCheek, "buildSkinRegions")),
     forehead: foreheadPolygon(points),
   };
 }
@@ -67,7 +68,10 @@ export function buildSkinRegions(points: readonly Point[]): SkinRegions {
 export type FaceOutline = {
   /** Face-oval landmarks in ring order. */
   oval: Polygon;
-  /** Convex hull of the oval (used for clipping). */
+  /**
+   * Visible face outline: convex hull of **all** landmarks (used for clipping). Facing the
+   * camera it equals the oval's hull; with the head turned it follows the far cheek (D-024).
+   */
   hull: Polygon;
   /** Width of the oval's bounding box, px. */
   width: number;
@@ -76,7 +80,7 @@ export type FaceOutline = {
 export function faceOutline(points: readonly Point[]): FaceOutline {
   const oval = pick(points, FACE_OVAL_RING, "faceOutline");
   const box = boundingBox(oval);
-  return { oval, hull: convexHull(oval), width: box.maxX - box.minX };
+  return { oval, hull: convexHull(points), width: box.maxX - box.minX };
 }
 
 export type SampledRegions = {

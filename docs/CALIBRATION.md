@@ -25,7 +25,7 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 | `CHEEK_DISAGREEMENT_DELTA_E` | 6 | Heuristic (ΔE 2–3 ≈ just noticeable) |
 | `CHEEK_MIN_PIXEL_RATIO` | 0.4 | Real selfie at yaw −19° lost ~90% of the far cheek; canonical mesh: 0.73 at 15°, 0.59 at 19°, 0.18 at 25° |
 | `FOREHEAD_HEIGHT_FRACTION` | 0.5 | Half-way from the ring above the brows to the hairline; fixture keeps 1843 px |
-| `FACE_OUTLINE_INSET_FRACTION` | 0.05 | Keeps the far cheek off hair at the fixture's ~7° head turn |
+| `FACE_OUTLINE_INSET_FRACTION` | 0.05 | Of the visible outline (D-024); cheeks keep 100% at yaw ±15° at 25–45 cm on the canonical mesh |
 | `FACE_MIN_WIDTH_FRACTION` | 0.25 | README §6.1 |
 | `CLIP_DARK_LEVEL` / `CLIP_BRIGHT_LEVEL` | 5 / 250 | README §6.1 ("near 0 or 255") |
 | `FACE_CLIPPED_MAX_FRACTION` | 0.05 | Fixture: 0.5% dark, 0.2% bright |
@@ -42,3 +42,5 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 | 2026-11-13 | Yaw limit | ±20° | ±15° | Real selfie at −19° lost ~90% of the far cheek (D-023) |
 | 2026-11-13 | Colour cast method | brightest 1% of background | neutral-pixel cluster | Red curtain false positive (23.7) on a real photo (D-023) |
 | 2026-11-13 | Forehead lower edge | brow top edge | one ring higher | Overlapped the brows on a real photo (D-023) |
+| 2026-11-13 | Cheek indices | 117–118–101–36–205–187–50 | 101–100–142–203–206–205 (apple of the cheek) | Real selfie at yaw −12° kept 33% of the right cheek after the clip (D-024) |
+| 2026-11-13 | Clip boundary | face-oval hull | hull of all landmarks (visible outline) | Perspective puts far-side face-oval landmarks onto the far cheek (D-024) |

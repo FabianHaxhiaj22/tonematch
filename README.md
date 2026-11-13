@@ -41,7 +41,7 @@ Design responses to these:
 ### Phase 1: MVP (portfolio-ready)
 - Landing page explaining how it works, with a privacy promise ("your photo never leaves your device").
 - Photo input: file upload **and** live camera capture (`getUserMedia`), front camera default.
-- Lighting/photo guide screen (face a window, no flash, no filters, remove glasses, hair off face).
+- Lighting/photo guide screen (face a window, no flash, no filters, remove glasses, hair off face, no makeup on the cheeks if possible: blush and bronzer change their colour; D-025).
 - Photo quality checks: exactly 1 face, face large enough, brightness range, colour cast detection, blur estimate.
 - Optional white-paper calibration (tap a white region → white balance gains).
 - Skin sampling from cheeks + forehead via MediaPipe Face Landmarker.
@@ -161,7 +161,8 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
 - Use Face Landmarker (IMAGE mode, `outputFacialTransformationMatrixes: true`), in `src/workers/landmarker.worker.ts`. The matrix arrives as column-major flat data; convert it with `src/lib/analysis/matrix.ts` (see `docs/DECISIONS.md` D-016).
 - Build polygons for **left cheek, right cheek, forehead** from mesh landmarks. **Choose the indices from the official MediaPipe canonical face mesh map, and document the chosen indices in a comment with a link to the source.** Don't guess them.
 - Exclude eyes, brows, lips, nostrils, and hairline. The forehead starts one mesh ring above the brows and stops part-way to the hairline (D-023).
-- Clip each polygon to the face outline moved inwards by a configurable margin (`FACE_OUTLINE_INSET_FRACTION`), so a turned head doesn't push a cheek onto hair or the face side (D-020).
+- Cheeks sit on the apple of the cheek (below the cheekbone, beside the nose wing), compact and convex (D-024).
+- Clip each polygon to the **visible** face outline (convex hull of all landmarks) moved inwards by a configurable margin (`FACE_OUTLINE_INSET_FRACTION`), so a turned head doesn't push a region onto hair or the face side (D-020, D-024).
 - Rasterise polygons to a mask (nonzero winding rule; a polygon that crosses itself is reordered by angle first); collect pixels.
 - Filtering:
   1. Drop pixels in the top 10% and bottom 10% of luminance (specular highlights, shadows).

@@ -10,6 +10,7 @@ import {
   REGION_LANDMARKS,
 } from "@/lib/analysis/config";
 import {
+  convexHull,
   isSimplePolygon,
   pointInPolygon,
   polygonArea,
@@ -30,6 +31,22 @@ const centroid = (poly: Polygon): Point => ({
   x: poly.reduce((s, p) => s + p.x, 0) / poly.length,
   y: poly.reduce((s, p) => s + p.y, 0) / poly.length,
 });
+
+/** All turns in the same direction (strictly convex). */
+function isConvex(poly: Polygon): boolean {
+  const n = poly.length;
+  let sign = 0;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i]!;
+    const b = poly[(i + 1) % n]!;
+    const c = poly[(i + 2) % n]!;
+    const z = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+    if (z === 0) continue;
+    if (sign === 0) sign = Math.sign(z);
+    else if (Math.sign(z) !== sign) return false;
+  }
+  return true;
+}
 
 const set = (connections: readonly { start: number; end: number }[][]) =>
   new Set(connections.flatMap(indicesOf));
@@ -58,10 +75,16 @@ function mirrorOf(i: number): number {
 describe("buildSkinRegions", () => {
   const points: Point[] = Array.from({ length: 478 }, (_, i) => ({ x: i, y: 2 * i }));
 
-  it("maps each cheek index to its landmark, in order", () => {
-    const r = buildSkinRegions(points);
-    expect(r.rightCheek).toEqual(CHEEK_INDICES.rightCheek.map((i) => ({ x: i, y: 2 * i })));
-    expect(r.leftCheek).toEqual(CHEEK_INDICES.leftCheek.map((i) => ({ x: i, y: 2 * i })));
+  it("cheeks are convex hulls of their configured landmarks (all of them, frontal)", () => {
+    const { landmarks } = poseLandmarks({}, 800, 1000);
+    const r = buildSkinRegions(landmarks);
+    const key = (p: Point) => `${p.x.toFixed(6)},${p.y.toFixed(6)}`;
+    for (const name of ["rightCheek", "leftCheek"] as const) {
+      expect(isConvex(r[name])).toBe(true);
+      expect(new Set(r[name].map(key))).toEqual(
+        new Set(CHEEK_INDICES[name].map((i) => key(landmarks[i]!))),
+      );
+    }
   });
 
   it("builds the forehead from the lower ring and a top edge part-way to the face oval", () => {
@@ -77,8 +100,8 @@ describe("buildSkinRegions", () => {
   });
 
   it("copies points (doesn't keep extra fields such as z)", () => {
-    const pts = Array.from({ length: 478 }, () => ({ x: 1, y: 2, z: 3 }));
-    expect(buildSkinRegions(pts).rightCheek[0]).toStrictEqual({ x: 1, y: 2 });
+    const pts = Array.from({ length: 478 }, (_, i) => ({ x: i, y: 2 * i, z: 3 }));
+    expect(buildSkinRegions(pts).forehead[0]).toStrictEqual({ x: 69, y: 138 });
   });
 
   it("throws when a landmark is missing", () => {
@@ -178,27 +201,55 @@ describe("head poses (canonical mesh rotated and projected)", () => {
     expect(polygonArea(g.regions.leftCheek)).toBeCloseTo(polygonArea(g.regions.rightCheek), 6);
   });
 
-  it("a strong head turn clips the far cheek much more than the near one", () => {
-    // Negative yaw turns the subject's right cheek away (it appears on the image's left).
-    const g = buildSampledRegions(poseLandmarks({ yaw: -25 }, 800, 1000).landmarks);
-    expect(g.keptAreaFraction.rightCheek).toBeLessThan(0.5);
+  // Target (D-024): both cheeks keep >= 70% of their area after the clip at yaw ±15°, including
+  // at close selfie range. Negative yaw turns the subject's right cheek away.
+  it.each([
+    [-15, 25],
+    [15, 25],
+    [-15, 35],
+    [15, 35],
+    [-15, 45],
+    [15, 45],
+    [-15, null],
+    [15, null],
+  ])("yaw %d° at %s cm: both cheeks keep >= 70% after the clip", (yaw, distanceCm) => {
+    const g = buildSampledRegions(poseLandmarks({ yaw, distanceCm }, 800, 1000).landmarks);
+    expect(g.keptAreaFraction.rightCheek).toBeGreaterThanOrEqual(0.7);
+    expect(g.keptAreaFraction.leftCheek).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("close-range perspective: the visible outline is wider than the face-oval hull", () => {
+    // Facing the camera they're the same; turned at selfie range, far-side face-oval landmarks
+    // (5-8 cm further back) project onto the far cheek, so clipping to them would cut skin.
+    const ortho = poseLandmarks({ distanceCm: null }, 800, 1000).landmarks;
+    const frontal = poseLandmarks({}, 800, 1000).landmarks;
+    const turned = poseLandmarks({ yaw: -15, distanceCm: 25 }, 800, 1000).landmarks;
+    const ovalHullArea = (pts: Point[]) =>
+      polygonArea(convexHull(FACE_OVAL_RING.map((i) => pts[i]!)));
+    expect(polygonArea(faceOutline(ortho).hull)).toBeCloseTo(ovalHullArea(ortho), 6);
+    expect(polygonArea(faceOutline(frontal).hull)).toBeLessThan(ovalHullArea(frontal) * 1.01);
+    expect(polygonArea(faceOutline(turned).hull)).toBeGreaterThan(ovalHullArea(turned) * 1.02);
+  });
+
+  it("the clip still trims the far cheek at an extreme turn", () => {
+    const g = buildSampledRegions(poseLandmarks({ yaw: -35 }, 800, 1000).landmarks);
+    expect(g.keptAreaFraction.rightCheek).toBeLessThan(0.8);
     expect(g.keptAreaFraction.leftCheek).toBeCloseTo(1, 6);
   });
 
-  it("reorders a self-intersecting cheek (swapped landmarks) instead of losing its area", () => {
+  it("reorders a self-intersecting forehead (swapped landmarks) instead of losing its area", () => {
     const { landmarks } = poseLandmarks({}, 800, 1000);
     const good = buildSampledRegions(landmarks);
+    // Lift one lower-ring landmark far above the hairline: the lower edge now crosses the top.
     const swapped = [...landmarks];
-    const [a, b] = [CHEEK_INDICES.rightCheek[1], CHEEK_INDICES.rightCheek[4]];
-    [swapped[a], swapped[b]] = [swapped[b]!, swapped[a]!];
-    expect(isSimplePolygon(buildSkinRegions(swapped).rightCheek)).toBe(false);
+    const lifted = FOREHEAD_LOWER_RING[1];
+    swapped[lifted] = { x: landmarks[lifted]!.x, y: landmarks[10]!.y - 100 };
+    expect(isSimplePolygon(buildSkinRegions(swapped).forehead)).toBe(false);
     const fixed = buildSampledRegions(swapped);
-    expect(fixed.reordered).toEqual(["rightCheek"]);
-    expect(isSimplePolygon(fixed.regions.rightCheek)).toBe(true);
-    // The cheek is star-shaped, so angle order gives back its convex-ish outline: at least as
-    // much area as the intended polygon (the notch at 50 may fill in), never a lost lobe.
-    expect(polygonArea(fixed.regions.rightCheek)).toBeGreaterThanOrEqual(
-      polygonArea(good.regions.rightCheek) * 0.99,
+    expect(fixed.reordered).toEqual(["forehead"]);
+    expect(isSimplePolygon(fixed.regions.forehead)).toBe(true);
+    expect(polygonArea(fixed.regions.forehead)).toBeGreaterThan(
+      polygonArea(good.regions.forehead) * 0.5,
     );
   });
 });
@@ -262,7 +313,7 @@ describe("regions on the NASA fixture landmarks", () => {
   });
 
   it("a larger inset shrinks the cheeks", () => {
-    const tight = buildSampledRegions(px, 0.2).regions;
+    const tight = buildSampledRegions(px, 0.3).regions;
     expect(polygonArea(tight.rightCheek)).toBeLessThan(polygonArea(regions.rightCheek));
     expect(polygonArea(tight.leftCheek)).toBeLessThan(polygonArea(regions.leftCheek));
   });

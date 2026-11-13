@@ -125,14 +125,29 @@ export function canonicalVertices(): [number, number, number][] {
   return canonical;
 }
 
+export type Pose = {
+  yaw?: number;
+  pitch?: number;
+  roll?: number;
+  /**
+   * Camera distance from the head's centre, cm (pinhole camera on the axis). Default 35, an
+   * arm's-length selfie. `null` = orthographic (no perspective), which hides how much a turned
+   * head's far side is foreshortened at close range (D-024).
+   */
+  distanceCm?: number | null;
+};
+
+/** Default camera distance for synthetic poses: an arm's-length selfie. */
+export const SELFIE_DISTANCE_CM = 35;
+
 /**
  * Landmarks for a head pose: rotate the canonical mesh by R = Ry(yaw)·Rx(pitch)·Rz(roll) (same
- * convention as headAngles) and project orthographically, centred in a w × h image with the
- * frontal face oval about `faceWidthFraction` of the width. Returns pixel landmarks and the
- * matching matrix.
+ * convention as headAngles) and project with a pinhole camera `distanceCm` away (or
+ * orthographically), centred in a w × h image with the frontal face about `faceWidthFraction`
+ * of the width. Returns pixel landmarks and the matching matrix.
  */
 export function poseLandmarks(
-  pose: { yaw?: number; pitch?: number; roll?: number },
+  pose: Pose,
   w: number,
   h: number,
   faceWidthFraction = 0.4,
@@ -142,10 +157,13 @@ export function poseLandmarks(
   const v = canonicalVertices();
   const xs = v.map((p) => p[0]);
   const scale = (faceWidthFraction * w) / (Math.max(...xs) - Math.min(...xs));
+  const dist = pose.distanceCm === undefined ? SELFIE_DISTANCE_CM : pose.distanceCm;
   const landmarks = v.map(([x, y, z]) => {
     const X = m[0]! * x + m[4]! * y + m[8]! * z;
     const Y = m[1]! * x + m[5]! * y + m[9]! * z;
-    return { x: w / 2 + X * scale, y: h / 2 - Y * scale };
+    const Z = m[2]! * x + m[6]! * y + m[10]! * z; // towards the camera
+    const k = dist === null ? 1 : dist / (dist - Z); // nearer → larger
+    return { x: w / 2 + X * scale * k, y: h / 2 - Y * scale * k };
   });
   return { landmarks, matrix };
 }
@@ -154,7 +172,7 @@ export function poseLandmarks(
 export function syntheticPoseFace(
   w: number,
   h: number,
-  pose: { yaw?: number; pitch?: number; roll?: number },
+  pose: Pose,
   opts: Paint & { faceWidthFraction?: number },
 ): SyntheticFace {
   const { landmarks, matrix } = poseLandmarks(pose, w, h, opts.faceWidthFraction);

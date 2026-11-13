@@ -137,6 +137,23 @@ A developer tested PR #12 on a real selfie (not committed; a real person): head 
    - Tests use MediaPipe's canonical mesh vertices (Apache-2.0 fixture) to generate landmarks for any pose.
 3. **`COLOR_CAST` false positive (23.7) on a red curtain.** Replaces D-021's "brightest 1%" rule. Only **near-neutral, well-exposed** non-face pixels count (L\* 35–90, chroma ≤ 30, sampled every 2 px). Starting at their median a\*b\*, the estimate re-centres 4 times on the mean of candidates within ΔC 10, following the main cluster of neutral surfaces wherever a cast moved it. Flag if the centre's chroma > 10; skip if too few candidates or cluster members. Why not just a low-chroma cut: it hides strong casts (they push neutrals above the cut) and missed a cool cast entirely in a prototype. Measured: fixture 4.3 (neutral); fixture + warm cast 15.0; grey wall + warm/cool/tungsten 13.2/11.5/26.0; red curtain: skipped. Known limit: a tinted wall in neutral light looks like a grey wall in tinted light (the fixture's blue backdrop hides a cool cast); white-paper calibration is the answer.
 
+### D-024 · 2026-11-13 · Cheeks moved to the apple of the cheek; clip to the visible outline
+- **Finding:** on a near-frontal real selfie (yaw −12°) the right cheek kept only **33%** of its area after the outline clip, while the synthetic tests suggested little loss below 15°. The left cheek also had an odd concave "arrow" shape (the notch at vertex 50).
+- **Why the synthetic test overestimated:** it projected the canonical mesh **orthographically**. A selfie is taken at 25–45 cm, where perspective matters: the face-oval landmarks on the far side sit 5–8 cm behind the cheek, so when the head turns they project inwards, **onto the far cheek**, and the clip (to the face-oval hull) cut real, visible skin. With a pinhole camera at 25 cm, the old cheek keeps 35% at yaw −12° (the photo: 33%); orthographic said 100%. The synthetic generator now uses perspective (default 35 cm, an arm's-length selfie; `distanceCm: null` for orthographic).
+- **Decision (two parts):**
+  1. **Cheeks on the apple of the cheek**, below the cheekbone and beside the nose wing: right 101–100–142–203–206–205, left (3D mirror) 330–329–371–423–426–425. This is the one-ring of mesh vertices around 36 / 266 without the outer vertex 50 and the nose-side 129, plus 206 below. Compact and convex on the cited map and on the fixture's real landmarks; at runtime each cheek is the convex hull of its landmarks, so noise can't dent it. No eye, brow, lip, nose or face-oval landmark is a vertex of, or inside, either cheek.
+  2. **Clip to the visible outline** (convex hull of all 478 landmarks) instead of the face-oval hull. Facing the camera they're the same (orthographic: identical; at 35 cm within 0.3%), so hair protection is unchanged; when the head turns it follows the far cheek.
+- **Result (canonical mesh, perspective):** both cheeks keep 100% at yaw ±15° at 25, 35 and 45 cm (target ≥ 70%), and still ≥ 93% at ±25° at 25 cm. The clip still trims at extreme turns (yaw −35°: 63% at 35 cm), which the yaw gate (±15°) already flags. Cheek imbalance (D-023) remains as a safety net. Tests assert the ≥ 70% target at ±15° for 25/35/45 cm and orthographic.
+- **Alternatives:** keeping the old cheeks and only fixing the clip (old cheek at 25 cm still drops to 76% at −15° and 58% at −19°: too close to the edge); a smaller 5-vertex ring without 206 (similar robustness, ~20% fewer pixels); hand-picked shapes (rejected: indices must come from the cited map).
+
+### D-025 · 2026-11-13 · Makeup affects the cheek sample
+- **Finding:** on the same real selfie, the cheek sample read strongly pink (hue pulled towards red) because of **blush**. The person's values are not recorded here (README §11: numbers from real people go only into the consented calibration log).
+- **What it means:** blush and bronzer sit exactly where the cheek regions are; the ΔE outlier filter can't remove makeup that covers the whole region, and we can't detect makeup reliably (like beauty filters, README §6.1). Foundation also affects the forehead, but usually more evenly.
+- **Decisions / follow-ups:**
+  - **M7 guide-screen copy** (README §3): add "No makeup on your cheeks if possible: blush and bronzer change their colour." (both `en` and `sq`, reviewed by a native speaker).
+  - **M4:** consider giving the forehead more weight (currently 0.4 / 0.4 / 0.2), or down-weighting the cheeks when they are much redder than the forehead (a cheek-vs-forehead hue difference is a possible makeup signal). Decide with calibration data; tracked as R-007.
+  - The UI must not claim to detect makeup.
+
 ---
 
 ## Open risks
@@ -168,3 +185,6 @@ With `src/lib/color` in place (100% covered), two checks confirmed the 90% thres
 
 ### R-006 · Test portraits cover only one skin depth · owner: M3/M4
 The only real-face fixture (D-017) is one studio portrait at one skin depth. README §2 requires testing **across the full range of skin depths** (MST 1–10), and M3 (sampling, quality gate) and M4 (depth/undertone) need varied faces, lighting and cameras to avoid building in bias. **Needed:** more **openly licensed** portraits (public domain, CC0 or CC BY with attribution; e.g. other US-government official portraits) spanning light to very deep skin, plus some natural-light and phone-camera photos, each listed in `tests/fixtures/SOURCES.md` with source, licence and SHA-256. Images from consenting volunteers stay **on their devices** (README §11 calibration set): only numbers are recorded. Close this when the fixture set spans the MST range. **M3 status (2026-11-13):** synthetic tests cover very light to very deep skin for the quality gate and sampler; the only real face is still the one portrait, so this stays open for M4.
+
+### R-007 · Makeup on the cheeks (blush, bronzer) · owner: M4 (weighting), M7 (guide copy)
+Blush made a real cheek sample read strongly pink (D-025). M7: guide-screen line "no makeup on the cheeks if possible". M4: test a higher forehead weight and/or a cheek-vs-forehead hue check against the calibration set before choosing weights. Close when both are done.

@@ -17,11 +17,13 @@
  *
  * **How they were chosen** (2026-11-13, docs/DECISIONS.md D-020), on the UV map with the
  * feature sets drawn over it, then checked on the NASA fixture:
- * - Cheeks: two vertex rings below the lower eyelid (skips under-eye shadow), lateral to the
- *   nose wing and above the nasolabial fold (129 → 57). The outer edge runs 117 → 50 → 187,
- *   one vertex column inside the face side: the outer column (116/123) already touched the face
- *   outline at a ~7° head turn on the fixture. Head turns are also handled at runtime by
- *   clipping to the inset face outline (FACE_OUTLINE_INSET_FRACTION).
+ * - Cheeks (revised 2026-11-13 after a real-selfie test, D-024): the **apple of the cheek**,
+ *   below the cheekbone and beside the nose wing. Each cheek is the one-ring of mesh vertices
+ *   around vertex 36 (left: 266) minus its outer vertex 50 and its nose-side vertex 129, plus 206
+ *   below: 101–100–142–203–206–205. Compact and convex on the map and on real landmarks (and
+ *   made convex at runtime with a hull, so landmark noise can't dent it). The first choices
+ *   (116/117/123…, then 117/50/187…) sat towards the face edge, where close-range perspective
+ *   and head turns cut them off: on a real selfie at yaw −12° only a third survived the clip.
  * - Left cheek = exact 3D mirror of the right cheek (vertex with x → −x in the .obj), so both
  *   cheeks cover the same anatomy and their disagreement is a fair lighting signal.
  * - Forehead (revised 2026-11-13 after a real-photo test, D-023): the first version used the
@@ -37,8 +39,8 @@
  * "Left"/"right" follow MediaPipe: the **subject's** left, which appears on the image's right.
  */
 export const CHEEK_INDICES = {
-  rightCheek: [117, 118, 101, 36, 205, 187, 50],
-  leftCheek: [346, 347, 330, 266, 425, 411, 280],
+  rightCheek: [101, 100, 142, 203, 206, 205],
+  leftCheek: [330, 329, 371, 423, 426, 425],
 } as const;
 
 /** Forehead lower edge, from the image's left (subject's right) to the image's right. */
@@ -71,9 +73,12 @@ export const FACE_OVAL_RING = [
 ] as const;
 
 /**
- * Each skin region is clipped to the face outline (its convex hull) moved inwards by this
- * fraction of the face width. Keeps cheeks off hair and the steep face side when the head is
- * turned. Heuristic: 0.05 ≈ 7 px on a 140 px-wide face.
+ * Each skin region is clipped to the **visible face outline** moved inwards by this fraction of
+ * the face width. The visible outline is the convex hull of all landmarks: facing the camera it
+ * equals the face-oval hull, but when the head turns it follows the far cheek, whereas the
+ * face-oval landmarks (5–8 cm further back) project onto the far cheek, especially at selfie
+ * distance (D-024). Keeps regions off hair and the steep face side. Heuristic: 0.05 ≈ 7 px on
+ * a 140 px-wide face.
  */
 export const FACE_OUTLINE_INSET_FRACTION = 0.05;
 
