@@ -214,3 +214,209 @@ export const WB_MAX_CLIPPED_FRACTION = 0.05;
 /** Reject gains outside this range: the patch isn't white, or the cast is too strong to fix. */
 export const WB_MIN_GAIN = 0.5;
 export const WB_MAX_GAIN = 2;
+
+// ─── Region weights when cheeks are doubtful (M4, DECISIONS D-026) ──────────────────────────
+
+/**
+ * Cheeks "look redder than the forehead" when the cheek median's a* exceeds the forehead's by
+ * more than CHEEK_REDNESS_A_MARGIN, or its hue angle is lower by more than
+ * CHEEK_REDNESS_HUE_MARGIN_DEG. Relative to the same face's forehead, so it doesn't depend on
+ * skin depth. Blush, bronzer and natural flushing all trigger it; it only moves weight to the
+ * forehead and lowers photo confidence, and is never reported to the user as "makeup".
+ * Heuristics; calibrate.
+ */
+export const CHEEK_REDNESS_A_MARGIN = 4;
+export const CHEEK_REDNESS_HUE_MARGIN_DEG = 8;
+
+/**
+ * Cheeks "disagree" (for weighting) when the colour part of their difference,
+ * sqrt(Δa*² + Δb*²), exceeds this. Undertone depends on colour, not lightness. A real selfie in
+ * M3 testing had ΔE 3.5, mostly in b*. Heuristic.
+ */
+export const CHEEK_CHROMATIC_DISAGREEMENT = 3;
+
+/**
+ * Forehead weight in the overall median when the cheeks are doubtful (redder than the
+ * forehead, disagreeing, or one cheek dropped). The usable cheeks share the rest equally.
+ * Normal weights are REGION_WEIGHTS (0.4 / 0.4 / 0.2).
+ */
+export const FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL = 0.5;
+
+// ─── Depth (README §6.5) ────────────────────────────────────────────────────────────────────
+
+/** Below this b*, ITA isn't computed (division by ~0); depth falls back to L* (README §6.4). */
+export const ITA_MIN_B = 4;
+
+export type DepthLabel = "very-light" | "light" | "medium" | "tan" | "deep" | "very-deep";
+
+/**
+ * Depth uses one blended angle (D-029), mostly from L*:
+ *   depthAngle = DEPTH_ITA_WEIGHT × ITA + (1 − DEPTH_ITA_WEIGHT) × atan((L* − 50) / DEPTH_REF_B)
+ * ITA alone depends on b*, which is also the undertone signal, so pinker skin read lighter. The
+ * second term is ITA with a fixed, typical skin b* (DEPTH_REF_B), i.e. lightness only. When b* is
+ * too small for ITA, only the L* term is used. Weight 0.2: with 0.3, sweeping b* from 10 to 25
+ * (an undertone difference) still moved skin at L* 65 by two MST steps; with 0.2 it moves at
+ * most one at any lightness (tested). Heuristics; calibrate.
+ */
+export const DEPTH_ITA_WEIGHT = 0.2;
+export const DEPTH_REF_B = 15;
+
+/**
+ * The one depth table (D-029): depth angle → MST 1–10 → label. Each row's MST belongs to
+ * exactly one label, so the label and the MST index can never contradict (tested).
+ * - Label boundaries keep the classic ITA classes from skin measurements (very light ≥ 55°,
+ *   light 41–55°, intermediate 28–41°, tan 10–28°, brown −30–10°, dark < −30°; Chardon et al.
+ *   1991, Del Bino & Bernerd 2013, as commonly quoted, not re-checked against the originals).
+ * - MST splits inside a class (65°, 48°, −10°, −50°) are heuristic and **approximate**; the UI
+ *   must label MST as approximate. Calibrate with self-reported MST from volunteers (README §11).
+ * Why not "nearest official swatch": the swatches are display colours (MST 1 has L* 94; measured
+ * fair skin is ~65–75), so nearest-swatch read real light skin as MST 5 and almost never gave
+ * MST 9–10. The official swatch colours stay in MST_SWATCHES for display (M6).
+ * Ordered lightest first; a depth angle ≥ minAngle gets that row.
+ */
+export const DEPTH_SCALE: readonly { mst: number; label: DepthLabel; minAngle: number }[] = [
+  { mst: 1, label: "very-light", minAngle: 65 },
+  { mst: 2, label: "very-light", minAngle: 55 },
+  { mst: 3, label: "light", minAngle: 48 },
+  { mst: 4, label: "light", minAngle: 41 },
+  { mst: 5, label: "medium", minAngle: 28 },
+  { mst: 6, label: "tan", minAngle: 10 },
+  { mst: 7, label: "deep", minAngle: -10 },
+  { mst: 8, label: "deep", minAngle: -30 },
+  { mst: 9, label: "very-deep", minAngle: -50 },
+  { mst: 10, label: "very-deep", minAngle: -Infinity },
+];
+
+/**
+ * Official Monk Skin Tone swatch colours (MST 1–10), for display next to a result (M6), not for
+ * classification. Source: the `--monk-scale-color-1…10` HSL values in the official site's bundle,
+ * https://skintone.google/assets/index.e4e4b56c.js (fetched 2026-11-18; SHA-256 b42d16d1…),
+ * converted HSL → sRGB; table with Lab and ITA in docs/DECISIONS.md D-027.
+ * Scale licence: CC BY 4.0 according to secondary sources (not confirmed on the official page).
+ */
+export const MST_SWATCHES: readonly string[] = [
+  "#f6ede4",
+  "#f3e7db",
+  "#f7ead0",
+  "#eadaba",
+  "#d7bd96",
+  "#a07e56",
+  "#825c43",
+  "#604134",
+  "#3a312a",
+  "#292420",
+];
+
+// ─── Undertone (README §6.6) ────────────────────────────────────────────────────────────────
+
+/**
+ * Photo undertone score (D-029):
+ *   p = cap × tanh(hueDelta(h, HUE_NEUTRAL_CENTRE_DEG) / HUE_SCALE_DEG)
+ * h is the hue angle of the overall skin colour (higher = more yellow = warmer). tanh is linear
+ * near the centre (p ≈ cap × Δh / scale) and only approaches ±cap far out, so real photos rarely
+ * saturate; a hard clamp at ±15° saturated an indoor selfie at 38.6° (−1.00).
+ * cap = PHOTO_SCORE_CAP_CALIBRATED with white-paper calibration, else
+ * PHOTO_SCORE_CAP_UNCALIBRATED: an uncalibrated camera's white balance can shift hue by several
+ * degrees, so its photo can never make a strong undertone call on its own.
+ * p uses hue only, never L* or chroma, so depth can't shift it. Heuristics; calibrate.
+ */
+export const HUE_NEUTRAL_CENTRE_DEG = 55;
+export const HUE_SCALE_DEG = 20;
+export const PHOTO_SCORE_CAP_CALIBRATED = 1;
+export const PHOTO_SCORE_CAP_UNCALIBRATED = 0.6;
+
+/** Quiz answer values (README §6.6). "unsure" is skipped, never scored as neutral. */
+export const QUIZ_ANSWER_SCORES = { cool: -1, neutral: 0, warm: 1 } as const;
+
+/** Fusion: photo weight w_p = PHOTO_WEIGHT_MAX × photoConfidence; quiz weight 1 − w_p. */
+export const PHOTO_WEIGHT_MAX = 0.6;
+
+/**
+ * Quiz consistency (D-029) = 1 − variance of the answered values (cool −1, neutral 0, warm +1):
+ * 1 when all answers agree (also all neutral), 0 for an even cool/warm split (2 + 2), 0.25 for
+ * 3 warm + 1 cool. Contradictory answers are a signal of uncertainty, so:
+ * - the fused score is pulled towards neutral: s × (1 − QUIZ_SPLIT_SHRINK × (1 − consistency));
+ * - overall confidence: the quiz's share counts × consistency, and the whole value is multiplied
+ *   by (1 − QUIZ_SPLIT_PENALTY × (1 − consistency)), so a split quiz ends up *below* no quiz.
+ * Heuristics; calibrate.
+ */
+export const QUIZ_SPLIT_SHRINK = 0.5;
+export const QUIZ_SPLIT_PENALTY = 0.25;
+
+/**
+ * Undertone buckets on the fused score s (README §6.6, issue M). Explicit cut-points:
+ * s < −0.25 cool · −0.25 ≤ s < −0.10 neutral-cool · −0.10 ≤ s ≤ 0.10 neutral ·
+ * 0.10 < s ≤ 0.25 neutral-warm · s > 0.25 warm. Heuristics; calibrate.
+ */
+export const UNDERTONE_CUTS = {
+  coolBelow: -0.25,
+  neutralCoolBelow: -0.1,
+  neutralWarmAbove: 0.1,
+  warmAbove: 0.25,
+} as const;
+
+// ─── Confidence (README §6.6, issue L) ──────────────────────────────────────────────────────
+
+/**
+ * Photo confidence (before fusion, photo evidence only) starts at 1 and is multiplied by the
+ * factors below. Heuristics; calibrate.
+ */
+export const PHOTO_ISSUE_FACTORS = {
+  FACE_TOO_SMALL: 0.85,
+  TOO_DARK: 0.7,
+  TOO_BRIGHT: 0.7,
+  COLOR_CAST: 0.6,
+  BLURRY: 0.85,
+  HEAD_TILTED: 0.8,
+} as const;
+/** COLOR_CAST factor when white-paper calibration was used (the cast was corrected). */
+export const PHOTO_COLOR_CAST_CALIBRATED_FACTOR = 0.95;
+/** No calibration: cameras' white balance is unknown. */
+export const PHOTO_UNCALIBRATED_FACTOR = 0.9;
+/** Valid pixels used for the overall colour: full trust at ≥ GOOD, factor MIN_FACTOR at ≤ MIN. */
+export const PHOTO_PIXELS_GOOD = 2000;
+export const PHOTO_PIXELS_MIN = 300;
+export const PHOTO_PIXELS_MIN_FACTOR = 0.6;
+/** Each region below MIN_VALID_PIXELS. */
+export const PHOTO_LOW_PIXEL_REGION_FACTOR = 0.85;
+/** One cheek dropped for imbalance (D-023). */
+export const PHOTO_CHEEK_IMBALANCE_FACTOR = 0.8;
+/**
+ * Cheek colour disagreement (chromatic part): factor falls linearly from 1 at 0 to
+ * PHOTO_CHEEK_CHROMATIC_MIN_FACTOR at PHOTO_CHEEK_CHROMATIC_FULL and above. ΔC 3.5 → 0.825.
+ */
+export const PHOTO_CHEEK_CHROMATIC_FULL = 8;
+export const PHOTO_CHEEK_CHROMATIC_MIN_FACTOR = 0.6;
+/** Cheeks much lighter/darker than each other (side light; mostly affects depth). */
+export const PHOTO_UNEVEN_LIGHTING_FACTOR = 0.95;
+/** Cheeks redder than the forehead (blush, bronzer or flushing). */
+export const PHOTO_CHEEK_REDNESS_FACTOR = 0.85;
+/** Lower bound so a poor photo still counts a little. */
+export const PHOTO_CONFIDENCE_MIN = 0.05;
+
+/**
+ * Overall confidence (after fusion) = (PHOTO_SHARE × photoConfidence + QUIZ_SHARE ×
+ * answeredCount / 4 × quiz consistency) × agreement factor × quiz split factor (see above).
+ * The agreement factor is 1 while |p − q| ≤ AGREEMENT_FULL_DIFF and falls linearly to
+ * AGREEMENT_MIN_FACTOR at |p − q| = 2. With no quiz
+ * answers there's nothing to agree with (factor 1), so confidence tops out at PHOTO_SHARE.
+ * DISAGREEMENT_NOTE_DIFF: add the "photo and quiz disagree" note when |p − q| exceeds it and at
+ * least DISAGREEMENT_NOTE_MIN_ANSWERS questions were answered. Heuristics.
+ */
+export const OVERALL_PHOTO_SHARE = 0.6;
+export const OVERALL_QUIZ_SHARE = 0.4;
+export const AGREEMENT_FULL_DIFF = 0.5;
+/**
+ * 0.4 (was 0.6, D-029): with 0.6, four warm answers against a clearly cool photo still gave 70%;
+ * now that case lands around 55–60%.
+ */
+export const AGREEMENT_MIN_FACTOR = 0.4;
+export const DISAGREEMENT_NOTE_DIFF = 1;
+export const DISAGREEMENT_NOTE_MIN_ANSWERS = 2;
+/**
+ * Overall confidence never exceeds this without white-paper calibration (D-029): camera white
+ * balance is unknown, so only a calibrated photo can support a very confident result.
+ */
+export const OVERALL_MAX_UNCALIBRATED = 0.85;
+/** Add a "low photo confidence" note below this. */
+export const LOW_PHOTO_CONFIDENCE_NOTE = 0.4;

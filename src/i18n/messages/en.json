@@ -1,0 +1,77 @@
+{
+  "common": {
+    "language": "Language",
+    "languageNames": {
+      "en": "English",
+      "sq": "Shqip"
+    }
+  },
+  "quiz": {
+    "title": "A few quick questions",
+    "intro": "Four taps. If a question doesn't fit you, choose “Not sure”: it's skipped, not counted.",
+    "privacy": "Your answers stay in this browser tab.",
+    "progress": "Question {current} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "finish": "See my answers",
+    "questions": {
+      "veins": {
+        "prompt": "Look at the veins on the inside of your wrist. They look…",
+        "cool": "Blue or purple",
+        "warm": "Green or olive",
+        "neutral": "A mix of both",
+        "unsure": "Not sure / doesn't apply"
+      },
+      "daylight": {
+        "prompt": "In daylight, does your skin look more…",
+        "cool": "Pink or rosy",
+        "warm": "Golden or peachy",
+        "neutral": "Neither",
+        "unsure": "Not sure / doesn't apply"
+      },
+      "metal": {
+        "prompt": "Which looks better next to your face?",
+        "cool": "Silver",
+        "warm": "Gold",
+        "neutral": "Both",
+        "unsure": "Not sure / doesn't apply"
+      },
+      "white": {
+        "prompt": "Which suits you better: pure white or off-white clothing?",
+        "cool": "Pure white",
+        "warm": "Off-white or cream",
+        "neutral": "Both",
+        "unsure": "Not sure / doesn't apply"
+      }
+    },
+    "summary": {
+      "title": "Your answers",
+      "change": "Change",
+      "changeQuestion": "Change answer to question {number}",
+      "skipped": "Skipped",
+      "later": "Your results will use these answers together with your photo.",
+      "restart": "Start again"
+    }
+  },
+  "undertone": {
+    "cool": "Cool",
+    "neutral-cool": "Neutral, leaning cool",
+    "neutral": "Neutral",
+    "neutral-warm": "Neutral, leaning warm",
+    "warm": "Warm"
+  },
+  "depth": {
+    "very-light": "Very light",
+    "light": "Light",
+    "medium": "Medium",
+    "tan": "Tan",
+    "deep": "Deep",
+    "very-deep": "Very deep",
+    "mstApprox": "About {value} on the Monk Skin Tone scale (approximate)"
+  },
+  "notes": {
+    "photoQuizDisagree": "Your photo and your answers pointed in different directions, so we're less sure. Both metal families may work for you.",
+    "lowPhotoConfidence": "The photo gave us limited information, so your answers count for more.",
+    "noQuizAnswers": "This result is based on your photo only. Answering the questions makes it more reliable."
+  }
+}

@@ -19,6 +19,7 @@ import { sampleSkin, type SkinSample } from "@/lib/analysis/sampler";
 import { measureWhitePatch, type PatchResult } from "@/lib/analysis/whiteBalance";
 import type { DetectResponse } from "@/workers/landmarker.protocol";
 import { LandmarkerClient } from "../landmarkerClient";
+import { ScorePanel } from "./ScorePanel";
 
 const MAX_CANVAS_WIDTH = 800;
 
@@ -233,6 +234,7 @@ function AnalysisPanel({
           <SampleTable sample={sample} />
         </div>
       )}
+      {sample && <ScorePanel sample={sample} quality={quality} />}
       {calibration && (
         <div>
           <h2 className="font-semibold">White-paper calibration</h2>
@@ -244,6 +246,7 @@ function AnalysisPanel({
                 {fmt(calibration.patch.gains.g)}, b {fmt(calibration.patch.gains.b)}.
               </p>
               {calibration.sample && <SampleTable sample={calibration.sample} />}
+              {calibration.sample && <ScorePanel sample={calibration.sample} quality={quality} />}
             </>
           ) : (
             <p>Patch rejected: {calibration.patch.reason}. Tap a plain, well-lit white area.</p>

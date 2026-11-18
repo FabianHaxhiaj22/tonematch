@@ -1,0 +1,77 @@
+{
+  "common": {
+    "language": "Gjuha",
+    "languageNames": {
+      "en": "English",
+      "sq": "Shqip"
+    }
+  },
+  "quiz": {
+    "title": "Disa pyetje të shpejta",
+    "intro": "Vetëm 4 pyetje. Nëse nuk e di përgjigjen, zgjidh „Nuk e di” dhe ajo pyetje nuk do të llogaritet.",
+    "privacy": "Përgjigjet e tua mbeten vetëm në këtë faqe.",
+    "progress": "Pyetja {current} nga {total}",
+    "back": "Mbrapa",
+    "next": "Vazhdo",
+    "finish": "Shiko përgjigjet",
+    "questions": {
+      "veins": {
+        "prompt": "Shiko venat në pjesën e brendshme të kyçit të dorës. Ato duken…",
+        "cool": "Blu ose vjollcë",
+        "warm": "Jeshile ose ngjyrë ulliri",
+        "neutral": "Një përzierje e të dyjave",
+        "unsure": "Nuk e di"
+      },
+      "daylight": {
+        "prompt": "Në dritën e ditës, lëkura jote duket më shumë…",
+        "cool": "Rozë",
+        "warm": "E artë ose ngjyrë pjeshke",
+        "neutral": "As njëra, as tjetra",
+        "unsure": "Nuk e di"
+      },
+      "metal": {
+        "prompt": "Çfarë të rri më mirë pranë fytyrës?",
+        "cool": "Argjendi",
+        "warm": "Ari",
+        "neutral": "Të dyja",
+        "unsure": "Nuk e di"
+      },
+      "white": {
+        "prompt": "Çfarë të rri më mirë: e bardha e pastër apo e bardha krem?",
+        "cool": "E bardhë e pastër",
+        "warm": "E bardhë krem ose bezhë e çelët",
+        "neutral": "Të dyja",
+        "unsure": "Nuk e di"
+      }
+    },
+    "summary": {
+      "title": "Përgjigjet e tua",
+      "change": "Ndrysho",
+      "changeQuestion": "Ndrysho përgjigjen e pyetjes {number}",
+      "skipped": "E anashkaluar",
+      "later": "Këto përgjigje do të përdoren bashkë me foton tënde për rezultatin.",
+      "restart": "Fillo nga e para"
+    }
+  },
+  "undertone": {
+    "cool": "I ftohtë",
+    "neutral-cool": "Neutral, me prirje të ftohtë",
+    "neutral": "Neutral",
+    "neutral-warm": "Neutral, me prirje të ngrohtë",
+    "warm": "I ngrohtë"
+  },
+  "depth": {
+    "very-light": "Shumë e çelët",
+    "light": "E çelët",
+    "medium": "Mesatare",
+    "tan": "Ezmere",
+    "deep": "E zeshkët",
+    "very-deep": "Shumë e zeshkët",
+    "mstApprox": "Përafërsisht {value} në shkallën Monk Skin Tone"
+  },
+  "notes": {
+    "photoQuizDisagree": "Fotoja dhe përgjigjet e tua nuk përputhen plotësisht, ndaj rezultati është më pak i sigurt. Mund të të rrinë mirë si ari, ashtu edhe argjendi.",
+    "lowPhotoConfidence": "Fotoja na dha pak informacion, ndaj përgjigjet e tua kanë më shumë peshë.",
+    "noQuizAnswers": "Ky rezultat bazohet vetëm në foto. Nëse u përgjigjesh pyetjeve, rezultati bëhet më i besueshëm."
+  }
+}

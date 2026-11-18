@@ -35,6 +35,30 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 | `MAX_YAW_DEG` / `MAX_PITCH_DEG` | 15 / 20 | Yaw tightened from 20 (D-023); fixture yaw ≈ −7° |
 | `WB_*` | patch radius 6 px, min luminance 0.15, ≤ 5% clipped, gains 0.5–2 | Synthetic paper under a warm cast: gains recover the cast within 8-bit rounding |
 
+## M4 starting values (2026-11-18)
+
+All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists (README §11).
+
+| Constant | Value | Basis so far |
+|---|---|---|
+| `DEPTH_ITA_WEIGHT` / `DEPTH_REF_B` | 0.2 / 15 | Depth angle mostly from L\*; b\* 10 → 25 moves MST ≤ 1 step (D-029) |
+| `DEPTH_SCALE` (angle → MST → label) | 65 / 55 / 48 / 41 / 28 / 10 / −10 / −30 / −50 | Label edges = classic ITA classes; MST splits heuristic (D-029). Ask volunteers for self-reported MST |
+| `ITA_MIN_B` | 4 | Skin b\* is normally 10–25 |
+| `HUE_NEUTRAL_CENTRE_DEG` / `HUE_SCALE_DEG` | 55° / 20° (tanh) | Real skin hues 40–70° stay below \|p\| 0.7 calibrated; an indoor selfie at 38.6° saturated the old ±15° clamp (D-029) |
+| `UNDERTONE_CUTS` | ±0.10, ±0.25 | README §6.6 |
+| `PHOTO_SCORE_CAP_CALIBRATED` / `_UNCALIBRATED` | 1 / 0.6 | Camera white balance shifts hue; an uncalibrated photo alone can't make a strong call (D-029) |
+| `PHOTO_WEIGHT_MAX` | 0.6 | README §6.6 |
+| `QUIZ_SPLIT_SHRINK` / `QUIZ_SPLIT_PENALTY` | 0.5 / 0.25 | 2 + 2 quiz: score × 0.5, confidence × 0.75 and quiz share × 0 (D-029) |
+| `CHEEK_REDNESS_A_MARGIN` / `_HUE_MARGIN_DEG` | 4 / 8° | Synthetic: unmade-up skin at every depth not flagged; obvious redness flagged |
+| `CHEEK_CHROMATIC_DISAGREEMENT` | 3 | M3 real selfie: ΔE 3.5, mostly b\* |
+| `FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL` | 0.5 | D-026 |
+| `PHOTO_*` factors | see D-028 | Heuristic |
+| `OVERALL_PHOTO_SHARE` / `_QUIZ_SHARE` | 0.6 / 0.4 | Heuristic |
+| `AGREEMENT_FULL_DIFF` / `_MIN_FACTOR` | 0.5 / 0.4 | Photo and quiz in opposite directions land around 55–60% (D-029) |
+| `OVERALL_MAX_UNCALIBRATED` | 0.85 | Only white-paper calibration can go above 85% (D-029) |
+
+**First observation (NASA fixture, studio light from one side):** several photo-confidence factors apply at once (framing, no calibration, cheek colour disagreement, uneven light, cheek-vs-forehead difference), so photo confidence is low (≈ 0.4). Strong side light makes the two cheeks and the forehead differ; whether these factors overlap too much is a question for the calibration set. (Per `SOURCES.md`, the person's skin results aren't recorded.)
+
 ## Threshold changes
 
 | Date | Constant | Old | New | Evidence |
@@ -43,4 +67,10 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 | 2026-11-13 | Colour cast method | brightest 1% of background | neutral-pixel cluster | Red curtain false positive (23.7) on a real photo (D-023) |
 | 2026-11-13 | Forehead lower edge | brow top edge | one ring higher | Overlapped the brows on a real photo (D-023) |
 | 2026-11-13 | Cheek indices | 117–118–101–36–205–187–50 | 101–100–142–203–206–205 (apple of the cheek) | Real selfie at yaw −12° kept 33% of the right cheek after the clip (D-024) |
+| 2026-11-18 | Photo score | clamp(Δh / 15°) | cap × tanh(Δh / 20°), cap 0.6 uncalibrated | Indoor selfie saturated at −1.00 (D-029) |
+| 2026-11-18 | Depth / MST | ITA classes + nearest display swatch | one L\*-weighted angle, one table | Label and MST contradicted on a real photo (D-029) |
+| 2026-11-18 | `AGREEMENT_MIN_FACTOR` | 0.6 | 0.4 | All-warm quiz vs cool photo gave 70%; now 59% (D-029) |
+| 2026-11-18 | Uncalibrated confidence cap | none | 0.85 | Only calibration should allow > 85% (D-029) |
+| 2026-11-18 | Quiz consistency | none | 1 − variance; shrink 0.5, penalty 0.25 | 2 + 2 quiz raised confidence 64% → 68% (D-029) |
+| 2026-11-18 | `HUE_HALF_WIDTH_DEG` | 10° (first draft) | 15° | Neutral bucket was ±1° of hue; 8-bit rounding flipped it in tests (D-026) |
 | 2026-11-13 | Clip boundary | face-oval hull | hull of all landmarks (visible outline) | Perspective puts far-side face-oval landmarks onto the far cheek (D-024) |

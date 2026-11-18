@@ -11,12 +11,12 @@ import {
   LUMINANCE_TRIM_LOW,
   MIN_VALID_PIXELS,
   OUTLIER_DELTA_E,
-  REGION_WEIGHTS,
   type RegionName,
 } from "./config";
 import { SRGB_TO_LINEAR_LUT, rasterizePolygon, type RgbaImage } from "./image";
 import { REGION_NAMES, buildSampledRegions, type Point, type SampledRegions } from "./regions";
 import { deltaE76, median, weightedMedian } from "./stats";
+import { chooseRegionWeights, type WeightReason } from "./weights";
 import { applyGains, type WhiteBalanceGains } from "./whiteBalance";
 
 export type SamplerOptions = {
@@ -57,6 +57,13 @@ export type SkinSample = {
   cheekImbalance: { ratio: number; smaller: "leftCheek" | "rightCheek" } | null;
   /** Regions that contributed to `overall`. */
   usedRegions: RegionName[];
+  /**
+   * Weights used for `overall` (sum 1 over usedRegions). Normally 0.4 / 0.4 / 0.2; the forehead
+   * gets more when the cheeks are doubtful (D-026), see `weightReasons`.
+   */
+  weights: Record<RegionName, number>;
+  /** Why the forehead got more weight (internal codes; never shown to users as "makeup"). */
+  weightReasons: WeightReason[];
   /**
    * ΔE*ab between the cheek medians; null unless both cheeks have enough pixels and aren't
    * imbalanced.
@@ -153,8 +160,27 @@ export function sampleSkin(
       : null;
   const usable = REGION_NAMES.filter((n) => regions[n].enough && n !== cheekImbalance?.smaller);
 
+  const both = left.enough && right.enough && left.median && right.median && !cheekImbalance;
+  const cheekDeltaE = both ? deltaE76(left.median!, right.median!) : null;
+  const cheekDifference = both
+    ? {
+        lightness: Math.abs(left.median!.L - right.median!.L),
+        chromatic: Math.hypot(left.median!.a - right.median!.a, left.median!.b - right.median!.b),
+      }
+    : null;
+
+  const { weights, reasons: weightReasons } = chooseRegionWeights({
+    medians: {
+      rightCheek: right.median,
+      leftCheek: left.median,
+      forehead: regions.forehead.median,
+    },
+    usable,
+    cheekChromatic: cheekDifference?.chromatic ?? null,
+  });
+
   // Weighted median over pixels: each region contributes its weight, split over its pixels, so
-  // a large forehead can't outvote the cheeks. Weights are renormalised over usable regions.
+  // a large forehead can't outvote the cheeks.
   let overall: Lab | null = null;
   if (usable.length > 0) {
     const L: number[] = [];
@@ -163,7 +189,7 @@ export function sampleSkin(
     const w: number[] = [];
     for (const name of usable) {
       const r = regions[name];
-      const each = REGION_WEIGHTS[name] / r.validPixels;
+      const each = weights[name] / r.validPixels;
       for (const i of r.validIndices) {
         const lab = pixelLab(img, i, opts.gains);
         L.push(lab.L);
@@ -175,15 +201,6 @@ export function sampleSkin(
     overall = { L: weightedMedian(L, w), a: weightedMedian(a, w), b: weightedMedian(b, w) };
   }
 
-  const both = left.enough && right.enough && left.median && right.median && !cheekImbalance;
-  const cheekDeltaE = both ? deltaE76(left.median!, right.median!) : null;
-  const cheekDifference = both
-    ? {
-        lightness: Math.abs(left.median!.L - right.median!.L),
-        chromatic: Math.hypot(left.median!.a - right.median!.a, left.median!.b - right.median!.b),
-      }
-    : null;
-
   return {
     regions,
     geometry,
@@ -191,6 +208,8 @@ export function sampleSkin(
     lowPixelRegions,
     cheekImbalance,
     usedRegions: usable,
+    weights,
+    weightReasons,
     cheekDeltaE,
     cheekDifference,
     unevenLighting: cheekDeltaE !== null && cheekDeltaE > CHEEK_DISAGREEMENT_DELTA_E,

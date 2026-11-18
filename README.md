@@ -184,16 +184,18 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
 
 ### 6.5 Depth (`depth.ts`)
 - Map ITA° (primary) and L\* (secondary) to: `very-light | light | medium | tan | deep | very-deep`, and approximate an MST 1–10 index for display. Keep the mapping table in config. **Label the MST value as approximate.**
+- Implemented (M4, D-029): one depth angle, mostly from L\* (0.8 × atan((L\* − 50) / 15) + 0.2 × ITA), so b\* (the undertone signal) barely affects depth; L\* only when b\* is too small for ITA. One table maps that angle to the approximate MST index, and the label comes from the same row, so label and MST can never contradict. Label edges keep the classic ITA classes; the MST splits inside them are heuristic. The official MST swatch colours are kept for display only. Depth never feeds the undertone.
 
 ### 6.6 Undertone (`undertone.ts`)
-- Photo undertone score `p ∈ [−1, +1]` (−1 cool, +1 warm), from the hue angle relative to a configurable neutral centre, scaled by a configurable width. Start with a neutral centre around the typical skin hue range and **calibrate with real test photos**. Document that initial values are heuristics.
-- **Photo confidence** `photoConfidence ∈ [0, 1]` is computed **before fusion**, from photo evidence only: quality issues (and any "analyse anyway" overrides), valid pixel count, left/right cheek agreement, and whether calibration was used. It must not depend on the questionnaire.
+- Photo undertone score `p` (−1 cool … +1 warm), from the hue angle relative to a configurable neutral centre: `p = cap × tanh(Δh / 20°)` with the signed, wrapped hue difference Δh from 55° (D-029). tanh rarely reaches the cap on real photos; the cap is 1 with white-paper calibration and 0.6 without, because camera white balance shifts hue. It uses hue only, never L\* or chroma, so depth can't shift it. Start with a neutral centre around the typical skin hue range and **calibrate with real test photos**. Document that initial values are heuristics.
+- **Photo confidence** `photoConfidence ∈ [0, 1]` is computed **before fusion**, from photo evidence only: quality issues (and any "analyse anyway" overrides), valid pixel count, left/right cheek agreement (mainly the colour part of the difference), cheek imbalance, cheeks redder than the forehead, and whether calibration was used. It must not depend on the questionnaire. Implemented as a product of configured factors, each reported with its reason (D-028).
+- **Region weights** (D-026): normally cheeks 0.4 + 0.4 and forehead 0.2. The forehead gets 0.5 when the cheeks look redder than the forehead (a relative test, so independent of depth; blush, bronzer and natural flushing all trigger it), when one cheek was dropped, or when the cheeks disagree in colour. This only shifts weight and lowers photo confidence; the UI never says "you're wearing makeup".
 - Questionnaire. Each question has four answers. Cool → −1, warm → +1, neutral → 0, and **"not sure / doesn't apply" is skipped** (it is not counted as neutral):
   1. Veins on your inner wrist look… blue/purple (cool) · green/olive (warm) · a mix of both (neutral) · not sure / doesn't apply
   2. In daylight, does your skin look more… pink/rosy (cool) · golden/peachy (warm) · neither (neutral) · not sure / doesn't apply
   3. Which looks better next to your face… silver (cool) · gold (warm) · both (neutral) · not sure / doesn't apply
   4. Pure white vs off-white/cream clothing… pure white (cool) · cream (warm) · both (neutral) · not sure / doesn't apply
-- Questionnaire score `q ∈ [−1, +1]` = mean of the **answered** questions; `answeredCount` = how many were answered (0–4).
+- Questionnaire score `q ∈ [−1, +1]` = mean of the **answered** questions; `answeredCount` = how many were answered (0–4). Quiz **consistency** = 1 − variance of the answered values (1 = all agree, 0 = an even cool/warm split). Contradictory answers pull the fused score towards neutral (× (1 − 0.5 × (1 − consistency))) and lower overall confidence below what the photo alone gives (D-029).
 - A sun-reaction question (burn vs tan) was deliberately **not** used. It measures depth/phototype (essentially Fitzpatrick), not undertone, and would push deep skin towards "warm" and very light skin towards "cool".
 - Fusion: `s = w_p·p + w_q·q`, with `w_p = 0.6·photoConfidence` and `w_q = 1 − w_p`. If `answeredCount = 0`, use `s = p`. All weights configurable.
 - Classification uses explicit cut-points in config (initial values are heuristics, to be calibrated):
@@ -206,7 +208,7 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
   | `+0.10 < s ≤ +0.25` | `neutral-warm` | both families, warm slightly ahead |
   | `s > +0.25` | `warm` | warm metals first |
 
-- **Overall confidence** is computed **after fusion** = f(`photoConfidence`, `answeredCount`, photo/questionnaire agreement). It is **stored as 0–1** (as in §7.3) and displayed as a percentage. If photo and questionnaire strongly disagree (configurable threshold), add a note and say so in the UI.
+- **Overall confidence** is computed **after fusion** = f(`photoConfidence`, `answeredCount`, quiz consistency, photo/questionnaire agreement); implemented as (0.6 × photo + 0.4 × answered/4 × consistency) × agreement factor × (1 − 0.25 × (1 − consistency)), capped at 85% without white-paper calibration (D-028, D-029). It is **stored as 0–1** (as in §7.3) and displayed as a percentage. If photo and questionnaire strongly disagree (configurable threshold), add a note and say so in the UI.
 
 ### 6.7 Face shape (Phase 2, `faceShape.ts`)
 - Ratios from landmarks: face length / cheekbone width, jaw width / cheekbone width, forehead width / cheekbone width, jaw angle.

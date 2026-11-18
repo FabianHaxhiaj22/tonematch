@@ -40,3 +40,12 @@ export function weightedMedian(values: ArrayLike<number>, weights: ArrayLike<num
 export function deltaE76(p: Lab, q: Lab): number {
   return Math.hypot(p.L - q.L, p.a - q.a, p.b - q.b);
 }
+
+/**
+ * Signed difference a − b between two hue angles in degrees, wrapped to (−180, 180].
+ * Hue angles are circular: 350° is 15° below 5°, not 345° above it.
+ */
+export function hueDelta(a: number, b: number): number {
+  const d = (((a - b) % 360) + 360) % 360;
+  return d > 180 ? d - 360 : d;
+}

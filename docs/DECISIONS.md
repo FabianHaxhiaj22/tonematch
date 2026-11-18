@@ -154,6 +154,62 @@ A developer tested PR #12 on a real selfie (not committed; a real person): head 
   - **M4:** consider giving the forehead more weight (currently 0.4 / 0.4 / 0.2), or down-weighting the cheeks when they are much redder than the forehead (a cheek-vs-forehead hue difference is a possible makeup signal). Decide with calibration data; tracked as R-007.
   - The UI must not claim to detect makeup.
 
+### D-026 · 2026-11-18 · Photo undertone score and region weighting (M4)
+- **Photo score:** `p = clamp(hueDelta(h, 55°) / 15°, −1, 1)`, using the **signed, wrapped** hue difference (hue angles are circular: our colour engine returns 0–360°, so without wrapping a pinkish 350° would have scored as maximally warm). Uses hue only, never L\* or chroma.
+- **Half-width 15°, not 10°:** with 10° the neutral bucket (|s| ≤ 0.10) was only ±1° of hue; tests showed 8-bit rounding alone moves a painted colour's hue by up to 1.4°, enough to flip buckets. 15° maps the usual skin hue range (~40–70°) onto −1…+1. Still a heuristic for calibration.
+- **Region weights:** normally 0.4 / 0.4 / 0.2. The forehead gets `FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL` (0.5; usable cheeks share the rest) when:
+  1. a cheek looks **redder than the forehead**: cheek a\* higher by > 4, or hue angle lower by > 8°. This is relative to the same face, not an absolute a\* threshold, because deeper skin can naturally have higher a\* (an absolute rule would flag it). Blush, bronzer and natural flushing all trigger it.
+  2. **one cheek was dropped** (too few pixels or imbalance, D-023).
+  3. the cheeks **disagree in colour**: √(Δa\*² + Δb\*²) > 3. A real selfie in M3 testing had ΔE 3.5, mostly in b\* (10.1 vs 7.2), which crosses it.
+- Effects are limited to weights and photo confidence. Reason codes (`cheekRedness`, …) are internal; no user-facing string mentions makeup (a test scans both message files).
+- **Tests:** deep and very deep skin without makeup (cheeks slightly darker and redder than the forehead, as unmade-up skin often is) is not flagged; the same hue gives the same photo score at every depth; the quiz never sees depth.
+- **Alternatives:** an absolute a\* threshold (rejected: depth-dependent); dropping the cheeks entirely when red (rejected: the forehead alone is a small sample and catches foundation and shine).
+
+### D-027 · 2026-11-18 · Depth classes and the approximate MST index
+- **Depth labels** from the classic ITA classes (very light > 55°, light 41–55°, intermediate 28–41°, tan 10–28°, brown −30–10°, dark < −30°; Chardon et al. 1991, Del Bino & Bernerd 2013, as commonly quoted, not re-checked against the papers here), named `very-light … very-deep`.
+- **MST swatches:** the official values are in the site's bundle (`skintone.google/assets/index.e4e4b56c.js`, fetched 2026-11-18, SHA-256 `b42d16d1ac6945570f7533a0d2a492bae14c084318db54d6d6fdef595a10b2cd`) as CSS variables `--monk-scale-color-1…10` in HSL. Converted with our colour engine:
+
+  | MST | HSL | sRGB | L\* | a\* | b\* | ITA° |
+  |---|---|---|---|---|---|---|
+  | 1 | 30, 50%, 92.9% | #f6ede4 | 94.2 | 1.5 | 5.4 | 83.0 |
+  | 2 | 30, 50%, 90.6% | #f3e7db | 92.3 | 2.1 | 7.3 | 80.2 |
+  | 3 | 40, 70.9%, 89.2% | #f7ead0 | 93.1 | 0.2 | 14.2 | 71.8 |
+  | 4 | 40, 53.3%, 82.4% | #eadaba | 87.6 | 0.5 | 17.7 | 64.7 |
+  | 5 | 36, 44.8%, 71.6% | #d7bd96 | 77.9 | 3.5 | 23.1 | 50.3 |
+  | 6 | 32.4, 30.1%, 48.2% | #a07e56 | 55.1 | 7.8 | 26.7 | 10.9 |
+  | 7 | 23.8, 32%, 38.6% | #825c43 | 42.5 | 12.3 | 20.5 | −20.1 |
+  | 8 | 17.7, 29.7%, 29% | #604134 | 30.7 | 11.7 | 13.3 | −55.4 |
+  | 9 | 26.3, 16%, 19.6% | #3a312a | 21.1 | 2.7 | 6.0 | −78.4 |
+  | 10 | 26.7, 12.3%, 14.3% | #292420 | 14.6 | 1.5 | 3.5 | −84.3 |
+
+- **Mapping (superseded by D-029: swatches are now display-only):** nearest swatch by ITA. ITA decreases strictly from MST 1 to 10, but L\* doesn't (MST 3 is lighter than MST 2), so ITA is the right axis. Swatch hues vary from 49° to 89° without pattern: the scale isn't an undertone scale, so hue is ignored.
+- **Why "approximate":** the swatches are display colours, not skin measurements (MST 9–10 have very low chroma, unlike real deep skin), so nearest-swatch is only an approximation. The UI must always say so (message `depth.mstApprox`).
+- **Licence:** CC BY 4.0 according to secondary sources (e.g. Wikipedia); not confirmed on the official page, whose text is rendered client-side. We store 10 numbers with attribution.
+- **Fallback:** if b\* < `ITA_MIN_B` (4), ITA is estimated from L\* with b\* = 15 and depth is flagged `method: "lightness"`.
+
+### D-028 · 2026-11-18 · Confidence formulas, quiz UI and messages before M8
+- **Photo confidence** (before fusion): 1 × factors for each overridden warning (e.g. TOO_DARK 0.7, COLOR_CAST 0.6 or 0.95 if calibrated), no calibration 0.9, few pixels (1 at ≥ 2000 → 0.6 at ≤ 300), each low-pixel region 0.85, cheek imbalance 0.8, cheek colour disagreement (1 at 0 → 0.6 at ΔC ≥ 8; the M3 selfie's 3.5 → 0.825), uneven light 0.95, cheeks redder than forehead 0.85; floor 0.05. Each factor is returned with its reason. No quiz input exists in its signature.
+- **Overall confidence** (after fusion): (0.6 × photo + 0.4 × answered/4) × agreement, where agreement is 1 while |p − q| ≤ 0.5 and falls to 0.6 at |p − q| = 2. Notes: `photoQuizDisagree` (|p − q| > 1 with ≥ 2 answers), `lowPhotoConfidence` (< 0.4), `noQuizAnswers`.
+- **Quiz UI** at `/quiz`: one question per screen as a native radio group (fieldset/legend), focus moves to each new question, ≥ 56 px targets, Back/Next and Enter to submit, summary with "change" links, no motion. State in a Zustand store, memory only. Results UI is M6; until then scores are visible on `/dev/landmarks`.
+- **Messages before M8:** `src/i18n/messages/en.json` and `sq.json` in next-intl's nested format with `{placeholder}` syntax and a small typed lookup (`src/i18n/messages.ts`); no next-intl install or locale routing until M8, which will load these files unchanged. The quiz has its own en/sq switch (sets `lang` on the page). Albanian strings were drafted by Claude Code, then reviewed and rewritten by a native speaker (Erdiona Tola, 2026-11-18); `src/i18n/review/sq.json` marks each one `reviewed`, and a test fails if an sq string lacks a status (new or changed strings start as `needs-native-review`). "Not sure" is "Nuk e di", which is gender-neutral (unlike "i/e sigurt").
+
+### D-029 · 2026-11-18 · Fixes after real-photo testing of PR #14
+A developer tested PR #14 on `/dev/landmarks` with an evening indoor selfie (uncalibrated) and a quiz of 2 cool + 2 warm answers. Three problems, and what changed:
+1. **Depth label and MST contradicted each other** ("very-light" with MST ≈ 5). The label came from the ITA classes and MST from the nearest *display* swatch, two different partitions (ITA 55–57.5° fell in both "very light" and MST 5). Also, ITA depends on b\*, which is the undertone signal, so pinker skin read lighter, and the display swatches are much lighter than measured skin (MST 1 has L\* 94; fair skin in photos is ~65–75), so nearest-swatch read real light skin as MST 5 and rarely gave MST 9–10.
+   - **One depth angle**, mostly L\*: `0.8 × atan((L* − 50) / 15) + 0.2 × ITA` (L\* term only when ITA can't be computed). With weight 0.3, sweeping b\* 10 → 25 still moved skin at L\* 65 by two MST steps; with 0.2 it's at most one at any lightness (tested).
+   - **One table** (`DEPTH_SCALE`): angle → MST 1–10 → label. Label edges keep the classic ITA classes (55°, 41°, 28°, 10°, −30°); MST splits inside them (65°, 48°, −10°, −50°) are heuristic. A test sweeps > 2000 colours and checks label = label of MST every time.
+   - The official swatch colours (D-027) stay in config for display only; nearest-swatch classification is dropped.
+2. **Photo score saturated at −1.00** (hue 38.6°, beyond the old ±15° clamp). Now `p = cap × tanh(Δh / 20°)`: linear near the centre, only approaching the cap far out (real skin hues 40–70° stay below 0.7 even calibrated). Cap 1 with white-paper calibration, **0.6 without**, since camera white balance shifts hue. The tested hue now gives p ≈ −0.41 instead of −1.
+3. **A split quiz raised confidence and left a plain "cool"** (q = 0, confidence 64% → 68%). New quiz **consistency** = 1 − variance of answered values (all agree → 1, also all neutral; 2 + 2 → 0; 3 + 1 → 0.25):
+   - the fused score is multiplied by `1 − 0.5 × (1 − consistency)` (pulled towards neutral);
+   - in overall confidence the quiz's share is multiplied by consistency, and the total by `1 − 0.25 × (1 − consistency)`, so a 2 + 2 quiz ends up *below* the photo alone, while agreeing answers raise it (tested: 4/0 > 3/1 > 2/2, and 2/2 < no answers).
+   - On a synthetic stand-in for the tested photo (uncalibrated, hue ≈ 37°): no quiz → cool, 54%; all cool → cool, 92%; all warm → neutral-warm, 70% with the "photo and quiz disagree" note; 2 + 2 → neutral-cool (s −0.12, was −0.43), 40%.
+- **Decisions after review (2026-11-18, by the developers):**
+  - `QUIZ_SPLIT_SHRINK` stays 0.5: a 2 + 2 quiz with a cool-leaning photo landing on neutral-cool is fine.
+  - `AGREEMENT_MIN_FACTOR` 0.6 → **0.4**, so when the photo and quiz point in opposite directions confidence drops further: the all-warm case went from 70% to **59%** (target 55–60%, tested).
+  - **Overall confidence is capped at 85% without white-paper calibration** (`OVERALL_MAX_UNCALIBRATED`); only a calibrated photo can go higher. The all-cool case went from 92% to **85%** (tested: an uncalibrated photo never exceeds the cap; calibrated can).
+  - Stand-in results now: no quiz → cool, 54%; all warm → neutral-warm, 59% with the disagreement note; all cool → cool, 85%; 2 + 2 → neutral-cool, 40%.
+
 ---
 
 ## Open risks
@@ -188,3 +244,4 @@ The only real-face fixture (D-017) is one studio portrait at one skin depth. REA
 
 ### R-007 · Makeup on the cheeks (blush, bronzer) · owner: M4 (weighting), M7 (guide copy)
 Blush made a real cheek sample read strongly pink (D-025). M7: guide-screen line "no makeup on the cheeks if possible". M4: test a higher forehead weight and/or a cheek-vs-forehead hue check against the calibration set before choosing weights. Close when both are done.
+**M4 status (2026-11-18):** done in code with heuristic values (D-026: relative cheek-vs-forehead test, forehead weight 0.5, photo confidence × 0.85); still to calibrate on consented real photos. M7 guide copy remains.

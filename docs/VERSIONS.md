@@ -55,6 +55,14 @@ Checked with `npm view jpeg-js` on 2026-11-13.
 |---|---|---|---|
 | jpeg-js | 0.4.4 | 0.4.4 | **Dev dependency only**: decodes the JPEG fixture in Vitest (Node has no image decoder). Pure JS, no dependencies, BSD-3-Clause; 0.4.4 includes the fix for CVE-2022-25851. Unmaintained since 2022, acceptable because it only reads our own fixture files in tests (D-022). |
 
+## Installed in M4
+
+Checked with `npm view zustand version` on 2026-11-18.
+
+| Package | Pinned | Latest on 2026-11-18 | Notes |
+|---|---|---|---|
+| zustand | 5.1.0 | 5.1.0 | Quiz state (memory only). |
+
 ## Self-hosted model
 
 | File | Source | Size | SHA-256 |
@@ -76,8 +84,7 @@ Checked with `npm view jpeg-js` on 2026-11-13.
 
 | Package | Latest on 2026-11-07 | Milestone |
 |---|---|---|
-| zustand | 5.1.0 | M4 |
 | shadcn (CLI) | 4.23.0 | M6 |
 | motion | 14.10.1 | M6 |
-| next-intl | 4.14.9 | M8 |
+| next-intl | 4.15.1 (checked 2026-11-18) | M8 |
 | @anthropic-ai/sdk | 1.6.0 | Phase 2 |
