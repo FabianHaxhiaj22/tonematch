@@ -1,0 +1,133 @@
+{
+  "_about": "Jewellery styles per category (README §7.1, D-030). `depths` limits an item to some depths (contrast advice only: delicate vs bold); `undertones` limits it to some effective undertones. Items with more filters that match come first, then file order; STYLES_PER_CATEGORY are shown. No face-shape rules until Phase 2. `finishes` maps each depth to finish/contrast advice. Text is in src/i18n/messages.",
+  "categories": {
+    "rings": [
+      {
+        "id": "fine-bands",
+        "labelKey": "styles.rings.fine-bands",
+        "tags": ["delicate", "stackable"],
+        "depths": ["very-light", "light", "medium", "tan"]
+      },
+      {
+        "id": "cocktail",
+        "labelKey": "styles.rings.cocktail",
+        "tags": ["statement"],
+        "depths": ["medium", "tan", "deep", "very-deep"]
+      },
+      {
+        "id": "mixed-stack",
+        "labelKey": "styles.rings.mixed-stack",
+        "tags": ["stackable", "mixed-metal"],
+        "undertones": ["neutral-cool", "neutral", "neutral-warm"]
+      },
+      {
+        "id": "solitaire",
+        "labelKey": "styles.rings.solitaire",
+        "tags": ["classic"]
+      },
+      {
+        "id": "signet",
+        "labelKey": "styles.rings.signet",
+        "tags": ["classic"]
+      }
+    ],
+    "earrings": [
+      {
+        "id": "small-studs",
+        "labelKey": "styles.earrings.small-studs",
+        "tags": ["stud", "delicate"],
+        "depths": ["very-light", "light", "medium", "tan"]
+      },
+      {
+        "id": "statement-hoops",
+        "labelKey": "styles.earrings.statement-hoops",
+        "tags": ["hoop", "statement"],
+        "depths": ["medium", "tan", "deep", "very-deep"]
+      },
+      {
+        "id": "two-tone",
+        "labelKey": "styles.earrings.two-tone",
+        "tags": ["mixed-metal"],
+        "undertones": ["neutral-cool", "neutral", "neutral-warm"]
+      },
+      {
+        "id": "huggies",
+        "labelKey": "styles.earrings.huggies",
+        "tags": ["hoop", "classic"]
+      },
+      {
+        "id": "drops",
+        "labelKey": "styles.earrings.drops",
+        "tags": ["drop"]
+      }
+    ],
+    "necklaces": [
+      {
+        "id": "fine-pendant",
+        "labelKey": "styles.necklaces.fine-pendant",
+        "tags": ["delicate", "chain-length"],
+        "depths": ["very-light", "light", "medium", "tan"]
+      },
+      {
+        "id": "bold-chain",
+        "labelKey": "styles.necklaces.bold-chain",
+        "tags": ["statement", "chain-length"],
+        "depths": ["medium", "tan", "deep", "very-deep"]
+      },
+      {
+        "id": "mixed-layers",
+        "labelKey": "styles.necklaces.mixed-layers",
+        "tags": ["layered", "mixed-metal"],
+        "undertones": ["neutral-cool", "neutral", "neutral-warm"]
+      },
+      {
+        "id": "layered",
+        "labelKey": "styles.necklaces.layered",
+        "tags": ["layered", "chain-length"]
+      },
+      {
+        "id": "pendant",
+        "labelKey": "styles.necklaces.pendant",
+        "tags": ["classic", "chain-length"]
+      }
+    ],
+    "bracelets": [
+      {
+        "id": "fine-chain",
+        "labelKey": "styles.bracelets.fine-chain",
+        "tags": ["delicate"],
+        "depths": ["very-light", "light", "medium", "tan"]
+      },
+      {
+        "id": "cuff",
+        "labelKey": "styles.bracelets.cuff",
+        "tags": ["statement"],
+        "depths": ["medium", "tan", "deep", "very-deep"]
+      },
+      {
+        "id": "mixed-bangles",
+        "labelKey": "styles.bracelets.mixed-bangles",
+        "tags": ["stackable", "mixed-metal"],
+        "undertones": ["neutral-cool", "neutral", "neutral-warm"]
+      },
+      {
+        "id": "bangles",
+        "labelKey": "styles.bracelets.bangles",
+        "tags": ["stackable"]
+      },
+      {
+        "id": "link",
+        "labelKey": "styles.bracelets.link",
+        "tags": ["classic"]
+      }
+    ]
+  },
+  "finishes": {
+    "very-light": "styles.finishes.lighter",
+    "light": "styles.finishes.lighter",
+    "medium": "styles.finishes.medium",
+    "tan": "styles.finishes.medium",
+    "deep": "styles.finishes.deeper",
+    "very-deep": "styles.finishes.deeper"
+  }
+}

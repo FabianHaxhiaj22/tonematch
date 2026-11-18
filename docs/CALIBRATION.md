@@ -59,6 +59,20 @@ All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists 
 
 **First observation (NASA fixture, studio light from one side):** several photo-confidence factors apply at once (framing, no calibration, cheek colour disagreement, uneven light, cheek-vs-forehead difference), so photo confidence is low (≈ 0.4). Strong side light makes the two cheeks and the forehead differ; whether these factors overlap too much is a question for the calibration set. (Per `SOURCES.md`, the person's skin results aren't recorded.)
 
+## M5 starting values: recommendations (2026-11-19)
+
+In `src/lib/recommend/config.ts` (styling heuristics, not measurements; D-030). Affinity scores per metal and gemstone live in `src/data/*.json`.
+
+| Constant | Value | Basis |
+|---|---|---|
+| `LOW_CONFIDENCE_THRESHOLD` | 0.5 | Below it, both metal families are shown as "best". With D-029's formulas a 2 + 2 split quiz (40%) lands below; an all-cool quiz with an uncalibrated photo (85%) is well above |
+| `LEAN_WEIGHT` | 0.5 | neutral-warm / neutral-cool sit halfway between the neutral and the warm/cool column |
+| `TIER_BEST_MIN` / `TIER_GOOD_MIN` | 0.8 / 0.55 | Reproduce README §7.2 with the data's affinity scores (tested per undertone) |
+| `STYLES_PER_CATEGORY` | 3 | Fits a phone screen per category |
+| `GEMSTONE_MIN_SCORE` / `GEMSTONES_MAX` | 0.7 / 6 | Leaning results keep their own palette; neutral gets jewel tones and pastels |
+
+**To check with the calibration set:** how often real results fall below 0.5 (if most uncalibrated phone photos do, the threshold or the confidence formula needs another look), and whether volunteers agree with their "best" metals.
+
 ## Threshold changes
 
 | Date | Constant | Old | New | Evidence |

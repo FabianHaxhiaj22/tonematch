@@ -72,6 +72,103 @@
   "notes": {
     "photoQuizDisagree": "Fotoja dhe përgjigjet e tua nuk përputhen plotësisht, ndaj rezultati është më pak i sigurt. Mund të të rrinë mirë si ari, ashtu edhe argjendi.",
     "lowPhotoConfidence": "Fotoja na dha pak informacion, ndaj përgjigjet e tua kanë më shumë peshë.",
-    "noQuizAnswers": "Ky rezultat bazohet vetëm në foto. Nëse u përgjigjesh pyetjeve, rezultati bëhet më i besueshëm."
+    "noQuizAnswers": "Ky rezultat bazohet vetëm në foto. Nëse u përgjigjesh pyetjeve, rezultati bëhet më i besueshëm.",
+    "bothCanWork": "Të dyja familjet e metaleve mund të të rrinë mirë, ndaj zgjidh atë që të pëlqen.",
+    "bothCanWorkUncertain": "Të dyja familjet e metaleve mund të të rrinë mirë. Për një rezultat më të qartë, bëj sërish foton në dritën e ditës, mbaj pranë fytyrës një fletë të bardhë për kalibrim dhe përgjigju pyetjeve që ke anashkaluar."
+  },
+  "metals": {
+    "yellow-gold": "Ar i verdhë",
+    "silver": "Argjend",
+    "rose-gold": "Ar rozë",
+    "white-gold": "Ar i bardhë",
+    "copper-brass": "Nuanca bakri dhe tunxhi",
+    "platinum": "Platin",
+    "mixed-metals": "Metale të kombinuara"
+  },
+  "gemstones": {
+    "garnet": "Granat",
+    "citrine": "Citrin",
+    "amber": "Qelibar",
+    "peridot": "Peridot",
+    "coral": "Koral",
+    "turquoise": "Turkez",
+    "sapphire": "Safir",
+    "emerald": "Smerald",
+    "ruby": "Rubin",
+    "amethyst": "Ametist",
+    "aquamarine": "Akuamarin",
+    "pearl": "Perlë"
+  },
+  "styles": {
+    "rings": {
+      "fine-bands": "Unaza të holla për t'i mbajtur disa bashkë",
+      "cocktail": "Një unazë e madhe dhe e spikatur",
+      "mixed-stack": "Disa unaza bashkë, në metale të ndryshme",
+      "solitaire": "Unazë klasike me një gur",
+      "signet": "Unazë me vulë"
+    },
+    "earrings": {
+      "small-studs": "Vathë të vegjël",
+      "statement-hoops": "Vathë rrethorë të mëdhenj",
+      "two-tone": "Vathë me dy metale",
+      "huggies": "Vathë rrethorë të vegjël, ngjitur me veshin",
+      "drops": "Vathë të varur të thjeshtë"
+    },
+    "necklaces": {
+      "fine-pendant": "Zinxhir i hollë me një varëse të vogël",
+      "bold-chain": "Zinxhir i trashë dhe i spikatur",
+      "mixed-layers": "Disa zinxhirë bashkë, në metale të ndryshme",
+      "layered": "Disa zinxhirë bashkë, me gjatësi të ndryshme",
+      "pendant": "Varëse në zinxhir me gjatësi mesatare"
+    },
+    "bracelets": {
+      "fine-chain": "Byzylyk me zinxhir të hollë",
+      "cuff": "Byzylyk i gjerë",
+      "mixed-bangles": "Byzylykë të ngurtë në metale të ndryshme",
+      "bangles": "Disa byzylykë të hollë së bashku",
+      "link": "Byzylyk klasik me hallka"
+    },
+    "finishes": {
+      "lighter": "Stolitë e holla dhe sipërfaqet mat ose satin duken të buta në lëkurë më të çelët. Shkëlqimi i plotë shton dritë kur e dëshiron.",
+      "medium": "Të rrinë mirë pothuajse të gjitha llojet: me shkëlqim për më shumë dritë, mat për një pamje më të butë. Të rrinë mirë si stolitë e holla, ashtu edhe ato më të spikatura.",
+      "deeper": "Sipërfaqet me shkëlqim të plotë dhe stolitë më të spikatura dallohen bukur në lëkurë më të zeshkët. Stolitë e holla duken bukur kur mban disa bashkë."
+    }
+  },
+  "recommend": {
+    "tiers": {
+      "best": "Më të përshtatshmet",
+      "good": "Gjithashtu të mira",
+      "care": "Me kujdes"
+    },
+    "summary": {
+      "cool": "Në këtë analizë lëkura jote duket me nuancë të ftohtë, ndaj metalet e bardha e të ftohta të rrinë më mirë.",
+      "neutral-cool": "Lëkura jote duket neutrale, me një prirje të lehtë të ftohtë: metalet e ftohta vijnë të parat, por edhe ato të ngrohta të rrinë mirë.",
+      "neutral": "Lëkura jote duket neutrale, ndaj të rrinë mirë si metalet e ngrohta, ashtu edhe ato të ftohta, madje edhe të kombinuara.",
+      "neutral-warm": "Lëkura jote duket neutrale, me një prirje të lehtë të ngrohtë: metalet e ngrohta vijnë të parat, por edhe ato të ftohta të rrinë mirë.",
+      "warm": "Në këtë analizë lëkura jote duket me nuancë të ngrohtë, ndaj metalet e arta e të ngrohta të rrinë më mirë.",
+      "uncertain": "Nuk arritëm të dallojmë qartë nëse të rrinë më mirë metalet e ngrohta apo të ftohta, ndaj po t'i tregojmë të dyja."
+    },
+    "reasons": {
+      "favoured": {
+        "best": "Përputhet me prirjen e nuancës së lëkurës tënde, ndaj duket natyrale.",
+        "good": "Përputhet me prirjen e lëkurës tënde; një zgjedhje më e butë se të parat.",
+        "care": "Është nga familja e duhur e metaleve për ty, por përputhet më pak. Provoje si një detaj të vogël."
+      },
+      "other": {
+        "best": "Është nga familja tjetër e metaleve, por të rri shumë mirë.",
+        "good": "Është nga familja tjetër e metaleve, por mbahet lehtë me nuancën e lëkurës tënde.",
+        "care": "Përputhet më pak me nuancën e lëkurës tënde. Mbaje si detaj të vogël ose kombinoje me metalet që të rrinë më mirë."
+      },
+      "mixed": {
+        "best": "Kombinimi i metaleve lidh të ngrohtat me të ftohtat, ndaj të rri mirë.",
+        "good": "Të lejon të mbash metalet që të rrinë më mirë bashkë me të tjerat.",
+        "care": "Funksionon më mirë kur në kombinim mbizotëron një nga metalet që të rrinë më mirë."
+      },
+      "balanced": {
+        "best": "Të dyja familjet e metaleve mund të të rrinë mirë, dhe ky është një nga më të lehtët për t'u mbajtur.",
+        "good": "Mund të të rrijë mirë; një zgjedhje më e butë se të parat.",
+        "care": "Përputhet më pak. Provoje si një detaj të vogël."
+      }
+    }
   }
 }

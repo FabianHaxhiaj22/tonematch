@@ -1,0 +1,89 @@
+{
+  "_about": "Gemstones (README §7.1–7.2, D-030). Warm and cool palettes follow §7.2; for neutral, jewel tones and pastels score highest. Stones whose blended affinity reaches GEMSTONE_MIN_SCORE are suggested, best first, at most GEMSTONES_MAX. Swatches are typical display colours, not measurements. Names are in src/i18n/messages under nameKey.",
+  "gemstones": [
+    {
+      "id": "garnet",
+      "nameKey": "gemstones.garnet",
+      "swatch": "#7b1e28",
+      "affinity": { "cool": 0.4, "neutral": 0.9, "warm": 1 },
+      "order": 1
+    },
+    {
+      "id": "citrine",
+      "nameKey": "gemstones.citrine",
+      "swatch": "#e4a010",
+      "affinity": { "cool": 0.4, "neutral": 0.7, "warm": 1 },
+      "order": 2
+    },
+    {
+      "id": "amber",
+      "nameKey": "gemstones.amber",
+      "swatch": "#ffbf00",
+      "affinity": { "cool": 0.4, "neutral": 0.7, "warm": 1 },
+      "order": 3
+    },
+    {
+      "id": "peridot",
+      "nameKey": "gemstones.peridot",
+      "swatch": "#9fbf2f",
+      "affinity": { "cool": 0.4, "neutral": 0.7, "warm": 1 },
+      "order": 4
+    },
+    {
+      "id": "coral",
+      "nameKey": "gemstones.coral",
+      "swatch": "#f0806a",
+      "affinity": { "cool": 0.4, "neutral": 0.7, "warm": 1 },
+      "order": 5
+    },
+    {
+      "id": "turquoise",
+      "nameKey": "gemstones.turquoise",
+      "swatch": "#30c5b8",
+      "affinity": { "cool": 0.4, "neutral": 0.7, "warm": 1 },
+      "order": 6
+    },
+    {
+      "id": "sapphire",
+      "nameKey": "gemstones.sapphire",
+      "swatch": "#1f4fa3",
+      "affinity": { "cool": 1, "neutral": 0.7, "warm": 0.4 },
+      "order": 7
+    },
+    {
+      "id": "emerald",
+      "nameKey": "gemstones.emerald",
+      "swatch": "#2e8b57",
+      "affinity": { "cool": 1, "neutral": 0.9, "warm": 0.4 },
+      "order": 8
+    },
+    {
+      "id": "ruby",
+      "nameKey": "gemstones.ruby",
+      "swatch": "#a3122f",
+      "affinity": { "cool": 1, "neutral": 0.9, "warm": 0.4 },
+      "order": 9
+    },
+    {
+      "id": "amethyst",
+      "nameKey": "gemstones.amethyst",
+      "swatch": "#8a5cc2",
+      "affinity": { "cool": 1, "neutral": 0.9, "warm": 0.4 },
+      "order": 10
+    },
+    {
+      "id": "aquamarine",
+      "nameKey": "gemstones.aquamarine",
+      "swatch": "#7fc8d6",
+      "affinity": { "cool": 1, "neutral": 0.9, "warm": 0.4 },
+      "order": 11
+    },
+    {
+      "id": "pearl",
+      "nameKey": "gemstones.pearl",
+      "swatch": "#efe9e1",
+      "affinity": { "cool": 1, "neutral": 0.9, "warm": 0.4 },
+      "order": 12
+    }
+  ]
+}

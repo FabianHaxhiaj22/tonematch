@@ -1,0 +1,33 @@
+{
+  "_about": "Explanation templates (README §7.1, D-030): which message keys explain each outcome. The text itself lives in src/i18n/messages/{en,sq}.json. `uncertain` is used below LOW_CONFIDENCE_THRESHOLD. Metal reasons are chosen by relation (favoured = the family the undertone leans to; other = the opposite family; mixed = mixed metals; balanced = warm or cool metals when the result is neutral or uncertain) and tier.",
+  "summaries": {
+    "cool": "recommend.summary.cool",
+    "neutral-cool": "recommend.summary.neutral-cool",
+    "neutral": "recommend.summary.neutral",
+    "neutral-warm": "recommend.summary.neutral-warm",
+    "warm": "recommend.summary.warm",
+    "uncertain": "recommend.summary.uncertain"
+  },
+  "metalReasons": {
+    "favoured": {
+      "best": "recommend.reasons.favoured.best",
+      "good": "recommend.reasons.favoured.good",
+      "care": "recommend.reasons.favoured.care"
+    },
+    "other": {
+      "best": "recommend.reasons.other.best",
+      "good": "recommend.reasons.other.good",
+      "care": "recommend.reasons.other.care"
+    },
+    "mixed": {
+      "best": "recommend.reasons.mixed.best",
+      "good": "recommend.reasons.mixed.good",
+      "care": "recommend.reasons.mixed.care"
+    },
+    "balanced": {
+      "best": "recommend.reasons.balanced.best",
+      "good": "recommend.reasons.balanced.good",
+      "care": "recommend.reasons.balanced.care"
+    }
+  }
+}

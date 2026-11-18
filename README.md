@@ -221,12 +221,18 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
 `src/lib/recommend/` is a **pure rules engine** over JSON data in `src/data/`. No AI is needed here. The rules are deterministic and testable.
 
 ### 7.1 Data files
-- `src/data/metals.json`: id, names (en/sq), swatch hex, undertone affinity scores `{ cool, neutral, warm }` (0–1), depth notes.
-- `src/data/styles.json`: per category (rings, earrings, necklaces, bracelets): style items with tags (`delicate`, `statement`, `hoop`, `drop`, `stud`, `chain-length`, …) and rules by depth, undertone, and (Phase 2) face shape.
-- `src/data/gemstones.json`: gemstone palettes by undertone.
-- `src/data/copy/*.json`: explanation templates per outcome, in both languages.
+Data files hold ids, numbers and **message keys only**; every text is in `src/i18n/messages/{en,sq}.json` (§13, D-030).
+- `src/data/metals.json`: id, family (`warm` | `cool` | `mixed`), name key, swatch hex(es), undertone affinity scores `{ cool, neutral, warm }` (0–1), display order.
+- `src/data/styles.json`: per category (rings, earrings, necklaces, bracelets): style items with tags (`delicate`, `statement`, `hoop`, `drop`, `stud`, `chain-length`, …) and optional depth and undertone filters (face shape in Phase 2); plus finish/contrast advice per depth.
+- `src/data/gemstones.json`: gemstones with undertone affinity scores, like the metals.
+- `src/data/copy/explanations.json`: explanation templates: which message keys explain each outcome (summary per undertone and for low confidence; metal reasons by relation and tier).
 
-Validate all data files with Zod at build time (`pnpm validate:data`).
+Validate all data files with Zod at build time (`pnpm validate:data`): one strict schema per file (`src/lib/recommend/schema.ts`), then cross-file checks (every referenced message key exists; every undertone × depth gets styles and gemstones).
+
+Engine rules (`src/lib/recommend/`, thresholds in its `config.ts`, D-030):
+- Below `LOW_CONFIDENCE_THRESHOLD` (0.5) no metal family is ranked over the other: both show as "best", with a "both can work" note that says how to get a clearer result.
+- `neutral-warm` / `neutral-cool` lean one way but keep the other family at "good" or better.
+- Depth only changes finish/contrast advice and delicate-vs-bold style items, never metal tiers or gemstones.
 
 ### 7.2 Default style rules (editable starting point)
 These are common styling conventions, not science.
@@ -252,15 +258,18 @@ Depth can add contrast advice (e.g. high-polish vs brushed finishes, delicate vs
 ```ts
 type Recommendation = {
   undertone: 'cool' | 'neutral-cool' | 'neutral' | 'neutral-warm' | 'warm';
-  depth: Depth;
+  depth: Depth;                // depth label
   mstApprox: number;           // 1–10
   confidence: number;          // 0–1
+  summaryKey: string;          // message key: one-line explanation of the outcome
+  finishKey: string;           // message key: finish/contrast advice for the depth
   metals: { id: string; tier: 'best' | 'good' | 'care'; reasonKey: string }[];
-  styles: Record<Category, StyleSuggestion[]>;
-  gemstones: string[];
-  notes: string[];             // e.g. "photo and quiz disagreed"
+  styles: Record<Category, StyleSuggestion[]>;   // StyleSuggestion = { id, tags, labelKey }
+  gemstones: string[];         // ids
+  notes: string[];             // codes with messages at notes.<code>, e.g. "photoQuizDisagree"
 };
 ```
+`summaryKey`, `finishKey` and the `StyleSuggestion` shape were added in M5 (D-030).
 
 ---
 
@@ -474,7 +483,7 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 5. **Verify, don't assume:** check package versions with `npm view`, read official docs for MediaPipe/Next.js/Tailwind APIs when unsure, and say when something is a guess.
 6. **No secrets in code or commits.** No real face images in the repo without documented licence/consent.
 7. **Never send or store images server-side.** If a feature seems to need it, stop and ask the user.
-8. **Thresholds live in config** with comments; never magic numbers in logic.
+8. **Thresholds live in config** with comments; never magic numbers in logic. Each module owns its config (`src/lib/analysis/config.ts`, `src/lib/recommend/config.ts`, …).
 9. **Record decisions** in `docs/DECISIONS.md` (date, decision, why, alternatives).
 10. **After each milestone:** run lint, typecheck, tests, build; update README/docs if behaviour changed; summarise what changed and what's next.
 11. **Ask the user** before: adding a paid service, changing the stack, adding a database, or anything touching privacy/legal.

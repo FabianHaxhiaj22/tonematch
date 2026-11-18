@@ -31,8 +31,8 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
 7. **Never send or store images server-side.** Only numeric results may leave the
    browser, and only for the opt-in AI explanation. If a feature seems to need
    the image on a server, stop and ask the user.
-8. **Thresholds live in config** (`src/lib/analysis/config.ts`) as named,
-   commented constants. No magic numbers in logic.
+8. **Thresholds live in config**: each module owns its `config.ts` (`src/lib/analysis/`,
+   `src/lib/recommend/`, …), as named, commented constants. No magic numbers in logic.
 9. **Record decisions** in `docs/DECISIONS.md` (date, decision, why, alternatives).
 10. **After each milestone:** run lint, typecheck, tests and build; update README
     and docs if behaviour changed; summarise what changed and what comes next.

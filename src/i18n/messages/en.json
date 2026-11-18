@@ -72,6 +72,103 @@
   "notes": {
     "photoQuizDisagree": "Your photo and your answers pointed in different directions, so we're less sure. Both metal families may work for you.",
     "lowPhotoConfidence": "The photo gave us limited information, so your answers count for more.",
-    "noQuizAnswers": "This result is based on your photo only. Answering the questions makes it more reliable."
+    "noQuizAnswers": "This result is based on your photo only. Answering the questions makes it more reliable.",
+    "bothCanWork": "Both metal families can work for you, so go with what you love.",
+    "bothCanWorkUncertain": "Both metal families can work for you. For a clearer result, retake your photo in daylight, hold up a sheet of white paper to calibrate, and answer any questions you skipped."
+  },
+  "metals": {
+    "yellow-gold": "Yellow gold",
+    "silver": "Silver",
+    "rose-gold": "Rose gold",
+    "white-gold": "White gold",
+    "copper-brass": "Copper and brass tones",
+    "platinum": "Platinum",
+    "mixed-metals": "Mixed metals"
+  },
+  "gemstones": {
+    "garnet": "Garnet",
+    "citrine": "Citrine",
+    "amber": "Amber",
+    "peridot": "Peridot",
+    "coral": "Coral",
+    "turquoise": "Turquoise",
+    "sapphire": "Sapphire",
+    "emerald": "Emerald",
+    "ruby": "Ruby",
+    "amethyst": "Amethyst",
+    "aquamarine": "Aquamarine",
+    "pearl": "Pearl"
+  },
+  "styles": {
+    "rings": {
+      "fine-bands": "Fine stacking rings",
+      "cocktail": "A bold cocktail ring",
+      "mixed-stack": "Stacked rings in mixed metals",
+      "solitaire": "A classic solitaire",
+      "signet": "A signet ring"
+    },
+    "earrings": {
+      "small-studs": "Small studs",
+      "statement-hoops": "Large statement hoops",
+      "two-tone": "Two-tone earrings",
+      "huggies": "Small huggie hoops",
+      "drops": "Simple drop earrings"
+    },
+    "necklaces": {
+      "fine-pendant": "A fine chain with a small pendant",
+      "bold-chain": "A bold, chunky chain",
+      "mixed-layers": "Layered chains in mixed metals",
+      "layered": "Layered chains of different lengths",
+      "pendant": "A pendant on a mid-length chain"
+    },
+    "bracelets": {
+      "fine-chain": "A fine chain bracelet",
+      "cuff": "A wide cuff",
+      "mixed-bangles": "Bangles in mixed metals",
+      "bangles": "A stack of slim bangles",
+      "link": "A classic link bracelet"
+    },
+    "finishes": {
+      "lighter": "Fine pieces and brushed or satin finishes look soft on lighter skin. High polish adds sparkle when you want it.",
+      "medium": "Most finishes work for you: polished for shine, brushed for a softer look. Fine and bold pieces both suit you.",
+      "deeper": "High-polish finishes and bolder pieces stand out beautifully on deeper skin. Fine pieces look lovely layered."
+    }
+  },
+  "recommend": {
+    "tiers": {
+      "best": "Best for you",
+      "good": "Also good",
+      "care": "Use with care"
+    },
+    "summary": {
+      "cool": "Your skin reads cool in this analysis, so cool, white metals are your easiest match.",
+      "neutral-cool": "Your skin reads neutral with a slight cool lean: cool metals come first, and warm metals work too.",
+      "neutral": "Your skin reads neutral, so warm and cool metals both suit you, and mixing them works well.",
+      "neutral-warm": "Your skin reads neutral with a slight warm lean: warm metals come first, and cool metals work too.",
+      "warm": "Your skin reads warm in this analysis, so warm, golden metals are your easiest match.",
+      "uncertain": "We couldn't tell clearly enough whether warm or cool metals suit you better, so we show both side by side."
+    },
+    "reasons": {
+      "favoured": {
+        "best": "Matches the way your skin tone leans, so it looks effortless.",
+        "good": "Matches your skin tone's lean; a softer choice than your top picks.",
+        "care": "From the right metal family for you, but a less usual match. Try it as an accent."
+      },
+      "other": {
+        "best": "From the other metal family, and still a great match for you.",
+        "good": "From the other metal family, and still easy to wear with your skin tone.",
+        "care": "A less natural match for your skin tone. Wear it in small doses or mix it with your best metals."
+      },
+      "mixed": {
+        "best": "Mixing metals bridges warm and cool, so it suits you well.",
+        "good": "Lets you wear your best metals together with the others.",
+        "care": "Works best when one of your best metals leads the mix."
+      },
+      "balanced": {
+        "best": "Both metal families can work for you, and this is one of the easiest to wear.",
+        "good": "Can work for you; a softer choice than the top picks.",
+        "care": "A less usual match. Try it as an accent."
+      }
+    }
   }
 }
