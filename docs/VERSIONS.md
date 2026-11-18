@@ -47,6 +47,14 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 | culori | 4.0.2 | 4.0.2 | **Dev dependency only**: cross-checks `src/lib/color` in tests; never shipped. |
 | @types/culori | 4.0.1 | 4.0.1 | Types for the above. |
 
+## Installed in M3
+
+Checked with `npm view jpeg-js` on 2026-11-13.
+
+| Package | Pinned | Latest on 2026-11-13 | Notes |
+|---|---|---|---|
+| jpeg-js | 0.4.4 | 0.4.4 | **Dev dependency only**: decodes the JPEG fixture in Vitest (Node has no image decoder). Pure JS, no dependencies, BSD-3-Clause; 0.4.4 includes the fix for CVE-2022-25851. Unmaintained since 2022, acceptable because it only reads our own fixture files in tests (D-022). |
+
 ## Self-hosted model
 
 | File | Source | Size | SHA-256 |

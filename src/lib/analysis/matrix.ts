@@ -39,6 +39,34 @@ export function toMat4(m: FlatMatrix): Mat4 {
   ];
 }
 
+export type HeadAngles = { yaw: number; pitch: number; roll: number };
+
+/**
+ * Head angles in degrees from the rotation part of a row-major 4×4 (README §6.1 HEAD_TILTED).
+ * Decomposes R = Ry(yaw) · Rx(pitch) · Rz(roll) in the canonical face model's axes (x across
+ * the face, y up, z towards the camera): yaw = turning left/right, pitch = nodding, roll = tilting
+ * sideways. Columns are normalised first, so a uniform scale in the matrix doesn't matter.
+ * Only magnitudes are used by the quality gate; signs follow the right-hand rule.
+ */
+export function headAngles(m: Mat4): HeadAngles {
+  // Column lengths (uniform scale) of the 3×3 rotation part.
+  const s0 = Math.hypot(m[0][0], m[1][0], m[2][0]) || 1;
+  const s1 = Math.hypot(m[0][1], m[1][1], m[2][1]) || 1;
+  const s2 = Math.hypot(m[0][2], m[1][2], m[2][2]) || 1;
+  // Normalised entries R[row][col] that the decomposition needs.
+  const r02 = m[0][2] / s2;
+  const r12 = m[1][2] / s2;
+  const r22 = m[2][2] / s2;
+  const r10 = m[1][0] / s0;
+  const r11 = m[1][1] / s1;
+  const deg = (rad: number) => (rad * 180) / Math.PI;
+  return {
+    yaw: deg(Math.atan2(r02, r22)),
+    pitch: deg(Math.asin(Math.max(-1, Math.min(1, -r12)))),
+    roll: deg(Math.atan2(r10, r11)),
+  };
+}
+
 /** Translation part (last column) of a row-major 4×4. */
 export function translationOf(m: Mat4): Vec3 {
   return { x: m[0][3], y: m[1][3], z: m[2][3] };
