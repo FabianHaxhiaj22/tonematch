@@ -96,7 +96,7 @@ Lightweight ADR log (README §15 rule 9). Newest at the bottom. Each entry: date
 - **Who:** Erdiona Tola (`tolaerdiona-commits`, GitHub id 353759092) joins as co-developer. Repo role checked with `gh api repos/FabianHaxhiaj22/tonematch/collaborators/tolaerdiona-commits/permission` on 2026-11-13: **`write`** (push, triage, pull; no admin or maintain). Not changed. Branch protection (`enforce_admins: true`, required `ci` + `pr-title`) applies to both of us.
 - **Listed as authors:** README §18 "Authors" and `contributors` in `package.json` (name, GitHub noreply email, profile URL).
 - **Emails:** each developer commits with their own **GitHub noreply** address, set repo-locally: Fabian `187953086+FabianHaxhiaj22@users.noreply.github.com`, Erdiona `353759092+tolaerdiona-commits@users.noreply.github.com`. A personal Gmail address was mentioned for Erdiona but is **deliberately not used**: the repo is public and commit trailers are permanent, and GitHub links co-authors through the noreply address just as well.
-- **Co-author rule (from 2026-11-13):** when a PR is done by both of us, every commit **and** the squash commit end with `Co-authored-by:` for whichever of us isn't that commit's author. Single-author work gets no human co-author trailer. **Existing history is never rewritten.** Details and commands: README §9.3, `docs/ONBOARDING.md` §8.
+- **Co-author rule (from 2026-11-13; superseded on 2026-11-22 by D-032, which applies it to every commit):** when a PR is done by both of us, every commit **and** the squash commit end with `Co-authored-by:` for whichever of us isn't that commit's author. Single-author work gets no human co-author trailer. **Existing history is never rewritten.** Details and commands: README §9.3, `docs/ONBOARDING.md` §8.
 - **Claude Code on more than one machine:** the old rule "active gh account must be `FabianHaxhiaj22`" would block Erdiona's machine. It's now "the developer at this machine, who must be a listed author"; repo **settings** stay owner-only (README §9.1, §15 rules 12–13).
 - **Onboarding:** `docs/ONBOARDING.md` (nvm/Node 24, corepack/pnpm, `gh auth login` with your own account, repo-local noreply identity, install, `models:fetch`, all checks, workflow, co-author rule).
 - **Alternatives:** GitHub's "Co-authored-by" only on the squash commit (rejected: the owner wants it on every commit of shared work); a CI check enforcing trailers (not now: can't tell automatically whether work was shared).
@@ -257,6 +257,14 @@ A developer tested PR #14 on `/dev/landmarks` with an evening indoor selfie (unc
   - settings, branch protection, collaborators, the release-please token and the v0.1.0 Release were set up again there (`docs/REPO_SETUP.md`).
   - Alternatives: asking GitHub Support to remove the cached PR refs (slow, and might delete the PRs anyway); publishing as is (would expose both developers' personal emails).
 - **Docs cleaned at the same time:** measurements from the developers' own test selfies (colour values, scores, quiz answers, pose, pixel counts) and who wore makeup were removed from DECISIONS.md and CALIBRATION.md, keeping only the findings (README §11). Older versions remain only in the private archive's history. The mesh fixture got a copy of its Apache-2.0 licence (`tests/fixtures/mediapipe/LICENSE`).
+
+### D-032 · 2026-11-22 · Every commit and every squash merge credits the other author
+- **Decision (owner, standing rule):** we work on everything together, so **every** commit and **every** squash merge ends with a `Co-authored-by:` trailer for the other author, with no exceptions (features, fixes, docs, chores, Dependabot follow-ups, release PRs). Commits made on Fabian's machine credit Erdiona; commits made on Erdiona's machine credit Fabian. When merging, the trailer goes in the squash message body (`gh pr merge <number> --squash --body "Co-authored-by: …"`), bot PRs included.
+- **Replaces** D-018's "shared PRs only" rule. Unchanged: nobody credits themselves; no AI co-author trailers (D-031); existing history is never rewritten. Commits merged before this date keep their trailers as they are.
+- **First application:** the Dependabot follow-up commit on #19 (MediaPipe checksums) was amended before merge to add the trailer; that changed an unmerged PR branch only, not `main`.
+- **Why:** reflects how the work is actually done, and removes the judgement call of what counts as "shared".
+- **Alternatives:** keep "shared PRs only" (rejected: every PR is shared); a CI check enforcing the trailer (possible later: commit-msg/PR checks can verify the other author's trailer is present, but a squash body is only known at merge time).
+- Docs updated: README §9.3, §15 rule 12 and §18, CLAUDE.md, `docs/ONBOARDING.md` §8, `docs/REPO_SETUP.md`.
 
 ---
 

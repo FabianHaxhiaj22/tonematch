@@ -373,12 +373,12 @@ Then (Claude Code via `gh api`, after the admin check; each setting is recorded 
 ### 9.3 Commits (Conventional Commits, enforced by commitlint)
 `feat: add white-paper calibration` · `fix: cheek mask excluding too many pixels` · `test: add Lab conversion fixtures` · `docs: update calibration results` · `chore(deps): bump next`
 
-**Co-authored work** (rule since 2026-11-13): when a PR is done by **both** authors (§18), every commit in it **and the squash commit** end with a `Co-authored-by:` trailer for whichever author isn't that commit's author:
-```
-Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>
-Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>
-```
-Work done by only one of us gets no human co-author trailer, and nobody credits themselves. **No AI co-author trailers** or "Generated with" lines in commits or PR descriptions: the shared `.claude/settings.json` turns Claude Code's attribution off (D-031). **Never rewrite existing history** to add or remove trailers. How-to: `docs/ONBOARDING.md`.
+**Co-authored work** (rule since 2026-11-22, D-032; replaces the 2026-11-13 "shared PRs only" rule): we work on everything together, so **every commit and every squash merge** ends with a `Co-authored-by:` trailer for the **other** author (§18). No exceptions: features, fixes, docs, chores, Dependabot follow-ups and release PRs included.
+- Commits made by Fabian (on his machine) end with `Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>`.
+- Commits made by Erdiona (on her machine) end with `Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>`.
+- **Merging a PR:** always pass the trailer for the other author in the squash message body, e.g. `gh pr merge <number> --squash --body "Co-authored-by: …"`. This includes bot PRs (Dependabot, release-please).
+
+Nobody credits themselves, and commits made by bots on their own branches need no trailer (they are squashed). **No AI co-author trailers** or "Generated with" lines in commits or PR descriptions: the shared `.claude/settings.json` turns Claude Code's attribution off (D-031). **Never rewrite existing history** to add or remove trailers. How-to: `docs/ONBOARDING.md`.
 
 **One-time exception (2026-11-19, agreed by both authors):** `main` and the `v0.1.0` tag were rewritten once to remove AI co-author trailers, self-credit trailers and personal email addresses (D-031). File contents and dates are unchanged. The never-rewrite rule stays in force.
 
@@ -489,7 +489,7 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 9. **Record decisions** in `docs/DECISIONS.md` (date, decision, why, alternatives).
 10. **After each milestone:** run lint, typecheck, tests, build; update README/docs if behaviour changed; summarise what changed and what's next.
 11. **Ask the user** before: adding a paid service, changing the stack, adding a database, or anything touching privacy/legal.
-12. **Co-authored work:** when a PR is done by both authors, every commit and the squash commit end with a `Co-authored-by:` trailer for the author who didn't make that commit (§9.3). Not for single-author work, and no AI co-author trailers. Never rewrite history (one-time exception on 2026-11-19: D-031).
+12. **Co-authored work:** every commit and every squash merge ends with a `Co-authored-by:` trailer for the other author (§9.3, D-032): no exceptions, and no AI co-author trailers. Never rewrite history (one-time exception on 2026-11-19: D-031).
 13. **Act as the developer at this machine:** GitHub actions use that developer's own `gh` account and repo-local identity; repo settings only from the owner's account (§9.1).
 
 ---
@@ -534,4 +534,4 @@ NEXT_PUBLIC_ANALYTICS_PROVIDER=none  # none | vercel | plausible
 | Fabian Haxhiaj | [@FabianHaxhiaj22](https://github.com/FabianHaxhiaj22) | Owner, co-developer |
 | Erdiona Tola | [@tolaerdiona-commits](https://github.com/tolaerdiona-commits) | Co-developer |
 
-Commits use each author's GitHub noreply address; shared work carries `Co-authored-by` trailers (§9.3). All rights reserved (§9.1): no licence is granted by this repository.
+Commits use each author's GitHub noreply address; every commit and squash merge carries the other author's `Co-authored-by` trailer (§9.3). All rights reserved (§9.1): no licence is granted by this repository.
