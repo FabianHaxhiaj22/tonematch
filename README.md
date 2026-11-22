@@ -376,9 +376,14 @@ Then (Claude Code via `gh api`, after the admin check; each setting is recorded 
 **Co-authored work** (rule since 2026-11-22, D-032; replaces the 2026-11-13 "shared PRs only" rule): we work on everything together, so **every commit and every squash merge** ends with a `Co-authored-by:` trailer for the **other** author (§18). No exceptions: features, fixes, docs, chores, Dependabot follow-ups and release PRs included.
 - Commits made by Fabian (on his machine) end with `Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>`.
 - Commits made by Erdiona (on her machine) end with `Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>`.
-- **Merging a PR:** always pass the trailer for the other author in the squash message body, e.g. `gh pr merge <number> --squash --body "Co-authored-by: …"`. This includes bot PRs (Dependabot, release-please).
+- **Merging a PR:** always pass the trailer for the other author in the squash message body, e.g. `gh pr merge <number> --squash --body "Co-authored-by: …"`.
+- **Merging a bot PR** (Dependabot, release-please): the squash body carries **both** trailers, Fabian's and Erdiona's, since the bot is the author:
+  ```
+  Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>
+  Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>
+  ```
 
-Nobody credits themselves, and commits made by bots on their own branches need no trailer (they are squashed). **No AI co-author trailers** or "Generated with" lines in commits or PR descriptions: the shared `.claude/settings.json` turns Claude Code's attribution off (D-031). **Never rewrite existing history** to add or remove trailers. How-to: `docs/ONBOARDING.md`.
+Nobody credits themselves, with one deliberate exception: release-please opens its PRs with the owner's token, so GitHub records Fabian as the squash author there, and the both-trailers rule still applies. Commits made by bots on their own branches need no trailer (they are squashed). **No AI co-author trailers** or "Generated with" lines in commits or PR descriptions: the shared `.claude/settings.json` turns Claude Code's attribution off (D-031). **Never rewrite existing history** to add or remove trailers. How-to: `docs/ONBOARDING.md`.
 
 **One-time exception (2026-11-19, agreed by both authors):** `main` and the `v0.1.0` tag were rewritten once to remove AI co-author trailers, self-credit trailers and personal email addresses (D-031). File contents and dates are unchanged. The never-rewrite rule stays in force.
 

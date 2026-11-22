@@ -265,6 +265,10 @@ A developer tested PR #14 on `/dev/landmarks` with an evening indoor selfie (unc
 - **Why:** reflects how the work is actually done, and removes the judgement call of what counts as "shared".
 - **Alternatives:** keep "shared PRs only" (rejected: every PR is shared); a CI check enforcing the trailer (possible later: commit-msg/PR checks can verify the other author's trailer is present, but a squash body is only known at merge time).
 - Docs updated: README §9.3, §15 rule 12 and §18, CLAUDE.md, `docs/ONBOARDING.md` §8, `docs/REPO_SETUP.md`.
+- **Addition (2026-11-22, owner): bot PRs get both trailers.** For PRs authored by bots (Dependabot, release-please), the squash body carries **both** `Co-authored-by:` trailers, Fabian's and Erdiona's, whoever merges, since the bot is the author.
+  - Why: on #19 and #20, GitHub made `dependabot[bot]` the author of the squash commit, so with only the other author's trailer, the merger's own work on the PR (e.g. #19's checksum commit) wasn't credited on `main`.
+  - Deliberate exception to "nobody credits themselves": release-please opens its PRs with the owner's token, so GitHub records Fabian as the squash author (e.g. #21 → `2d1adb0`); those commits still get both trailers, so Fabian appears as author and co-author.
+  - Merges before this addition (#19, #20, #21) keep their single trailer; history isn't rewritten.
 
 ---
 

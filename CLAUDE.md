@@ -51,7 +51,7 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
   the developer at this machine (an author in §18); if not, stop and ask. Repo settings: owner
   only, recorded in `docs/REPO_SETUP.md`. Never write tokens or credentials to any file.
 - Co-authors (§9.3, D-032): EVERY commit and EVERY squash merge (`--body`) ends with the other
-  author's `Co-authored-by:`, no exceptions. No AI trailers (`.claude/settings.json`). Never
+  author's `Co-authored-by:`; bot PRs get both. No AI trailers (`.claude/settings.json`). Never
   rewrite history (one-time exception: D-031). New devs: `docs/ONBOARDING.md`.
 
 ## Key commands (README §17)

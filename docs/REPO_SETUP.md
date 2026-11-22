@@ -19,7 +19,7 @@ Every GitHub setting for this repo, so it can be audited or recreated (README §
 | Login | Name | GitHub id | Role | Since | Checked |
 |---|---|---|---|---|---|
 | `FabianHaxhiaj22` | Fabian Haxhiaj | 187953086 | **admin** (owner) | 2026-11-07 (new repo: 2026-11-22) | 2026-11-22 |
-| `tolaerdiona-commits` | Erdiona Tola | 353759092 | **write** (push, triage, pull; no admin/maintain) | invited to the new repo 2026-11-22 (pending until accepted) | 2026-11-22 |
+| `tolaerdiona-commits` | Erdiona Tola | 353759092 | **write** (push, triage, pull; no admin/maintain) | invited to the new repo 2026-11-22, accepted 2026-11-22 | 2026-11-22 (`write`, no pending invitations) |
 
 - Branch protection applies to **both** (`enforce_admins: true`): PRs only, required checks, squash-merge.
 - Only the owner changes repo settings, roles or secrets. In the old repo, roles were checked, not changed, on 2026-11-13 (DECISIONS.md D-018); in the new repo Erdiona was re-invited with the same role.
@@ -38,7 +38,7 @@ Each developer sets their **own** identity on their own machine (`docs/ONBOARDIN
 ## Commit conventions
 
 - Conventional Commits; PR titles are checked by `pr-title` because the squash commit takes the PR title.
-- **Co-author rule** (from 2026-11-22, D-032; before that, shared PRs only): every commit and every squash merge ends with `Co-authored-by:` for the other developer (addresses in the table above), with no exceptions; merges pass it with `gh pr merge --squash --body "Co-authored-by: …"`. Nobody credits themselves. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
+- **Co-author rule** (from 2026-11-22, D-032; before that, shared PRs only): every commit and every squash merge ends with `Co-authored-by:` for the other developer (addresses in the table above), with no exceptions; merges pass it with `gh pr merge --squash --body "Co-authored-by: …"`; bot PRs (Dependabot, release-please) get **both** trailers. Nobody credits themselves, except on release-please PRs, whose GitHub author is the owner because they're opened with his token. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
 - **No AI co-author trailers:** `.claude/settings.json` (committed) sets Claude Code's `attribution` to `{"commit": "", "pr": "", "sessionUrl": false}`. Personal overrides go in `.claude/settings.local.json` (gitignored).
 - **Commit email for web merges:** GitHub uses each developer's account commit email for squash merges made in the web UI or with `gh pr merge`. Both developers keep "Keep my email addresses private" on (GitHub → Settings → Emails), so those commits get the noreply address.
 
