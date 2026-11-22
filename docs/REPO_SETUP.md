@@ -19,7 +19,7 @@ Every GitHub setting for this repo, so it can be audited or recreated (README §
 | Login | Name | GitHub id | Role | Since | Checked |
 |---|---|---|---|---|---|
 | `FabianHaxhiaj22` | Fabian Haxhiaj | 187953086 | **admin** (owner) | 2026-11-07 (new repo: 2026-11-22) | 2026-11-22 |
-| `tolaerdiona-commits` | Erdiona Tola | 353759092 | **write** (push, triage, pull; no admin/maintain) | invited to the new repo 2026-11-22 (pending until accepted) | 2026-11-22 |
+| `tolaerdiona-commits` | Erdiona Tola | 353759092 | **write** (push, triage, pull; no admin/maintain) | invited to the new repo 2026-11-22, accepted 2026-11-22 | 2026-11-22 (`write`, no pending invitations) |
 
 - Branch protection applies to **both** (`enforce_admins: true`): PRs only, required checks, squash-merge.
 - Only the owner changes repo settings, roles or secrets. In the old repo, roles were checked, not changed, on 2026-11-13 (DECISIONS.md D-018); in the new repo Erdiona was re-invited with the same role.
