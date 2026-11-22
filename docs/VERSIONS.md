@@ -27,7 +27,7 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 | @vitejs/plugin-react | 6.3.0 | 6.2.1 | |
 | @testing-library/react | 16.3.3 | 16.3.3 | |
 | @testing-library/dom | 10.4.2 | 10.4.2 | |
-| @testing-library/jest-dom | 7.0.1 | 7.0.1 | |
+| @testing-library/jest-dom | 8.0.0 | 7.0.1 | Major 8 only drops support for vitest < 5 (we use 5.1.x); setup: `import "@testing-library/jest-dom/vitest"` in `tests/setup.ts`. |
 | jsdom | 31.0.1 | 31.0.0 | |
 | @playwright/test | 1.65.1 | 1.65.0 | |
 | @axe-core/playwright | 4.14.0 | 4.14.0 | |
@@ -85,6 +85,7 @@ Checked with `npm view zustand version` on 2026-11-18.
 | Date | Packages | From → to | npm latest that day | Via |
 |---|---|---|---|---|
 | 2026-11-22 | `@mediapipe/tasks-vision`, `next`, `eslint-config-next`, `@playwright/test`, `@vitejs/plugin-react`, `vitest`, `@vitest/coverage-v8`, `vite`, `jsdom`, `lint-staged`, `prettier` | 1.2.2 → 1.2.3, 16.4.5 → 16.4.6, 16.4.5 → 16.4.6, 1.65.0 → 1.65.1, 6.2.1 → 6.3.0, 5.1.0 → 5.1.1, 5.1.0 → 5.1.1, 8.3.6 → 8.3.8, 31.0.0 → 31.0.1, 17.6.0 → 17.6.1, 3.9.10 → 3.10.1 | all the same, except `lint-staged` 17.6.2 | Dependabot #19; MediaPipe checksums re-recorded with `pnpm models:fetch --update` |
+| 2026-11-22 | `@testing-library/jest-dom` (major) | 7.0.1 → 8.0.0 | 8.0.0 | Dependabot #20; breaking change is only "vitest < 5 no longer supported" |
 
 ## Planned (installed in the milestone that needs them)
 
