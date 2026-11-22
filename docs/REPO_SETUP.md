@@ -1,9 +1,9 @@
 # Repository setup
 
-Every GitHub setting for this repo, so it can be audited or recreated (README §9.1). **No secret values are ever written here**, only names, scopes and dates. Update this file in the same PR as any settings change.
+Every GitHub setting for this repo, so it can be audited or recreated (SPEC §9.1). **No secret values are ever written here**, only names, scopes and dates. Update this file in the same PR as any settings change.
 
 - **Repo:** `FabianHaxhiaj22/tonematch`
-- **Status:** Applied and verified on **2026-11-07** with the commands in "Verify" (repo created, first push `c96e9df`, CI green, then branch protection on). **2026-11-22:** after the one-time history rewrite, the repo moved (DECISIONS.md D-031). The old repo is now the private `FabianHaxhiaj22/tonematch-archive` (no protection: unavailable on GitHub Free for private repos). This file describes the **new public** `FabianHaxhiaj22/tonematch`, set up from scratch with the settings below and verified with the commands in "Verify".
+- **Status:** Applied and verified on **2026-11-07** with the commands in "Verify" (repo created, first push of the initial scaffold, now `bd0aea0` after the rewrite, CI green, then branch protection on). **2026-11-22:** after the one-time history rewrite, the repo moved (DECISIONS.md D-031). The old repo is now the private `FabianHaxhiaj22/tonematch-archive` (no protection: unavailable on GitHub Free for private repos). This file describes the **new public** `FabianHaxhiaj22/tonematch`, set up from scratch with the settings below and verified with the commands in "Verify".
 
 ## Account and visibility
 
@@ -26,19 +26,14 @@ Every GitHub setting for this repo, so it can be audited or recreated (README §
 
 ## Local git config (per developer, this repo only, `git config --local`)
 
-Each developer sets their **own** identity on their own machine (`docs/ONBOARDING.md` §4). Nobody changes their global git config for this repo.
-
-| Developer | `user.name` | `user.email` (GitHub noreply) |
-|---|---|---|
-| Fabian | `Fabian Haxhiaj` | `187953086+FabianHaxhiaj22@users.noreply.github.com` |
-| Erdiona | `Erdiona Tola` | `353759092+tolaerdiona-commits@users.noreply.github.com` |
+Each developer sets their **own** identity on their own machine: `user.name` and their own GitHub **noreply** `user.email`, both listed in `docs/ONBOARDING.md` §4. Nobody changes their global git config for this repo.
 
 `core.hooksPath` = `.husky/_` (set by `husky` on `pnpm install`). Credentials come from each developer's own `gh auth login` ("authenticate Git: Yes" adds gh as the credential helper in their `~/.gitconfig`; it sets no identity).
 
 ## Commit conventions
 
 - Conventional Commits; PR titles are checked by `pr-title` because the squash commit takes the PR title.
-- **Co-author rule** (from 2026-11-22, D-032; before that, shared PRs only): every commit and every squash merge ends with `Co-authored-by:` for the other developer (addresses in the table above), with no exceptions; merges pass it with `gh pr merge --squash --body "Co-authored-by: …"`; bot PRs (Dependabot, release-please) get **both** trailers. Nobody credits themselves, except on release-please PRs, whose GitHub author is the owner because they're opened with his token. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
+- **Co-author rule** (from 2026-11-22, D-032; before that, shared PRs only): every commit and every squash merge ends with `Co-authored-by:` for the other developer (exact trailers in `docs/ONBOARDING.md` §8), with no exceptions; merges pass it with `gh pr merge --squash --body "Co-authored-by: …"`; bot PRs (Dependabot, release-please) get **both** trailers. Nobody credits themselves, except on release-please PRs, whose GitHub author is the owner because they're opened with his token. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See SPEC §9.3 and `docs/ONBOARDING.md` §8.
 - **No AI co-author trailers:** `.claude/settings.json` (committed) sets Claude Code's `attribution` to `{"commit": "", "pr": "", "sessionUrl": false}`. Personal overrides go in `.claude/settings.local.json` (gitignored).
 - **Commit email for web merges:** GitHub uses each developer's account commit email for squash merges made in the web UI or with `gh pr merge`. Both developers keep "Keep my email addresses private" on (GitHub → Settings → Emails), so those commits get the noreply address.
 
@@ -60,7 +55,7 @@ Each developer sets their **own** identity on their own machine (`docs/ONBOARDIN
 | Require PR before merging | On, **0** approvals | Single developer; GitHub doesn't let you approve your own PR |
 | Required status checks | `ci`, `pr-title` | CI must pass; PR title must be a Conventional Commit |
 | Require branch up to date (`strict`) | On | Checks run against the latest `main` |
-| Enforce for admins | **On** | Nobody pushes directly to `main` after M0 (README §15 rule 3) |
+| Enforce for admins | **On** | Nobody pushes directly to `main` after M0 (SPEC §15 rule 3) |
 | Require linear history | On | Matches squash-only |
 | Allow force pushes | Off | |
 | Allow deletions | Off | |
@@ -128,7 +123,7 @@ Before the new repo was published, a read-only audit of all history, branches, t
 - `initial-version` matters: with a `0.0.0` manifest, release-please treats the project as never released and otherwise proposes **1.0.0** as the first version (it did, in #6). The first release must be `0.1.0`.
 - On every push to `main` it opens or updates a release PR. Merging that PR bumps `package.json`, updates `CHANGELOG.md`, tags `vX.Y.Z` and creates a GitHub Release.
 - **History rewrite and move (D-031):** `v0.1.0` points to the rewritten release commit `2d0dece`; in the new repo the v0.1.0 Release was recreated with corrected notes. The archive's release PR #17 isn't carried over: release-please opens a fresh one in the new repo on the first push to `main` (once its token is set).
-- SemVer: `0.x` until the public MVP, `1.0.0` at launch (README §9.4).
+- SemVer: `0.x` until the public MVP, `1.0.0` at launch (SPEC §9.4).
 
 ## Verify current settings
 

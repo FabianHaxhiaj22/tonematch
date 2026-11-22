@@ -4,15 +4,38 @@
   "private": true,
   "license": "UNLICENSED",
   "description": "Jewellery metal & style advisor with on-device skin-tone analysis",
+  "keywords": [
+    "nextjs",
+    "typescript",
+    "mediapipe",
+    "computer-vision",
+    "color-science",
+    "cielab",
+    "jewellery",
+    "skin-tone",
+    "privacy-first",
+    "on-device-ml",
+    "tailwindcss"
+  ],
+  "homepage": "https://github.com/FabianHaxhiaj22/tonematch#readme",
+  "bugs": {
+    "url": "https://github.com/FabianHaxhiaj22/tonematch/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FabianHaxhiaj22/tonematch.git"
+  },
+  "author": {
+    "name": "Fabian Haxhiaj",
+    "url": "https://github.com/FabianHaxhiaj22"
+  },
   "contributors": [
     {
       "name": "Fabian Haxhiaj",
-      "email": "187953086+FabianHaxhiaj22@users.noreply.github.com",
       "url": "https://github.com/FabianHaxhiaj22"
     },
     {
       "name": "Erdiona Tola",
-      "email": "353759092+tolaerdiona-commits@users.noreply.github.com",
       "url": "https://github.com/tolaerdiona-commits"
     }
   ],

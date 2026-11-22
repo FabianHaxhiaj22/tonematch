@@ -73,9 +73,9 @@ describe("photoConfidence (before fusion, photo evidence only)", () => {
     expect(mid).toBeLessThan(1);
   });
 
-  it("uses cheek colour disagreement (the M3 real selfie: ΔE 3.5, mostly b*)", () => {
-    const r = photoConfidence({ ...GOOD, cheekChromatic: 3.5 });
-    expect(r.value).toBeCloseTo(0.825, 3);
+  it("uses cheek colour disagreement (synthetic case: ΔC 4 → factor 0.8)", () => {
+    const r = photoConfidence({ ...GOOD, cheekChromatic: 4 });
+    expect(r.value).toBeCloseTo(0.8, 12);
     expect(r.factors[0]!.reason).toBe("cheekDisagreement");
     expect(photoConfidence({ ...GOOD, cheekChromatic: 20 }).value).toBeCloseTo(0.6, 12);
   });
@@ -194,7 +194,7 @@ describe("quiz consistency in overall confidence (D-029)", () => {
     expect(threeOne).toBeGreaterThan(split);
   });
 
-  it("the real-testing case: a split quiz no longer raises confidence (was 64% → 68%)", () => {
+  it("a split quiz (2 cool + 2 warm) ends up below the photo alone (synthetic case)", () => {
     const split = conf({ veins: "cool", daylight: "warm", metal: "cool", white: "warm" });
     expect(split).toBeLessThan(none.value);
   });

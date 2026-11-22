@@ -1,5 +1,5 @@
 {
-  "_about": "Metals (README §7.1–7.2, D-030). Affinity 0–1 per undertone column; tiers come from the cut-points and guard rules in src/lib/recommend/config.ts. Styling conventions, not science. Names are in src/i18n/messages under nameKey. `order` interleaves warm and cool so a balanced result doesn't list one family first.",
+  "_about": "Metals (SPEC §7.1–7.2, D-030). Affinity 0–1 per undertone column; tiers come from the cut-points and guard rules in src/lib/recommend/config.ts. Styling conventions, not science. Names are in src/i18n/messages under nameKey. `order` interleaves warm and cool so a balanced result doesn't list one family first.",
   "metals": [
     {
       "id": "yellow-gold",

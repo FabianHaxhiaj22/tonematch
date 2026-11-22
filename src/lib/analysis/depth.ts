@@ -1,5 +1,5 @@
 /**
- * Skin depth (README §6.5, D-029). One blended depth angle (mostly L*, a little ITA) is mapped
+ * Skin depth (SPEC §6.5, D-029). One blended depth angle (mostly L*, a little ITA) is mapped
  * through one table to an approximate MST index, and the label comes from that same row, so
  * label and MST can't contradict. Depth describes lightness only; it never feeds the undertone.
  */

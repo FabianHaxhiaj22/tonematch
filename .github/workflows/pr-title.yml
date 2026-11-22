@@ -1,5 +1,5 @@
 # PR titles must be Conventional Commits: squash-merge uses the PR title as the commit message
-# on main, and release-please reads those commits (README §9.4, §9.5).
+# on main, and release-please reads those commits (SPEC §9.4, §9.5).
 # The job name `pr-title` is a required status check on main (docs/REPO_SETUP.md).
 #
 # Uses `pull_request` (not `pull_request_target`) so the workflow never has access to secrets.

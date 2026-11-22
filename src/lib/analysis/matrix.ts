@@ -1,5 +1,5 @@
 /**
- * MediaPipe's facial transformation matrix (canonical face model → detected face, README §6.2).
+ * MediaPipe's facial transformation matrix (canonical face model → detected face, SPEC §6.2).
  *
  * MediaPipe returns `{ rows, columns, data }` with `data` flattened. Neither the web guide nor
  * the type definitions state the order, so it was checked on a real portrait in M2: the
@@ -42,7 +42,7 @@ export function toMat4(m: FlatMatrix): Mat4 {
 export type HeadAngles = { yaw: number; pitch: number; roll: number };
 
 /**
- * Head angles in degrees from the rotation part of a row-major 4×4 (README §6.1 HEAD_TILTED).
+ * Head angles in degrees from the rotation part of a row-major 4×4 (SPEC §6.1 HEAD_TILTED).
  * Decomposes R = Ry(yaw) · Rx(pitch) · Rz(roll) in the canonical face model's axes (x across
  * the face, y up, z towards the camera): yaw = turning left/right, pitch = nodding, roll = tilting
  * sideways. Columns are normalised first, so a uniform scale in the matrix doesn't matter.

@@ -1,6 +1,6 @@
 # Onboarding
 
-Setup for a new developer on their own machine. Read `README.md` first: it's the source of truth. If you use Claude Code, it follows `CLAUDE.md`.
+Setup for a new developer on their own machine. Read the [README](../README.md) for an overview and [`docs/SPEC.md`](SPEC.md) for the full build spec (the source of truth). If you use Claude Code, it follows `CLAUDE.md`.
 
 Everything below uses **your own** GitHub account and identity. Never use someone else's account or email on your machine.
 
@@ -86,6 +86,13 @@ git config --local user.name  "Your Name"
 git config --local user.email "<id>+<login>@users.noreply.github.com"
 git config --local --get-regexp '^user\.'                          # check
 ```
+Our identities (the same addresses are used in `Co-authored-by:` trailers, §8):
+
+| Developer | `user.name` | `user.email` (GitHub noreply) |
+|---|---|---|
+| Fabian | `Fabian Haxhiaj` | `187953086+FabianHaxhiaj22@users.noreply.github.com` |
+| Erdiona | `Erdiona Tola` | `353759092+tolaerdiona-commits@users.noreply.github.com` |
+
 Recommended in GitHub → Settings → Emails: turn on **Keep my email addresses private** and **Block command line pushes that expose my email**.
 
 ## 5. Install and fetch the models
@@ -113,8 +120,8 @@ Dev server: `pnpm dev` → http://localhost:3000. Dev-only debug pages live unde
 - Branch from an up-to-date `main`: `feat/…`, `fix/…`, `chore/…`, `docs/…`. One milestone or sub-feature per branch.
 - Commit messages and **PR titles** are Conventional Commits (`feat: …`, `fix: …`). The PR title becomes the commit on `main`.
 - `main` is protected for everyone: open a PR; `ci` and `pr-title` must pass; the branch must be up to date with `main` ("Update branch"); squash-merge only. No direct pushes, no force pushes.
-- Before marking a milestone done: all checks in §6 pass, docs updated (`README.md`, `docs/DECISIONS.md`).
-- Never commit secrets, `.env` files, or face images that aren't listed with a licence in `tests/fixtures/SOURCES.md`. Images are never uploaded or stored server-side (README §2, §12).
+- Before marking a milestone done: all checks in §6 pass, docs updated (`docs/SPEC.md`, `README.md`, `docs/DECISIONS.md`).
+- Never commit secrets, `.env` files, or face images that aren't listed with a licence in `tests/fixtures/SOURCES.md`. Images are never uploaded or stored server-side (SPEC §2, §12).
 
 ## 8. Co-author rule (every commit)
 We work on everything together (D-032, since 2026-11-22), so **every commit and every squash merge** ends with a `Co-authored-by:` trailer for **the other** of us. No exceptions: features, fixes, docs, chores, Dependabot follow-ups and release PRs included. Nobody adds a trailer for themselves; commits that bots make on their own branches need none (they are squashed). **No AI co-author trailers** or "Generated with" lines: the committed `.claude/settings.json` turns Claude Code's attribution off. **Never rewrite existing history** to add or remove trailers (the one-time exception on 2026-11-19 is recorded in D-031).

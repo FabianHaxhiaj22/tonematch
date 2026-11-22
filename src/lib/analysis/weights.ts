@@ -1,5 +1,5 @@
 /**
- * Region weights for the overall skin colour (README §6.2, DECISIONS D-026). Normally cheeks
+ * Region weights for the overall skin colour (SPEC §6.2, DECISIONS D-026). Normally cheeks
  * 0.4 + 0.4 and forehead 0.2; when the cheeks are doubtful the forehead counts for more.
  * Pure: works on region medians and flags only.
  */

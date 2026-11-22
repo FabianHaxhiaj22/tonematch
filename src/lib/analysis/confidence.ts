@@ -1,5 +1,5 @@
 /**
- * Confidence (README §6.6, issue L), in two separate steps:
+ * Confidence (SPEC §6.6, issue L), in two separate steps:
  * - photoConfidence: before fusion, from photo evidence only (never the quiz);
  * - overallConfidence: after fusion, from photo confidence, quiz answers and their agreement.
  * Both are 0–1 (displayed as a percentage). All factors are heuristics in config.ts.

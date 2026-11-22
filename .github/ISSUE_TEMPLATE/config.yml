@@ -1,0 +1,3 @@
+# Every issue goes through a form (bug.yml / feature.yml), so nobody skips the
+# "please don't attach face photos" notice.
+blank_issues_enabled: false

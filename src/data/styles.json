@@ -1,5 +1,5 @@
 {
-  "_about": "Jewellery styles per category (README §7.1, D-030). `depths` limits an item to some depths (contrast advice only: delicate vs bold); `undertones` limits it to some effective undertones. Items with more filters that match come first, then file order; STYLES_PER_CATEGORY are shown. No face-shape rules until Phase 2. `finishes` maps each depth to finish/contrast advice. Text is in src/i18n/messages.",
+  "_about": "Jewellery styles per category (SPEC §7.1, D-030). `depths` limits an item to some depths (contrast advice only: delicate vs bold); `undertones` limits it to some effective undertones. Items with more filters that match come first, then file order; STYLES_PER_CATEGORY are shown. No face-shape rules until Phase 2. `finishes` maps each depth to finish/contrast advice. Text is in src/i18n/messages.",
   "categories": {
     "rings": [
       {

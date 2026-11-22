@@ -7,7 +7,7 @@ import prettier from "eslint-config-prettier/flat";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Full jsx-a11y recommended rule set (README §13: WCAG 2.2 AA). eslint-config-next already
+  // Full jsx-a11y recommended rule set (SPEC §13: WCAG 2.2 AA). eslint-config-next already
   // registers the jsx-a11y plugin (with only a few rules on), so we add the rules, not the plugin.
   {
     files: ["**/*.{jsx,tsx}"],

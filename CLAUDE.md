@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-**README.md is the source of truth.** Read it fully at the start of every session.
-This file only summarises the working rules (README §15). If they conflict, README wins.
-Keep this file short (< 60 lines) and in sync with README §15.
+**`docs/SPEC.md` is the source of truth.** Read it fully at the start of every session.
+This file only summarises its working rules (SPEC §15). If they conflict, SPEC wins.
+`README.md` is the public overview, not the spec. Keep this file < 60 lines, in sync with §15.
 
 `PROMPTS.md` is the user's private list of future prompts. Do not act on it.
 
@@ -11,7 +11,7 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
 **entirely in the browser**, and recommends jewellery metals, styles and gemstones.
 
 ## Working rules
-1. **Read README.md first**, every session. Follow the milestone order in README §14.
+1. **Read `docs/SPEC.md` first**, every session. Follow the milestone order in SPEC §14.
    Don't jump ahead to a later milestone.
 2. **Plan before coding.** For each milestone, show the user a short plan
    (files to touch, tests to add) before starting large changes.
@@ -34,13 +34,13 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
 8. **Thresholds live in config**: each module owns its `config.ts` (`src/lib/analysis/`,
    `src/lib/recommend/`, …), as named, commented constants. No magic numbers in logic.
 9. **Record decisions** in `docs/DECISIONS.md` (date, decision, why, alternatives).
-10. **After each milestone:** run lint, typecheck, tests and build; update README
-    and docs if behaviour changed; summarise what changed and what comes next.
+10. **After each milestone:** run lint, typecheck, tests and build; update SPEC, the
+    public README and docs if behaviour changed; summarise what changed and what's next.
 11. **Ask the user before:** adding a paid service, changing the stack, adding a
     database, or anything that touches privacy or legal text. Never present
     generated legal text as legal advice.
 
-## Non-negotiables (details in the README)
+## Non-negotiables (details in SPEC)
 - Never infer, label or store race or ethnicity (§1).
 - Present results as style guidance with a confidence score, never as a measurement (§1, §2).
 - Use the Monk Skin Tone scale, not Fitzpatrick (§2). Label MST values as approximate.
@@ -54,6 +54,6 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
   author's `Co-authored-by:`; bot PRs get both. No AI trailers (`.claude/settings.json`). Never
   rewrite history (one-time exception: D-031). New devs: `docs/ONBOARDING.md`.
 
-## Key commands (README §17)
+## Key commands (SPEC §17)
 `pnpm dev` · `pnpm lint` · `pnpm typecheck` · `pnpm test` · `pnpm validate:data`
 · `pnpm build` · `pnpm e2e` · `pnpm models:fetch`

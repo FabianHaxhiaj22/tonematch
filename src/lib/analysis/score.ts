@@ -1,6 +1,6 @@
 /**
  * Scoring entry point (M4): skin sample + quality result + quiz answers → depth, undertone and
- * confidence (README §6.5–6.6). Pure; numbers only.
+ * confidence (SPEC §6.5–6.6). Pure; numbers only.
  */
 import { depthFromLab, type Depth } from "./depth";
 import {

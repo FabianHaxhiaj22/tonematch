@@ -1,5 +1,5 @@
 /**
- * models:fetch — fills public/models/ with the MediaPipe files the app self-hosts (README §4, §17).
+ * models:fetch — fills public/models/ with the MediaPipe files the app self-hosts (SPEC §4, §17).
  *
  * 1. Copies the WASM runtime from the installed, pinned @mediapipe/tasks-vision package
  *    (node_modules/@mediapipe/tasks-vision/wasm) into public/models/wasm/.

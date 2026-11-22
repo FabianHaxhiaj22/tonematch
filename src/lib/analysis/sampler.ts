@@ -1,5 +1,5 @@
 /**
- * Skin sampler (README §6.2): pixels inside each region → luminance trim → ΔE outlier removal
+ * Skin sampler (SPEC §6.2): pixels inside each region → luminance trim → ΔE outlier removal
  * → median Lab per region → weighted overall median + left/right cheek disagreement.
  * Pure: takes an RgbaImage and pixel-space landmarks, returns numbers only.
  */
@@ -20,7 +20,7 @@ import { chooseRegionWeights, type WeightReason } from "./weights";
 import { applyGains, type WhiteBalanceGains } from "./whiteBalance";
 
 export type SamplerOptions = {
-  /** White-balance gains from a calibration patch (README §6.3). Applied in linear RGB. */
+  /** White-balance gains from a calibration patch (SPEC §6.3). Applied in linear RGB. */
   gains?: WhiteBalanceGains;
   lumTrimLow?: number;
   lumTrimHigh?: number;
@@ -99,7 +99,7 @@ const medianLab = (labs: readonly Lab[]): Lab => ({
 });
 
 /**
- * Filter and summarise the given pixels (README §6.2 steps 1–3). The median is per channel
+ * Filter and summarise the given pixels (SPEC §6.2 steps 1–3). The median is per channel
  * (marginal median), which is robust and cheap; documented in DECISIONS D-020.
  */
 export function sampleRegionPixels(

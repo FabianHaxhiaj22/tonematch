@@ -1,5 +1,5 @@
 /**
- * Photo quality gate (README §6.1). Judges what can be measured: face count and size, exposure
+ * Photo quality gate (SPEC §6.1). Judges what can be measured: face count and size, exposure
  * (from clipping and the image histogram, never from skin lightness), colour cast, blur, head
  * angle. Beauty filters, skin smoothing and tinted glasses are NOT detected (no reliable
  * signal); the guide screen covers them.
@@ -52,7 +52,7 @@ export type QualityCode =
 
 /**
  * `blocking` issues stop the analysis; `warning`s can be overridden ("analyse anyway"), which
- * lowers confidence (README §6.1).
+ * lowers confidence (SPEC §6.1).
  */
 export type QualityIssue = {
   code: QualityCode;

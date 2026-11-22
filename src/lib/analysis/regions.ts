@@ -1,5 +1,5 @@
 /**
- * Skin-sampling polygons from Face Landmarker landmarks (README §6.2). Indices and their source
+ * Skin-sampling polygons from Face Landmarker landmarks (SPEC §6.2). Indices and their source
  * are in config.ts (CHEEK_INDICES, FOREHEAD_*_RING, FACE_OVAL_RING).
  */
 import {

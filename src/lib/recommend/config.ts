@@ -1,5 +1,5 @@
 /**
- * Recommendation engine configuration (README §7). Every threshold used by src/lib/recommend
+ * Recommendation engine configuration (SPEC §7). Every threshold used by src/lib/recommend
  * lives here as a named, commented constant (each module owns its config; CLAUDE.md rule 8).
  * **Initial values are styling heuristics**, not measurements: tune them with the calibration
  * set (docs/CALIBRATION.md) and change them here, never inline in the logic.
@@ -23,7 +23,7 @@ export const LEAN_WEIGHT = 0.5;
 
 /**
  * Metal tiers from the blended affinity score (0–1). Then the engine's guard rules apply
- * (README §7, D-030): the favoured family always has a "best" metal, the other family is never
+ * (SPEC §7, D-030): the favoured family always has a "best" metal, the other family is never
  * below "good" in a leaning bucket, and both families get a "best" metal when balanced.
  */
 export const TIER_BEST_MIN = 0.8;

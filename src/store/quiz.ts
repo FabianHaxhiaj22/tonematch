@@ -1,5 +1,5 @@
 /**
- * Quiz state (README §4: Zustand for the analysis flow). In memory only: nothing is written to
+ * Quiz state (SPEC §4: Zustand for the analysis flow). In memory only: nothing is written to
  * storage or sent anywhere. Answers are reset when the tab closes or on "Start again".
  */
 import { create } from "zustand";

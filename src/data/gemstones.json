@@ -1,5 +1,5 @@
 {
-  "_about": "Gemstones (README §7.1–7.2, D-030). Warm and cool palettes follow §7.2; for neutral, jewel tones and pastels score highest. Stones whose blended affinity reaches GEMSTONE_MIN_SCORE are suggested, best first, at most GEMSTONES_MAX. Swatches are typical display colours, not measurements. Names are in src/i18n/messages under nameKey.",
+  "_about": "Gemstones (SPEC §7.1–7.2, D-030). Warm and cool palettes follow §7.2; for neutral, jewel tones and pastels score highest. Stones whose blended affinity reaches GEMSTONE_MIN_SCORE are suggested, best first, at most GEMSTONES_MAX. Swatches are typical display colours, not measurements. Names are in src/i18n/messages under nameKey.",
   "gemstones": [
     {
       "id": "garnet",

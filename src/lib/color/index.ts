@@ -1,5 +1,5 @@
 /**
- * Colour engine (README §6.4): pure, dependency-free conversions
+ * Colour engine (SPEC §6.4): pure, dependency-free conversions
  * sRGB (0–255) → linear RGB → CIE XYZ (D65) → CIELAB (D65), plus chroma, hue angle and ITA°.
  */
 export * from "./constants";
