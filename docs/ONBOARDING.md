@@ -116,25 +116,26 @@ Dev server: `pnpm dev` → http://localhost:3000. Dev-only debug pages live unde
 - Before marking a milestone done: all checks in §6 pass, docs updated (`README.md`, `docs/DECISIONS.md`).
 - Never commit secrets, `.env` files, or face images that aren't listed with a licence in `tests/fixtures/SOURCES.md`. Images are never uploaded or stored server-side (README §2, §12).
 
-## 8. Co-author rule (shared work)
-When a PR is done by **both** of us, **every commit in it and the squash commit** end with a `Co-authored-by:` trailer for whichever of us isn't that commit's author. Work by only one person gets no trailer, and nobody adds a trailer for themselves. **No AI co-author trailers** or "Generated with" lines: the committed `.claude/settings.json` turns Claude Code's attribution off. **Never rewrite existing history** to add or remove trailers (the one-time exception on 2026-11-19 is recorded in D-031).
+## 8. Co-author rule (every commit)
+We work on everything together (D-032, since 2026-11-22), so **every commit and every squash merge** ends with a `Co-authored-by:` trailer for **the other** of us. No exceptions: features, fixes, docs, chores, Dependabot follow-ups and release PRs included. Nobody adds a trailer for themselves; commits that bots make on their own branches need none (they are squashed). **No AI co-author trailers** or "Generated with" lines: the committed `.claude/settings.json` turns Claude Code's attribution off. **Never rewrite existing history** to add or remove trailers (the one-time exception on 2026-11-19 is recorded in D-031).
 
 **Cloned before 2026-11-22?** `main` was rewritten and moved to a new repo with the same URL (D-031). Make a **fresh clone** (§3) and set your local identity again (§4); don't merge or rebase old local commits onto the new history.
 
-| Author | Trailer |
+| You are | Every commit and squash merge you make ends with |
 |---|---|
-| Fabian Haxhiaj | `Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>` |
-| Erdiona Tola | `Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>` |
+| Fabian Haxhiaj | `Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>` |
+| Erdiona Tola | `Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>` |
 
-Commits (example by Erdiona on shared work):
+Commits (example by Erdiona):
 ```bash
 git commit -m "feat: add cheek sampler" \
   --trailer "Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>"
 ```
-Squash merge, keeping the trailer on the final commit:
+Squash merge (example by Fabian), with the trailer in the squash message body:
 ```bash
-gh pr merge <number> --squash --body "Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>"
+gh pr merge <number> --squash --body "Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>"
 ```
+Forgot it on a commit that isn't pushed yet? `git commit --amend --no-edit --trailer "Co-authored-by: …"`. Never amend or force-push commits that are already on `main`.
 In the GitHub web UI, check the squash commit message before confirming: the `Co-authored-by:` line must be in it (as the last lines, after a blank line), and no other co-author lines. Web merges are authored with your GitHub **commit email** setting: with "Keep my email addresses private" off, that's your personal address (this is how personal emails reached `main` before D-031), so keep it on (§4).
 
 ## 9. Who to ask

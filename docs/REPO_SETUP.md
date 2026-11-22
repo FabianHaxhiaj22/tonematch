@@ -38,7 +38,7 @@ Each developer sets their **own** identity on their own machine (`docs/ONBOARDIN
 ## Commit conventions
 
 - Conventional Commits; PR titles are checked by `pr-title` because the squash commit takes the PR title.
-- **Co-author rule** (from 2026-11-13): when a PR is done by both developers, every commit and the squash commit end with `Co-authored-by:` for the developer who isn't that commit's author (addresses in the table above). Single-author work: no human co-author trailer; nobody credits themselves. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
+- **Co-author rule** (from 2026-11-22, D-032; before that, shared PRs only): every commit and every squash merge ends with `Co-authored-by:` for the other developer (addresses in the table above), with no exceptions; merges pass it with `gh pr merge --squash --body "Co-authored-by: …"`. Nobody credits themselves. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
 - **No AI co-author trailers:** `.claude/settings.json` (committed) sets Claude Code's `attribution` to `{"commit": "", "pr": "", "sessionUrl": false}`. Personal overrides go in `.claude/settings.local.json` (gitignored).
 - **Commit email for web merges:** GitHub uses each developer's account commit email for squash merges made in the web UI or with `gh pr merge`. Both developers keep "Keep my email addresses private" on (GitHub → Settings → Emails), so those commits get the noreply address.
 
