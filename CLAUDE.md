@@ -42,8 +42,7 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
 
 ## Non-negotiables (details in the README)
 - Never infer, label or store race or ethnicity (§1).
-- Present results as style guidance with a confidence score, never as a
-  measurement of the person (§1, §2).
+- Present results as style guidance with a confidence score, never as a measurement (§1, §2).
 - Use the Monk Skin Tone scale, not Fitzpatrick (§2). Label MST values as approximate.
 - No hard-coded UI strings: everything goes in the `en` and `sq` message files (§13).
 - Target WCAG 2.2 AA and respect `prefers-reduced-motion` (§13).
@@ -52,7 +51,8 @@ ToneMatch: a Next.js web app that analyses skin tone and undertone from a selfie
   the developer at this machine (an author in §18); if not, stop and ask. Repo settings: owner
   only, recorded in `docs/REPO_SETUP.md`. Never write tokens or credentials to any file.
 - Shared PRs (§9.3): every commit + the squash commit get `Co-authored-by:` for the other
-  author. Not for single-author work. Never rewrite history. New devs: `docs/ONBOARDING.md`.
+  author; none for solo work. No AI trailers (`.claude/settings.json`). Never rewrite history
+  (one-time exception: D-031). New devs: `docs/ONBOARDING.md`.
 
 ## Key commands (README §17)
 `pnpm dev` · `pnpm lint` · `pnpm typecheck` · `pnpm test` · `pnpm validate:data`

@@ -378,7 +378,9 @@ Then (Claude Code via `gh api`, after the admin check; each setting is recorded 
 Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>
 Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>
 ```
-Work done by only one of us gets no human co-author trailer. **Never rewrite existing history** to add or remove trailers. (AI-assistance trailers, e.g. Claude Code's, are separate from this rule.) How-to: `docs/ONBOARDING.md`.
+Work done by only one of us gets no human co-author trailer, and nobody credits themselves. **No AI co-author trailers** or "Generated with" lines in commits or PR descriptions: the shared `.claude/settings.json` turns Claude Code's attribution off (D-031). **Never rewrite existing history** to add or remove trailers. How-to: `docs/ONBOARDING.md`.
+
+**One-time exception (2026-11-19, agreed by both authors):** `main` and the `v0.1.0` tag were rewritten once to remove AI co-author trailers, self-credit trailers and personal email addresses (D-031). File contents and dates are unchanged. The never-rewrite rule stays in force.
 
 ### 9.4 Versioning & releases
 - **SemVer.** `0.x` until the MVP ships, `1.0.0` at the public MVP launch.
@@ -487,7 +489,7 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 9. **Record decisions** in `docs/DECISIONS.md` (date, decision, why, alternatives).
 10. **After each milestone:** run lint, typecheck, tests, build; update README/docs if behaviour changed; summarise what changed and what's next.
 11. **Ask the user** before: adding a paid service, changing the stack, adding a database, or anything touching privacy/legal.
-12. **Co-authored work:** when a PR is done by both authors, every commit and the squash commit end with a `Co-authored-by:` trailer for the author who didn't make that commit (§9.3). Not for single-author work. Never rewrite history.
+12. **Co-authored work:** when a PR is done by both authors, every commit and the squash commit end with a `Co-authored-by:` trailer for the author who didn't make that commit (§9.3). Not for single-author work, and no AI co-author trailers. Never rewrite history (one-time exception on 2026-11-19: D-031).
 13. **Act as the developer at this machine:** GitHub actions use that developer's own `gh` account and repo-local identity; repo settings only from the owner's account (§9.1).
 
 ---

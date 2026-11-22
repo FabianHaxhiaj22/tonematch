@@ -23,7 +23,7 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 | `OUTLIER_DELTA_E` | 15 | README §6.2; removes planted highlights, shadows and off-hue blemishes in tests |
 | `MIN_VALID_PIXELS` | 300 | README §6.2; fixture cheeks keep ~1,250–1,600 px; a ~140 px-wide face falls below |
 | `CHEEK_DISAGREEMENT_DELTA_E` | 6 | Heuristic (ΔE 2–3 ≈ just noticeable) |
-| `CHEEK_MIN_PIXEL_RATIO` | 0.4 | Real selfie at yaw −19° lost ~90% of the far cheek; canonical mesh: 0.73 at 15°, 0.59 at 19°, 0.18 at 25° |
+| `CHEEK_MIN_PIXEL_RATIO` | 0.4 | A real selfie with the head clearly turned lost most of the far cheek; canonical mesh: 0.73 at 15°, 0.59 at 19°, 0.18 at 25° |
 | `FOREHEAD_HEIGHT_FRACTION` | 0.5 | Half-way from the ring above the brows to the hairline; fixture keeps 1843 px |
 | `FACE_OUTLINE_INSET_FRACTION` | 0.05 | Of the visible outline (D-024); cheeks keep 100% at yaw ±15° at 25–45 cm on the canonical mesh |
 | `FACE_MIN_WIDTH_FRACTION` | 0.25 | README §6.1 |
@@ -44,13 +44,13 @@ All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists 
 | `DEPTH_ITA_WEIGHT` / `DEPTH_REF_B` | 0.2 / 15 | Depth angle mostly from L\*; b\* 10 → 25 moves MST ≤ 1 step (D-029) |
 | `DEPTH_SCALE` (angle → MST → label) | 65 / 55 / 48 / 41 / 28 / 10 / −10 / −30 / −50 | Label edges = classic ITA classes; MST splits heuristic (D-029). Ask volunteers for self-reported MST |
 | `ITA_MIN_B` | 4 | Skin b\* is normally 10–25 |
-| `HUE_NEUTRAL_CENTRE_DEG` / `HUE_SCALE_DEG` | 55° / 20° (tanh) | Real skin hues 40–70° stay below \|p\| 0.7 calibrated; an indoor selfie at 38.6° saturated the old ±15° clamp (D-029) |
+| `HUE_NEUTRAL_CENTRE_DEG` / `HUE_SCALE_DEG` | 55° / 20° (tanh) | Skin hues 40–70° stay below \|p\| 0.7 calibrated; a real indoor photo saturated the old ±15° clamp (D-029) |
 | `UNDERTONE_CUTS` | ±0.10, ±0.25 | README §6.6 |
 | `PHOTO_SCORE_CAP_CALIBRATED` / `_UNCALIBRATED` | 1 / 0.6 | Camera white balance shifts hue; an uncalibrated photo alone can't make a strong call (D-029) |
 | `PHOTO_WEIGHT_MAX` | 0.6 | README §6.6 |
 | `QUIZ_SPLIT_SHRINK` / `QUIZ_SPLIT_PENALTY` | 0.5 / 0.25 | 2 + 2 quiz: score × 0.5, confidence × 0.75 and quiz share × 0 (D-029) |
 | `CHEEK_REDNESS_A_MARGIN` / `_HUE_MARGIN_DEG` | 4 / 8° | Synthetic: unmade-up skin at every depth not flagged; obvious redness flagged |
-| `CHEEK_CHROMATIC_DISAGREEMENT` | 3 | M3 real selfie: ΔE 3.5, mostly b\* |
+| `CHEEK_CHROMATIC_DISAGREEMENT` | 3 | Real-photo testing in M3 showed cheek differences above 3, mostly in b\* (D-026) |
 | `FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL` | 0.5 | D-026 |
 | `PHOTO_*` factors | see D-028 | Heuristic |
 | `OVERALL_PHOTO_SHARE` / `_QUIZ_SHARE` | 0.6 / 0.4 | Heuristic |
@@ -77,14 +77,14 @@ In `src/lib/recommend/config.ts` (styling heuristics, not measurements; D-030). 
 
 | Date | Constant | Old | New | Evidence |
 |---|---|---|---|---|
-| 2026-11-13 | Yaw limit | ±20° | ±15° | Real selfie at −19° lost ~90% of the far cheek (D-023) |
-| 2026-11-13 | Colour cast method | brightest 1% of background | neutral-pixel cluster | Red curtain false positive (23.7) on a real photo (D-023) |
+| 2026-11-13 | Yaw limit | ±20° | ±15° | A real selfie with the head clearly turned lost most of the far cheek (D-023) |
+| 2026-11-13 | Colour cast method | brightest 1% of background | neutral-pixel cluster | False positive on a real photo with a red curtain behind (D-023) |
 | 2026-11-13 | Forehead lower edge | brow top edge | one ring higher | Overlapped the brows on a real photo (D-023) |
-| 2026-11-13 | Cheek indices | 117–118–101–36–205–187–50 | 101–100–142–203–206–205 (apple of the cheek) | Real selfie at yaw −12° kept 33% of the right cheek after the clip (D-024) |
-| 2026-11-18 | Photo score | clamp(Δh / 15°) | cap × tanh(Δh / 20°), cap 0.6 uncalibrated | Indoor selfie saturated at −1.00 (D-029) |
+| 2026-11-13 | Cheek indices | 117–118–101–36–205–187–50 | 101–100–142–203–206–205 (apple of the cheek) | A near-frontal real selfie kept only about a third of one cheek after the clip (D-024) |
+| 2026-11-18 | Photo score | clamp(Δh / 15°) | cap × tanh(Δh / 20°), cap 0.6 uncalibrated | A real indoor photo saturated the score at the cap (D-029) |
 | 2026-11-18 | Depth / MST | ITA classes + nearest display swatch | one L\*-weighted angle, one table | Label and MST contradicted on a real photo (D-029) |
-| 2026-11-18 | `AGREEMENT_MIN_FACTOR` | 0.6 | 0.4 | All-warm quiz vs cool photo gave 70%; now 59% (D-029) |
+| 2026-11-18 | `AGREEMENT_MIN_FACTOR` | 0.6 | 0.4 | Synthetic test: all-warm quiz vs cool photo gave 70%; now 59% (D-029) |
 | 2026-11-18 | Uncalibrated confidence cap | none | 0.85 | Only calibration should allow > 85% (D-029) |
-| 2026-11-18 | Quiz consistency | none | 1 − variance; shrink 0.5, penalty 0.25 | 2 + 2 quiz raised confidence 64% → 68% (D-029) |
+| 2026-11-18 | Quiz consistency | none | 1 − variance; shrink 0.5, penalty 0.25 | A contradictory quiz raised confidence on a real photo (D-029) |
 | 2026-11-18 | `HUE_HALF_WIDTH_DEG` | 10° (first draft) | 15° | Neutral bucket was ±1° of hue; 8-bit rounding flipped it in tests (D-026) |
 | 2026-11-13 | Clip boundary | face-oval hull | hull of all landmarks (visible outline) | Perspective puts far-side face-oval landmarks onto the far cheek (D-024) |

@@ -117,7 +117,9 @@ Dev server: `pnpm dev` → http://localhost:3000. Dev-only debug pages live unde
 - Never commit secrets, `.env` files, or face images that aren't listed with a licence in `tests/fixtures/SOURCES.md`. Images are never uploaded or stored server-side (README §2, §12).
 
 ## 8. Co-author rule (shared work)
-When a PR is done by **both** of us, **every commit in it and the squash commit** end with a `Co-authored-by:` trailer for whichever of us isn't that commit's author. Work by only one person gets no trailer. **Never rewrite existing history** to add or remove trailers.
+When a PR is done by **both** of us, **every commit in it and the squash commit** end with a `Co-authored-by:` trailer for whichever of us isn't that commit's author. Work by only one person gets no trailer, and nobody adds a trailer for themselves. **No AI co-author trailers** or "Generated with" lines: the committed `.claude/settings.json` turns Claude Code's attribution off. **Never rewrite existing history** to add or remove trailers (the one-time exception on 2026-11-19 is recorded in D-031).
+
+**Cloned before 2026-11-22?** `main` was rewritten and moved to a new repo with the same URL (D-031). Make a **fresh clone** (§3) and set your local identity again (§4); don't merge or rebase old local commits onto the new history.
 
 | Author | Trailer |
 |---|---|
@@ -133,7 +135,7 @@ Squash merge, keeping the trailer on the final commit:
 ```bash
 gh pr merge <number> --squash --body "Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>"
 ```
-In the GitHub web UI, check the squash commit message before confirming: the `Co-authored-by:` line must be in it (as the last lines, after a blank line).
+In the GitHub web UI, check the squash commit message before confirming: the `Co-authored-by:` line must be in it (as the last lines, after a blank line), and no other co-author lines. Web merges are authored with your GitHub **commit email** setting: with "Keep my email addresses private" off, that's your personal address (this is how personal emails reached `main` before D-031), so keep it on (§4).
 
 ## 9. Who to ask
 Repo settings (branch protection, secrets, collaborators) are managed by the owner, Fabian (`@FabianHaxhiaj22`); see `docs/REPO_SETUP.md`. Decisions and open risks: `docs/DECISIONS.md`.
