@@ -66,7 +66,7 @@ Each developer sets their **own** identity on their own machine (`docs/ONBOARDIN
 | Allow deletions | Off | |
 | Require conversation resolution | On | |
 
-**New repo (2026-11-22): not applied yet.** It is applied with the command below once CI has run in the new repo, then verified.
+**New repo: applied and verified on 2026-11-22**, with the command below, after `ci` and `pr-title` had passed on #18 (Actions had to be enabled first, see "GitHub Actions"). Read back with `gh api repos/$R/branches/main/protection`: checks `ci` + `pr-title`, strict, `enforce_admins`, 0 approvals, linear history, conversation resolution, no force pushes or deletions.
 
 Applied with:
 ```bash
@@ -89,6 +89,8 @@ EOF
 | Third-party actions | Pinned to full commit SHAs | Dependabot (`github-actions`) proposes updates |
 
 Workflows: `ci.yml` (job `ci`), `pr-title.yml` (job `pr-title`), `release.yml` (job `release-please`).
+
+**New repo, 2026-11-22: Actions had to be enabled by hand.** After the first push no workflow ran (no check suites for pushes or PRs; only Dependabot's own jobs), although the API reported `enabled: true`, `allowed_actions: all` and all three workflows as `active`. The repo's Actions tab showed "Workflows aren't being run on this repository — GitHub Actions is not currently enabled". The owner clicked **Enable Actions on this repository**; after that, closing and reopening #18 started CI and PR title. If this ever happens again (e.g. a re-created repo), check the Actions tab first: the API doesn't show this state.
 
 ## Security
 
