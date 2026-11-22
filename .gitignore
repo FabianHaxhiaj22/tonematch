@@ -52,3 +52,6 @@ next-env.d.ts
 
 # owner's private prompt list (repo is public; see docs/DECISIONS.md)
 /PROMPTS.md
+
+# personal Claude Code overrides (the shared .claude/settings.json is committed; D-031)
+/.claude/settings.local.json

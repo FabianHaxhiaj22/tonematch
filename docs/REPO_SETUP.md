@@ -3,14 +3,14 @@
 Every GitHub setting for this repo, so it can be audited or recreated (README §9.1). **No secret values are ever written here**, only names, scopes and dates. Update this file in the same PR as any settings change.
 
 - **Repo:** `FabianHaxhiaj22/tonematch`
-- **Status:** Applied and verified on **2026-11-07** with the commands in "Verify" (repo created, first push `c96e9df`, CI green, then branch protection on).
+- **Status:** Applied and verified on **2026-11-07** with the commands in "Verify" (repo created, first push `c96e9df`, CI green, then branch protection on). **2026-11-22:** after the one-time history rewrite, the repo moved (DECISIONS.md D-031). The old repo is now the private `FabianHaxhiaj22/tonematch-archive` (no protection: unavailable on GitHub Free for private repos). This file describes the **new public** `FabianHaxhiaj22/tonematch`, set up from scratch with the settings below and verified with the commands in "Verify".
 
 ## Account and visibility
 
 | Setting | Value |
 |---|---|
 | Owner | `FabianHaxhiaj22` (the owner's own account) |
-| Visibility | Public |
+| Visibility | Public (new repo since 2026-11-22; the old one is the private `tonematch-archive`, D-001, D-031) |
 | Licence | None: all rights reserved (`"license": "UNLICENSED"`). See DECISIONS.md D-001. |
 | Default branch | `main` |
 
@@ -38,7 +38,9 @@ Each developer sets their **own** identity on their own machine (`docs/ONBOARDIN
 ## Commit conventions
 
 - Conventional Commits; PR titles are checked by `pr-title` because the squash commit takes the PR title.
-- **Co-author rule** (from 2026-11-13): when a PR is done by both developers, every commit and the squash commit end with `Co-authored-by:` for the developer who isn't that commit's author (addresses in the table above). Single-author work: no human co-author trailer. Never rewrite existing history. See README §9.3 and `docs/ONBOARDING.md` §8.
+- **Co-author rule** (from 2026-11-13): when a PR is done by both developers, every commit and the squash commit end with `Co-authored-by:` for the developer who isn't that commit's author (addresses in the table above). Single-author work: no human co-author trailer; nobody credits themselves. Never rewrite existing history (one-time exception on 2026-11-19: DECISIONS.md D-031). See README §9.3 and `docs/ONBOARDING.md` §8.
+- **No AI co-author trailers:** `.claude/settings.json` (committed) sets Claude Code's `attribution` to `{"commit": "", "pr": "", "sessionUrl": false}`. Personal overrides go in `.claude/settings.local.json` (gitignored).
+- **Commit email for web merges:** GitHub uses each developer's account commit email for squash merges made in the web UI or with `gh pr merge`. Both developers keep "Keep my email addresses private" on (GitHub → Settings → Emails), so those commits get the noreply address.
 
 ## Merge settings
 
@@ -116,6 +118,7 @@ Workflows: `ci.yml` (job `ci`), `pr-title.yml` (job `pr-title`), `release.yml` (
 - Config: `release-please-config.json` (release type `node`, `bump-minor-pre-major`, `initial-version: 0.1.0`), state: `.release-please-manifest.json` (starts at `0.0.0`).
 - `initial-version` matters: with a `0.0.0` manifest, release-please treats the project as never released and otherwise proposes **1.0.0** as the first version (it did, in #6). The first release must be `0.1.0`.
 - On every push to `main` it opens or updates a release PR. Merging that PR bumps `package.json`, updates `CHANGELOG.md`, tags `vX.Y.Z` and creates a GitHub Release.
+- **History rewrite and move (D-031):** `v0.1.0` points to the rewritten release commit `2d0dece`; in the new repo the v0.1.0 Release was recreated with corrected notes. The archive's release PR #17 isn't carried over: release-please opens a fresh one in the new repo on the first push to `main` (once its token is set).
 - SemVer: `0.x` until the public MVP, `1.0.0` at launch (README §9.4).
 
 ## Verify current settings

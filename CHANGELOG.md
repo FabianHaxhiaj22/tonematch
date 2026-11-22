@@ -5,4 +5,4 @@
 
 ### Features
 
-* add colour engine (sRGB to CIELAB, chroma, hue, ITA) ([#5](https://github.com/FabianHaxhiaj22/tonematch/issues/5)) ([b1af638](https://github.com/FabianHaxhiaj22/tonematch/commit/b1af638f5fdb54e330a5f728df352130b963e07c))
+* add colour engine (sRGB to CIELAB, chroma, hue, ITA) ([#5](https://github.com/FabianHaxhiaj22/tonematch/issues/5)) ([3a01f62](https://github.com/FabianHaxhiaj22/tonematch/commit/3a01f629a5abcd9eca4e12e0b3a8aec37db8b25d))
