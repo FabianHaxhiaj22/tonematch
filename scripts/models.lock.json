@@ -1,5 +1,5 @@
 {
-  "tasksVisionVersion": "1.2.2",
+  "tasksVisionVersion": "1.2.3",
   "model": {
     "file": "face_landmarker.task",
     "url": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
@@ -7,9 +7,9 @@
     "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
   },
   "wasm": {
-    "vision_wasm_internal.js": "f2b9c17131ea79716ec6bf07b117a087b2749a6f8a1e2f1f2e77a9382092db5b",
-    "vision_wasm_internal.wasm": "f5bd25147ac89d506074293ce2675969b10e827180db95a0d9689c2ed80764ab",
-    "vision_wasm_module_internal.js": "72fba0ac8a4034ce9d63f68389df1dead52069409ea621688eedf97f01d4362f",
-    "vision_wasm_module_internal.wasm": "b8927a2eebfe80dd98a426a210a9e820c8215168c06f3bcf5d4d09080f623db5"
+    "vision_wasm_internal.js": "2aa5fd3fdd3d8208cd7587df0bb19fb6925c4ea16a76dd025aedc1f64d6a6309",
+    "vision_wasm_internal.wasm": "225bc06c0f51a9cf31fea0e9e0b0243e9e01fb5ef332cc1a7fa6656dbdfdaabf",
+    "vision_wasm_module_internal.js": "d29996249490361715c769c6a49b43ad47e6ac9a28a8e8bce8d02b238e897851",
+    "vision_wasm_module_internal.wasm": "a269e84b12aefc93c9d6a4d62b01f41e5434a9fa941533bb8e75b1e3d1669e46"
   }
 }

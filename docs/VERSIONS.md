@@ -13,29 +13,29 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 
 | Package | Pinned | Latest on 2026-11-07 | Notes |
 |---|---|---|---|
-| next | 16.4.5 | 16.4.5 | |
+| next | 16.4.6 | 16.4.5 | |
 | react / react-dom | 19.3.1 | 19.3.1 | |
 | typescript | 5.9.3 | **7.0.2** | Held back: typescript-eslint 8.72 supports TS `<6.1`. TS 6.0.3 is possible; owner chose to stay on 5.9.3 for now. See DECISIONS.md D-012. |
 | tailwindcss / @tailwindcss/turbopack | 4.3.5 | 4.3.5 | Next 16's template uses the Turbopack loader, not PostCSS. |
 | eslint | 9.39.5 | **10.14.0** | Held back: eslint-plugin-jsx-a11y 6.10.2 supports ESLint ≤ 9. |
-| eslint-config-next | 16.4.5 | 16.4.5 | |
+| eslint-config-next | 16.4.6 | 16.4.5 | |
 | eslint-plugin-jsx-a11y | 6.10.2 | 6.10.2 | |
 | eslint-config-prettier | 10.1.8 | 10.1.8 | |
-| prettier | 3.9.10 | 3.9.10 | |
-| vitest / @vitest/coverage-v8 | 5.1.0 | 5.1.0 | |
-| vite | 8.3.6 | 8.3.6 | Peer of vitest and @vitejs/plugin-react. |
-| @vitejs/plugin-react | 6.2.1 | 6.2.1 | |
+| prettier | 3.10.1 | 3.9.10 | |
+| vitest / @vitest/coverage-v8 | 5.1.1 | 5.1.0 | |
+| vite | 8.3.8 | 8.3.6 | Peer of vitest and @vitejs/plugin-react. |
+| @vitejs/plugin-react | 6.3.0 | 6.2.1 | |
 | @testing-library/react | 16.3.3 | 16.3.3 | |
 | @testing-library/dom | 10.4.2 | 10.4.2 | |
 | @testing-library/jest-dom | 7.0.1 | 7.0.1 | |
-| jsdom | 31.0.0 | 31.0.0 | |
-| @playwright/test | 1.65.0 | 1.65.0 | |
+| jsdom | 31.0.1 | 31.0.0 | |
+| @playwright/test | 1.65.1 | 1.65.0 | |
 | @axe-core/playwright | 4.14.0 | 4.14.0 | |
 | husky | 9.1.7 | 9.1.7 | |
-| lint-staged | 17.6.0 | 17.6.0 | |
+| lint-staged | 17.6.1 | 17.6.0 | |
 | @commitlint/cli / config-conventional | 21.2.4 | 21.2.4 | |
 | zod | 4.6.7 | 4.6.7 | |
-| @mediapipe/tasks-vision | 1.2.2 | 1.2.2 | WASM checksums in `scripts/models.lock.json`. |
+| @mediapipe/tasks-vision | 1.2.3 | 1.2.2 | WASM checksums in `scripts/models.lock.json` (updated for 1.2.3 on 2026-11-22; on the NASA fixture its landmarks and matrix match 1.2.2 within 5e-7). |
 | tsx | 4.23.15 | 4.23.15 | Runs `scripts/*.ts`. |
 | @types/node | 24.19.2 | 26.6.6 | Matches the Node 24 runtime. |
 | @types/react / @types/react-dom | 19.3.0 | 19.3.0 | |
@@ -79,6 +79,12 @@ Checked with `npm view zustand version` on 2026-11-18.
 | actions/upload-artifact | v7.0.2 |
 | amannn/action-semantic-pull-request | v6.1.2 |
 | googleapis/release-please-action | v5.0.0 |
+
+## Updates
+
+| Date | Packages | From → to | npm latest that day | Via |
+|---|---|---|---|---|
+| 2026-11-22 | `@mediapipe/tasks-vision`, `next`, `eslint-config-next`, `@playwright/test`, `@vitejs/plugin-react`, `vitest`, `@vitest/coverage-v8`, `vite`, `jsdom`, `lint-staged`, `prettier` | 1.2.2 → 1.2.3, 16.4.5 → 16.4.6, 16.4.5 → 16.4.6, 1.65.0 → 1.65.1, 6.2.1 → 6.3.0, 5.1.0 → 5.1.1, 5.1.0 → 5.1.1, 8.3.6 → 8.3.8, 31.0.0 → 31.0.1, 17.6.0 → 17.6.1, 3.9.10 → 3.10.1 | all the same, except `lint-staged` 17.6.2 | Dependabot #19; MediaPipe checksums re-recorded with `pnpm models:fetch --update` |
 
 ## Planned (installed in the milestone that needs them)
 
