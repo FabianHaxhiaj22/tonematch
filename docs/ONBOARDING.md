@@ -135,6 +135,13 @@ Squash merge (example by Fabian), with the trailer in the squash message body:
 ```bash
 gh pr merge <number> --squash --body "Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>"
 ```
+Bot PRs (Dependabot, release-please) get **both** trailers in the squash body, whoever merges, because the bot is the author:
+```bash
+gh pr merge <number> --squash --delete-branch --body "Co-authored-by: Fabian Haxhiaj <187953086+FabianHaxhiaj22@users.noreply.github.com>
+Co-authored-by: Erdiona Tola <353759092+tolaerdiona-commits@users.noreply.github.com>"
+```
+(release-please PRs are opened with Fabian's token, so GitHub shows Fabian as their author; they still get both trailers.)
+
 Forgot it on a commit that isn't pushed yet? `git commit --amend --no-edit --trailer "Co-authored-by: …"`. Never amend or force-push commits that are already on `main`.
 In the GitHub web UI, check the squash commit message before confirming: the `Co-authored-by:` line must be in it (as the last lines, after a blank line), and no other co-author lines. Web merges are authored with your GitHub **commit email** setting: with "Keep my email addresses private" off, that's your personal address (this is how personal emails reached `main` before D-031), so keep it on (§4).
 
