@@ -4,7 +4,8 @@
     "languageNames": {
       "en": "English",
       "sq": "Shqip"
-    }
+    },
+    "brand": "ToneMatch"
   },
   "quiz": {
     "title": "A few quick questions",
@@ -170,5 +171,98 @@
         "care": "A less usual match. Try it as an accent."
       }
     }
+  },
+  "layout": {
+    "skipToContent": "Skip to content",
+    "nav": {
+      "label": "Main",
+      "howItWorks": "How it works",
+      "privacy": "Privacy"
+    },
+    "languageShort": {
+      "en": "EN",
+      "sq": "SQ"
+    },
+    "footer": {
+      "note": "Style guidance based on colour analysis, not a measurement.",
+      "copyright": "© ToneMatch"
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "A jewellery colour guide",
+      "titleStart": "Find the metals",
+      "titleEmphasis": "that love your skin",
+      "lede": "Upload a selfie taken in daylight. ToneMatch reads your skin's tone and undertone right on your device, then suggests metals, styles and gemstones that suit you.",
+      "privacy": "Your photo never leaves your device"
+    },
+    "how": {
+      "eyebrow": "In three steps",
+      "title": "How it works",
+      "steps": {
+        "photo": {
+          "title": "Take a daylight selfie",
+          "body": "Face a window. No flash, no filters, glasses off, hair away from your face."
+        },
+        "quiz": {
+          "title": "Answer four quick questions",
+          "body": "Your veins, your skin in daylight, and the colours you reach for. Each one can be skipped."
+        },
+        "palette": {
+          "title": "Receive your palette",
+          "body": "Metals ranked for you, with styles, gemstones and an honest confidence score."
+        }
+      }
+    },
+    "privacy": {
+      "eyebrow": "Privacy promise",
+      "title": "Your photo stays with you",
+      "body": "The analysis runs entirely in your browser. Nothing is uploaded, saved or shared, and the photo is discarded when you leave the page.",
+      "points": {
+        "noUpload": {
+          "title": "No upload",
+          "body": "Processing happens on your device."
+        },
+        "noAccount": {
+          "title": "No account",
+          "body": "Nothing to sign up for."
+        },
+        "nothingStored": {
+          "title": "Nothing stored",
+          "body": "No photo, no profile, no tracking."
+        }
+      }
+    }
+  },
+  "photo": {
+    "choose": "Choose a photo",
+    "drop": "or drop it here",
+    "hint": "JPG, PNG or WebP · one face · natural light",
+    "errors": {
+      "empty": "That file is empty. Please choose another photo.",
+      "heic": "This is an HEIC photo (the iPhone format), which we can't read yet. Please choose a JPG or PNG. Tip: on iPhone, photos picked from the Photos library are converted automatically.",
+      "unsupported": "We can't read this file. Please choose a JPG, PNG or WebP photo.",
+      "tooLarge": "This photo is larger than {max} MB. Please choose a smaller one."
+    },
+    "tips": {
+      "title": "Tips for a good photo",
+      "items": {
+        "window": "Face a window in daylight. Avoid direct sun and lamps.",
+        "flash": "Turn off the flash, filters and beauty modes.",
+        "glasses": "Take off glasses, including tinted ones.",
+        "hair": "Keep hair away from your cheeks and forehead.",
+        "cheeks": "Bare cheeks if you can: products on the cheeks change their colour.",
+        "straight": "Just you in the photo, looking straight at the camera."
+      }
+    }
+  },
+  "analyze": {
+    "eyebrow": "Step 1 · Your photo",
+    "title": "Your photo",
+    "emptyTitle": "Choose a photo",
+    "previewAlt": "The photo you chose",
+    "stays": "It stays on this device.",
+    "next": "Continue to the questions",
+    "another": "Choose another photo"
   }
 }

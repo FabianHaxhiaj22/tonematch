@@ -4,7 +4,8 @@
     "languageNames": {
       "en": "English",
       "sq": "Shqip"
-    }
+    },
+    "brand": "ToneMatch"
   },
   "quiz": {
     "title": "Disa pyetje të shpejta",
@@ -170,5 +171,98 @@
         "care": "Përputhet më pak. Provoje si një detaj të vogël."
       }
     }
+  },
+  "layout": {
+    "skipToContent": "Kalo te përmbajtja",
+    "nav": {
+      "label": "Kryesore",
+      "howItWorks": "Si funksionon",
+      "privacy": "Privatësia"
+    },
+    "languageShort": {
+      "en": "EN",
+      "sq": "SQ"
+    },
+    "footer": {
+      "note": "Udhëzime stili bazuar në analizën e ngjyrave, jo një matje.",
+      "copyright": "© ToneMatch"
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "Udhëzues ngjyrash për bizhuteritë",
+      "titleStart": "Gjej metalet",
+      "titleEmphasis": "që i shkojnë lëkurës sate",
+      "lede": "Ngarko një selfie të bërë në dritë dite. ToneMatch e lexon tonin dhe nëntonin e lëkurës sate drejtpërdrejt në pajisjen tënde, pastaj të sugjeron metale, stile dhe gurë të çmuar që të shkojnë.",
+      "privacy": "Fotoja jote nuk largohet kurrë nga pajisja"
+    },
+    "how": {
+      "eyebrow": "Në tre hapa",
+      "title": "Si funksionon",
+      "steps": {
+        "photo": {
+          "title": "Bëj një selfie në dritë dite",
+          "body": "Qëndro përballë një dritareje. Pa blic, pa filtra, pa syze, me flokët larg fytyrës."
+        },
+        "quiz": {
+          "title": "Përgjigju katër pyetjeve të shpejta",
+          "body": "Për venat, lëkurën në dritë dite dhe ngjyrat që zgjedh. Secilën mund ta kalosh."
+        },
+        "palette": {
+          "title": "Merr paletën tënde",
+          "body": "Metale të renditura për ty, me stile, gurë të çmuar dhe një vlerësim të sinqertë të besueshmërisë."
+        }
+      }
+    },
+    "privacy": {
+      "eyebrow": "Premtimi i privatësisë",
+      "title": "Fotoja jote mbetet te ti",
+      "body": "Analiza bëhet tërësisht në shfletuesin tënd. Asgjë nuk ngarkohet, ruhet apo ndahet, dhe fotoja fshihet kur largohesh nga faqja.",
+      "points": {
+        "noUpload": {
+          "title": "Pa ngarkim",
+          "body": "Përpunimi bëhet në pajisjen tënde."
+        },
+        "noAccount": {
+          "title": "Pa llogari",
+          "body": "Nuk ke nevojë të regjistrohesh."
+        },
+        "nothingStored": {
+          "title": "Asgjë e ruajtur",
+          "body": "Pa foto, pa profil, pa gjurmim."
+        }
+      }
+    }
+  },
+  "photo": {
+    "choose": "Zgjidh një foto",
+    "drop": "ose tërhiqe këtu",
+    "hint": "JPG, PNG ose WebP · një fytyrë · dritë natyrale",
+    "errors": {
+      "empty": "Ky skedar është bosh. Të lutem zgjidh një foto tjetër.",
+      "heic": "Kjo është një foto HEIC (formati i iPhone), të cilin nuk mund ta lexojmë ende. Të lutem zgjidh një JPG ose PNG. Këshillë: në iPhone, fotot e zgjedhura nga biblioteka Photos konvertohen automatikisht.",
+      "unsupported": "Nuk mund ta lexojmë këtë skedar. Të lutem zgjidh një foto JPG, PNG ose WebP.",
+      "tooLarge": "Kjo foto është më e madhe se {max} MB. Të lutem zgjidh një më të vogël."
+    },
+    "tips": {
+      "title": "Këshilla për një foto të mirë",
+      "items": {
+        "window": "Qëndro përballë një dritareje në dritë dite. Shmang diellin direkt dhe llambat.",
+        "flash": "Fik blicin, filtrat dhe mënyrat e zbukurimit.",
+        "glasses": "Hiq syzet, edhe ato me xhama me ngjyrë.",
+        "hair": "Mbaji flokët larg faqeve dhe ballit.",
+        "cheeks": "Faqe pa produkte nëse mundesh: produktet në faqe ua ndryshojnë ngjyrën.",
+        "straight": "Vetëm ti në foto, duke parë drejt kamerës."
+      }
+    }
+  },
+  "analyze": {
+    "eyebrow": "Hapi 1 · Fotoja jote",
+    "title": "Fotoja jote",
+    "emptyTitle": "Zgjidh një foto",
+    "previewAlt": "Fotoja që zgjodhe",
+    "stays": "Ajo mbetet në këtë pajisje.",
+    "next": "Vazhdo te pyetjet",
+    "another": "Zgjidh një foto tjetër"
   }
 }
