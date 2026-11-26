@@ -3,6 +3,7 @@
  * sRGB (0–255) → linear RGB → CIE XYZ (D65) → CIELAB (D65), plus chroma, hue angle and ITA°.
  */
 export * from "./constants";
+export { contrastRatio, hexToRgb, relativeLuminance } from "./contrast";
 export { chroma, hueAngle, ita } from "./derived";
 export { srgbToLab, xyzToLab } from "./lab";
 export { linearChannelToSrgb, linearToSrgb, srgbChannelToLinear, srgbToLinear } from "./srgb";

@@ -42,3 +42,11 @@ export const D65_WHITE = { x: 0.95047, y: 1, z: 1.08883 } as const;
 export const CIE_EPSILON = 216 / 24389;
 /** CIE κ = (29/3)^3: slope of that straight line (in L* units). */
 export const CIE_KAPPA = 24389 / 27;
+
+/**
+ * WCAG 2.2 relative luminance weights for linear R, G, B (the Y row of the sRGB matrix rounded
+ * to 4 decimals, as the spec writes them). https://www.w3.org/TR/WCAG22/#dfn-relative-luminance
+ */
+export const WCAG_LUMINANCE_WEIGHTS = { r: 0.2126, g: 0.7152, b: 0.0722 } as const;
+/** WCAG contrast-ratio flare term: (L1 + 0.05) / (L2 + 0.05). */
+export const WCAG_CONTRAST_FLARE = 0.05;

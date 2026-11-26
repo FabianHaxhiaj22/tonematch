@@ -13,6 +13,8 @@ Every GitHub setting for this repo, so it can be audited or recreated (SPEC §9.
 | Visibility | Public (new repo since 2026-11-22; the old one is the private `tonematch-archive`, D-001, D-031) |
 | Licence | None: all rights reserved (`"license": "UNLICENSED"`). See DECISIONS.md D-001. |
 | Default branch | `main` |
+| Description | Jewellery metal & style advisor with on-device skin-tone analysis |
+| Topics (set 2026-11-26) | `accessibility`, `cielab`, `color-science`, `computer-vision`, `i18n`, `jewelry`, `mediapipe`, `nextjs`, `on-device-ml`, `privacy-first`, `skin-tone`, `tailwindcss`, `typescript`, `webassembly` |
 
 ## Collaborators
 
@@ -129,7 +131,7 @@ Before the new repo was published, a read-only audit of all history, branches, t
 
 ```bash
 R=FabianHaxhiaj22/tonematch
-gh repo view $R --json visibility,defaultBranchRef,squashMergeAllowed,mergeCommitAllowed,rebaseMergeAllowed,deleteBranchOnMerge
+gh repo view $R --json visibility,description,repositoryTopics,defaultBranchRef,squashMergeAllowed,mergeCommitAllowed,rebaseMergeAllowed,deleteBranchOnMerge
 gh api repos/$R/branches/main/protection \
   --jq '{checks:.required_status_checks.contexts,strict:.required_status_checks.strict,admins:.enforce_admins.enabled,linear:.required_linear_history.enabled,force:.allow_force_pushes.enabled,reviews:.required_pull_request_reviews.required_approving_review_count}'
 gh api repos/$R/actions/permissions/workflow

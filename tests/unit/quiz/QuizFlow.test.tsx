@@ -1,13 +1,15 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QuizFlow } from "@/features/quiz/QuizFlow";
 import { scoreQuiz } from "@/lib/analysis/undertone";
+import { useFlowStore } from "@/store/flow";
+import { useLocaleStore } from "@/store/locale";
 import { useQuizStore } from "@/store/quiz";
 
 beforeEach(() => {
   act(() => {
     useQuizStore.getState().reset();
-    useQuizStore.getState().setLocale("en");
+    useLocaleStore.getState().setLocale("en");
   });
 });
 
@@ -91,13 +93,25 @@ describe("QuizFlow", () => {
     expect(screen.getByRole("group", { name: /Question 1 of 4/ })).toBeInTheDocument();
   });
 
-  it("switches to Albanian, marking the language for assistive tech", () => {
-    const { container } = render(<QuizFlow />);
-    fireEvent.click(screen.getByRole("button", { name: "Shqip" }));
+  it("follows the interface language from the header switch (locale store)", () => {
+    render(<QuizFlow />);
+    act(() => useLocaleStore.getState().setLocale("sq"));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Disa pyetje të shpejta");
     expect(screen.getByRole("radio", { name: "Nuk e di" })).toBeInTheDocument();
-    expect(container.querySelector("main")).toHaveAttribute("lang", "sq");
-    expect(screen.getByRole("button", { name: "Shqip" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("'Start again' also clears the flow's photo", () => {
+    const revoke = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:photo");
+    act(() => {
+      useFlowStore.getState().setPhoto(new File(["x"], "me.jpg", { type: "image/jpeg" }));
+      useQuizStore.getState().goTo(4);
+    });
+    render(<QuizFlow />);
+    fireEvent.click(screen.getByRole("button", { name: "Start again" }));
+    expect(useFlowStore.getState().photo).toBeNull();
+    expect(revoke).toHaveBeenCalledWith("blob:photo");
+    vi.restoreAllMocks();
   });
 
   it("clamps steps to the valid range", () => {
