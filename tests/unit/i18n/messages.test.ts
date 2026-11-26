@@ -27,10 +27,23 @@ describe("message files", () => {
     for (const s of Object.values(status)) expect(["needs-native-review", "reviewed"]).toContain(s);
   });
 
-  it("never tells the user they wear makeup (blush/flushing only shifts weights, D-026)", () => {
-    for (const text of [...Object.values(EN), ...Object.values(SQ)]) {
-      expect(text).not.toMatch(/make-?up|blush|bronzer|grim|ruzh|pudër/i);
+  // D-026: results and notes never tell the user they wear makeup (blush/flushing only shifts
+  // weights). The photo tips are the one exception: advice before the photo, as D-025 and
+  // SPEC §3 ask for ("no makeup on the cheeks if possible"), never a detection claim (D-034).
+  const MAKEUP = /make-?up|blush|bronzer|grim|ruzh|pudër/i;
+  const PHOTO_TIPS = "photo.tips.";
+
+  it("never mentions makeup outside the photo tips", () => {
+    for (const messages of [EN, SQ]) {
+      for (const [key, text] of Object.entries(messages)) {
+        if (!key.startsWith(PHOTO_TIPS)) expect(text, key).not.toMatch(MAKEUP);
+      }
     }
+  });
+
+  it("the photo tips advise against makeup on the cheeks in both languages", () => {
+    expect(EN["photo.tips.items.cheeks"]).toMatch(MAKEUP);
+    expect(SQ["photo.tips.items.cheeks"]).toMatch(MAKEUP);
   });
 
   it("labels the MST value as approximate in both languages", () => {

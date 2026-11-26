@@ -289,25 +289,29 @@ type Recommendation = {
 │   ├── VERSIONS.md            # pinned versions + date checked
 │   ├── DECISIONS.md           # ADR-style log of technical decisions
 │   ├── CALIBRATION.md         # how thresholds were tuned, test results
+│   ├── DESIGN.md              # visual design: tokens, contrast table, type, components (D-034)
 │   ├── PRIVACY.md             # data flow + privacy notice source text
 │   ├── ONBOARDING.md          # setup guide for a new developer (start here)
 │   └── REPO_SETUP.md          # GitHub settings: protection, secrets, Dependabot, release-please, collaborators
 ├── public/models/             # self-hosted MediaPipe wasm + face_landmarker.task (gitignored; filled by models:fetch)
-├── scripts/                   # fetch-models.ts (+ models.lock.json checksums), validate-data.ts
+├── scripts/                   # fetch-models.ts (+ models.lock.json checksums), validate-data.ts, render-apple-icon.ts
 ├── src/
 │   ├── app/[locale]/          # pages: /, /analyze, /quiz, /results, /privacy, /about
 │   ├── app/api/explain/route.ts   # Phase 2
-│   ├── components/            # UI (shadcn in components/ui)
+│   ├── components/            # UI: layout/ (header, footer, language switch), brand/ (logo, metal gradients); shadcn in components/ui when needed
 │   ├── app/dev/               # dev-only routes (`page.dev.tsx`): exist under `next dev` only, never in production builds
-│   ├── features/analyze/      # camera, upload, calibration, quality UI; landmarkerClient.ts (worker wrapper)
+│   ├── features/landing/      # landing page sections
+│   ├── features/photo/        # PhotoPicker (upload + drop) and photo tips, shared by landing and /analyze
+│   ├── features/analyze/      # photo step, camera, calibration, quality UI; landmarkerClient.ts (worker wrapper)
 │   ├── features/results/      # results, share card, try-on (Phase 2)
 │   ├── lib/color/             # colour math (pure)
 │   ├── lib/analysis/          # quality, sampler, depth, undertone, fusion, config
 │   ├── lib/recommend/         # rules engine (pure)
+│   ├── lib/image/             # photo file checks: format sniffing (JPEG/PNG/WebP, HEIC detection), size limit (pure, D-035)
 │   ├── workers/landmarker.worker.ts   # + landmarker.protocol.ts (message types)
 │   ├── data/                  # metals/styles/gemstones/copy JSON
 │   ├── i18n/                  # next-intl config + messages/en.json, messages/sq.json
-│   ├── store/                 # zustand store
+│   ├── store/                 # zustand stores: flow (photo, in memory), quiz, locale
 │   └── proxy.ts               # next-intl locale routing (Next.js 16 name for middleware.ts)
 ├── tests/
 │   ├── unit/
@@ -440,7 +444,8 @@ Weekly npm + GitHub Actions updates, grouped (minor/patch together), separate PR
 - Results are visual: skin swatch next to metal swatches; tier badges; short reasons.
 - All text in `src/i18n/messages/en.json` and `src/i18n/messages/sq.json`. No hard-coded strings. Albanian copy should be reviewed by a native speaker (the user).
 - WCAG 2.2 AA: contrast, focus states, keyboard nav, alt text, `aria-live` for analysis status, reduced motion.
-- Aesthetic: elegant, jewellery-brand feel (serif display font + clean sans body, warm-neutral palette, subtle metallic gradients). Avoid generic template look.
+- Aesthetic: elegant, jewellery-brand feel (serif display font + clean sans body, warm-neutral palette, subtle metallic gradients). Avoid generic template look. **Chosen direction: "Atelier"** (D-034): ivory, ink and champagne gold, Cormorant Garamond + Jost. Tokens, contrast table and component rules: `docs/DESIGN.md`; `globals.css` tokens are contrast-tested.
+- Photo guide: shown as "Tips for a good photo" next to the upload (landing and `/analyze`) rather than a separate screen before it (D-034).
 
 ---
 
@@ -462,6 +467,10 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 | M9 | Deploy + v1.0.0 | Production on Vercel (or AWS), release-please tag |
 | P2 | Face shape, try-on, AI explanation, multi-photo | Each as its own milestone |
 | P3 | Catalogue, affiliate, widget, gift mode, accounts | Each as its own milestone |
+
+**M6 is split into three PRs** (D-034): **M6a** design tokens, typography, layout shell, landing page with photo upload, `/analyze` photo step (preview → quiz); **M6b** the flow end to end (upload → quality checks with "analyse anyway" → quiz → results), with the photo **downscaled to a 1600 px long side and EXIF orientation applied before analysis** (D-035); **M6c** the in-browser share card.
+
+**M7 phone testing must cover HEIC** (D-035): how iOS Safari delivers photos from the Photos library vs the Files app (JPEG or HEIC), and Android/desktop drag and drop. Until then HEIC gets a friendly "choose a JPG or PNG" message.
 
 ---
 

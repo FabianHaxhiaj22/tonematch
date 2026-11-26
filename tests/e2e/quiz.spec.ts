@@ -21,8 +21,9 @@ test("quiz: keyboard-only run through all four questions, no axe violations", as
 
 test("quiz: Albanian has no axe violations and sets lang", async ({ page }) => {
   await page.goto("/quiz");
-  await page.getByRole("button", { name: "Shqip" }).click();
-  await expect(page.getByRole("main")).toHaveAttribute("lang", "sq");
+  await page.getByRole("button", { name: /Shqip/ }).click(); // header language switch
+  await expect(page.locator("html")).toHaveAttribute("lang", "sq");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Disa pyetje të shpejta");
   expect((await new AxeBuilder({ page }).withTags(A11Y_TAGS).analyze()).violations).toEqual([]);
 });
 
