@@ -32,7 +32,7 @@ Checked with `npm view <package> version` on **2026-11-07**. All versions in `pa
 | @playwright/test | 1.65.1 | 1.65.0 | |
 | @axe-core/playwright | 4.14.0 | 4.14.0 | |
 | husky | 9.1.7 | 9.1.7 | |
-| lint-staged | 17.6.1 | 17.6.0 | |
+| lint-staged | 17.6.2 | 17.6.0 | |
 | @commitlint/cli / config-conventional | 21.2.4 | 21.2.4 | |
 | zod | 4.6.7 | 4.6.7 | |
 | @mediapipe/tasks-vision | 1.2.3 | 1.2.2 | WASM checksums in `scripts/models.lock.json` (updated for 1.2.3 on 2026-11-22; on the NASA fixture its landmarks and matrix match 1.2.2 within 5e-7). |
@@ -77,7 +77,7 @@ Checked with `npm view zustand version` on 2026-11-18.
 | actions/setup-node | v7.1.0 |
 | actions/cache | v6.1.0 |
 | actions/upload-artifact | v7.0.2 |
-| amannn/action-semantic-pull-request | v6.1.2 |
+| amannn/action-semantic-pull-request | v6.1.3 |
 | googleapis/release-please-action | v5.0.0 |
 
 ## Updates
@@ -86,6 +86,7 @@ Checked with `npm view zustand version` on 2026-11-18.
 |---|---|---|---|---|
 | 2026-11-22 | `@mediapipe/tasks-vision`, `next`, `eslint-config-next`, `@playwright/test`, `@vitejs/plugin-react`, `vitest`, `@vitest/coverage-v8`, `vite`, `jsdom`, `lint-staged`, `prettier` | 1.2.2 → 1.2.3, 16.4.5 → 16.4.6, 16.4.5 → 16.4.6, 1.65.0 → 1.65.1, 6.2.1 → 6.3.0, 5.1.0 → 5.1.1, 5.1.0 → 5.1.1, 8.3.6 → 8.3.8, 31.0.0 → 31.0.1, 17.6.0 → 17.6.1, 3.9.10 → 3.10.1 | all the same, except `lint-staged` 17.6.2 | Dependabot #19; MediaPipe checksums re-recorded with `pnpm models:fetch --update` |
 | 2026-11-22 | `@testing-library/jest-dom` (major) | 7.0.1 → 8.0.0 | 8.0.0 | Dependabot #20; breaking change is only "vitest < 5 no longer supported" |
+| 2026-11-27 | `lint-staged`; GitHub Action `amannn/action-semantic-pull-request` | 17.6.1 → 17.6.2; v6.1.2 → v6.1.3 (pinned by commit SHA) | 17.6.2; v6.1.3 | Dependabot #28, #27 |
 
 ## Planned (installed in the milestone that needs them)
 
