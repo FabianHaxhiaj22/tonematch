@@ -1,5 +1,5 @@
 /**
- * White-paper calibration (README §6.3). The user taps a white sheet of paper; we average the
+ * White-paper calibration (SPEC §6.3). The user taps a white sheet of paper; we average the
  * linear RGB of a small patch there and compute per-channel gains that make it neutral.
  * Uncalibrated mode applies no correction (gray-world distorts skin); casts are only detected
  * (quality.ts) and lower confidence.

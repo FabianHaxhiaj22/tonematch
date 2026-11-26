@@ -1,5 +1,5 @@
 /**
- * Recommendation engine (README §7): pure rules over the JSON data in src/data/.
+ * Recommendation engine (SPEC §7): pure rules over the JSON data in src/data/.
  * Typical use: `recommend(fromScoreResult(score), loadRecommendData())`.
  */
 export {

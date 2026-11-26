@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 /**
- * Face Landmarker in a module Web Worker (README §5), so the UI thread never blocks.
+ * Face Landmarker in a module Web Worker (SPEC §5), so the UI thread never blocks.
  *
- * Self-hosted files only (README §4): WASM from /models/wasm, model from /models (filled by
+ * Self-hosted files only (SPEC §4): WASM from /models/wasm, model from /models (filled by
  * `pnpm models:fetch`). No CDN.
  *
  * Worker type (open risk R-002, verified in M2): although the client asks for `type: "module"`,
@@ -25,7 +25,7 @@ const MODEL_PATH = "/models/face_landmarker.task";
 const USE_MODULE_LOADER = false;
 /**
  * Detect up to 2 faces: we only need to know whether there is more than one (the quality gate
- * reports MULTIPLE_FACES, README §6.1). Analysis uses a single face.
+ * reports MULTIPLE_FACES, SPEC §6.1). Analysis uses a single face.
  */
 const MAX_FACES = 2;
 
@@ -89,6 +89,6 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   } catch (err) {
     post({ type: "error", id, message: err instanceof Error ? err.message : String(err) });
   } finally {
-    image.close(); // free the transferred bitmap; the image itself is never kept (README §5)
+    image.close(); // free the transferred bitmap; the image itself is never kept (SPEC §5)
   }
 };

@@ -1,5 +1,5 @@
 /**
- * validate:data — Zod-validates every JSON file under src/data/ (README §7.1).
+ * validate:data — Zod-validates every JSON file under src/data/ (SPEC §7.1).
  *
  * Every data file must have a schema registered in SCHEMAS (keyed by its path relative to
  * src/data/, using "*" as a wildcard for one path segment). A JSON file without a schema is an

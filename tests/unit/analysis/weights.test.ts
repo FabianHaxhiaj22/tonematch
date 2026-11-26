@@ -119,8 +119,8 @@ describe("chooseRegionWeights", () => {
     expect(r.weights.forehead).toBe(FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL);
   });
 
-  it("the M3 real-selfie case (cheek ΔE 3.5, mostly b*: 10.1 vs 7.2) counts as disagreement", () => {
-    const chromatic = Math.hypot(0.9, 10.1 - 7.2); // small a* difference assumed
+  it("cheeks differing mostly in b* count as disagreement (synthetic case: b* 10 vs 7, Δa* 1)", () => {
+    const chromatic = Math.hypot(1, 10 - 7); // ≈ 3.16
     expect(chromatic).toBeGreaterThan(CHEEK_CHROMATIC_DISAGREEMENT);
   });
 

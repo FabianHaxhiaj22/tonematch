@@ -1,6 +1,6 @@
 # Privacy: data flow and notice source text
 
-*Stub: completed in M8.* This is the source for the `/privacy` page (en + sq). **It is not legal advice.** The final text must be reviewed by someone qualified before a public launch (README §12).
+*Stub: completed in M8.* This is the source for the `/privacy` page (en + sq). **It is not legal advice.** The final text must be reviewed by someone qualified before a public launch (SPEC §12).
 
 ## Data flow (current design)
 

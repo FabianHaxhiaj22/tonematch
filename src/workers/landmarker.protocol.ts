@@ -9,7 +9,7 @@ import type { FlatMatrix } from "@/lib/analysis/matrix";
 export type Landmark = { x: number; y: number; z: number };
 
 export type FaceResult = {
-  /** 478 landmarks per face (README §6.2). */
+  /** 478 landmarks per face (SPEC §6.2). */
   landmarks: Landmark[];
   /** Facial transformation matrix (canonical face → detected face), 4×4, column-major data. */
   matrix: FlatMatrix | null;

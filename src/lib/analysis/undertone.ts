@@ -1,5 +1,5 @@
 /**
- * Undertone (README §6.6): photo score from hue angle, the 4-question quiz, fusion and the
+ * Undertone (SPEC §6.6): photo score from hue angle, the 4-question quiz, fusion and the
  * five buckets. Pure. Nothing here takes depth as an input, so depth can't bias the undertone.
  */
 import { hueAngle, type Lab } from "@/lib/color";
@@ -33,7 +33,7 @@ export function photoUndertoneScore(lab: Lab, opts: { calibrated: boolean }): nu
 
 // ─── Quiz ─────────────────────────────────────────────────────────────────────────────────
 
-/** Question ids in display order (README §6.6; Q2 per DECISIONS D-009). */
+/** Question ids in display order (SPEC §6.6; Q2 per DECISIONS D-009). */
 export const QUIZ_QUESTIONS = ["veins", "daylight", "metal", "white"] as const;
 export type QuizQuestion = (typeof QUIZ_QUESTIONS)[number];
 /** Every question has these four answers; "unsure" = "not sure / doesn't apply" (skipped). */
@@ -75,7 +75,7 @@ export type Fusion = {
 };
 
 /**
- * s = (w_p·p + (1 − w_p)·q) × splitShrink; with no answered questions, s = p (README §6.6).
+ * s = (w_p·p + (1 − w_p)·q) × splitShrink; with no answered questions, s = p (SPEC §6.6).
  * splitShrink = 1 − QUIZ_SPLIT_SHRINK × (1 − consistency): contradictory answers (e.g. 2 cool +
  * 2 warm) signal uncertainty, so the result moves towards neutral (D-029).
  */
@@ -86,7 +86,7 @@ export function fuse(p: number, photoConfidence: number, quiz: QuizScore): Fusio
   return { s: (wp * p + (1 - wp) * quiz.q) * splitShrink, photoWeight: wp, splitShrink };
 }
 
-/** Five buckets with the explicit cut-points from config (README §6.6 table). */
+/** Five buckets with the explicit cut-points from config (SPEC §6.6 table). */
 export function undertoneLabel(s: number): UndertoneLabel {
   const c = UNDERTONE_CUTS;
   if (s < c.coolBelow) return "cool";

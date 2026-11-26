@@ -1,9 +1,9 @@
 /**
- * Zod schemas for the recommendation data in src/data/ (README §7.1, D-030). Used at runtime by
+ * Zod schemas for the recommendation data in src/data/ (SPEC §7.1, D-030). Used at runtime by
  * the engine (data.ts parses every file) and at build time by `pnpm validate:data`.
  *
  * Data files hold ids, numbers and **message keys only**: every user-facing text lives in
- * src/i18n/messages/{en,sq}.json (README §13). Schemas are strict, so unknown fields (e.g. a
+ * src/i18n/messages/{en,sq}.json (SPEC §13). Schemas are strict, so unknown fields (e.g. a
  * Phase 2 `faceShapes` rule) are rejected until they're designed.
  */
 import { z } from "zod";
@@ -46,7 +46,7 @@ export type Tier = (typeof TIERS)[number];
 export const FAMILIES = ["warm", "cool", "mixed"] as const;
 export type Family = (typeof FAMILIES)[number];
 
-/** Style tags (README §7.1). Add new ones here first, so a typo in the data can't create one. */
+/** Style tags (SPEC §7.1). Add new ones here first, so a typo in the data can't create one. */
 export const STYLE_TAGS = [
   "delicate",
   "statement",

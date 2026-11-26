@@ -1,5 +1,5 @@
 /**
- * UI messages (README §13): `messages/en.json` and `messages/sq.json`, in next-intl's nested
+ * UI messages (SPEC §13): `messages/en.json` and `messages/sq.json`, in next-intl's nested
  * format, so M8 can hand them to next-intl unchanged. Until then this tiny typed lookup is used.
  * Placeholders use next-intl's `{name}` syntax (plain substitution only; no plurals yet).
  * Albanian strings are drafts until reviewed: see `review/sq.json`.

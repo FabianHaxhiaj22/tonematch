@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Placeholder tokens. The real palette and fonts (README §13) are designed in M6. */
+/* Placeholder tokens. The real palette and fonts (SPEC §13) are designed in M6. */
 :root {
   --background: #ffffff;
   --foreground: #171717;

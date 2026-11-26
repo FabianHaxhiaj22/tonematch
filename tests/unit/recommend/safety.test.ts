@@ -1,5 +1,5 @@
 /**
- * The recommendation output must never mention race, ethnicity or makeup (README §1, D-026,
+ * The recommendation output must never mention race, ethnicity or makeup (SPEC §1, D-026,
  * CLAUDE.md non-negotiables), in either language. Checks every possible output, every message
  * and the raw data files.
  */

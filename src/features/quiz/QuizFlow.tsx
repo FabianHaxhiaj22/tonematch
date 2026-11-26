@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The 4-question undertone quiz (README §6.6). One question per screen, native radio buttons
+ * The 4-question undertone quiz (SPEC §6.6). One question per screen, native radio buttons
  * (keyboard and screen-reader support for free), large tap targets, no animation beyond colour
  * transitions (and none at all with prefers-reduced-motion). Strings come from the en/sq
  * message files; until M8 adds locale routing, the language is switched here.

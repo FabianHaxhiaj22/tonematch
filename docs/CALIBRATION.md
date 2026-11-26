@@ -1,6 +1,6 @@
 # Calibration
 
-How the analysis thresholds in `src/lib/analysis/config.ts` were tuned (README §11). *Starting values from M3 below; volunteer log from M4 onwards.*
+How the analysis thresholds in `src/lib/analysis/config.ts` were tuned (SPEC §11). *Starting values from M3 below; volunteer log from M4 onwards.*
 
 ## Rules
 
@@ -19,15 +19,15 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 
 | Constant | Value | Evidence so far |
 |---|---|---|
-| `LUMINANCE_TRIM_LOW` / `_HIGH` | 0.10 / 0.10 | README §6.2 |
-| `OUTLIER_DELTA_E` | 15 | README §6.2; removes planted highlights, shadows and off-hue blemishes in tests |
-| `MIN_VALID_PIXELS` | 300 | README §6.2; fixture cheeks keep ~1,250–1,600 px; a ~140 px-wide face falls below |
+| `LUMINANCE_TRIM_LOW` / `_HIGH` | 0.10 / 0.10 | SPEC §6.2 |
+| `OUTLIER_DELTA_E` | 15 | SPEC §6.2; removes planted highlights, shadows and off-hue blemishes in tests |
+| `MIN_VALID_PIXELS` | 300 | SPEC §6.2; fixture cheeks keep ~1,250–1,600 px; a ~140 px-wide face falls below |
 | `CHEEK_DISAGREEMENT_DELTA_E` | 6 | Heuristic (ΔE 2–3 ≈ just noticeable) |
 | `CHEEK_MIN_PIXEL_RATIO` | 0.4 | A real selfie with the head clearly turned lost most of the far cheek; canonical mesh: 0.73 at 15°, 0.59 at 19°, 0.18 at 25° |
 | `FOREHEAD_HEIGHT_FRACTION` | 0.5 | Half-way from the ring above the brows to the hairline; fixture keeps 1843 px |
 | `FACE_OUTLINE_INSET_FRACTION` | 0.05 | Of the visible outline (D-024); cheeks keep 100% at yaw ±15° at 25–45 cm on the canonical mesh |
-| `FACE_MIN_WIDTH_FRACTION` | 0.25 | README §6.1 |
-| `CLIP_DARK_LEVEL` / `CLIP_BRIGHT_LEVEL` | 5 / 250 | README §6.1 ("near 0 or 255") |
+| `FACE_MIN_WIDTH_FRACTION` | 0.25 | SPEC §6.1 |
+| `CLIP_DARK_LEVEL` / `CLIP_BRIGHT_LEVEL` | 5 / 250 | SPEC §6.1 ("near 0 or 255") |
 | `FACE_CLIPPED_MAX_FRACTION` | 0.05 | Fixture: 0.5% dark, 0.2% bright |
 | `IMAGE_MIN_P99_LUMA` / `IMAGE_MAX_P1_LUMA` | 90 / 150 | Fixture: p99 = 203, p1 = 3 |
 | `COLOR_CAST_*` (neutral cluster) | L\* 35–90, chroma ≤ 30, radius 10, 4 iterations, flag > 10 | Fixture 4.3; + warm cast 15.0; grey wall warm/cool/tungsten 13.2/11.5/26.0; red curtain skipped. A ×1.3 blue boost on mid-grey reads exactly 10 (D-023) |
@@ -37,7 +37,7 @@ All in `src/lib/analysis/config.ts`; all heuristics until volunteer data exists.
 
 ## M4 starting values (2026-11-18)
 
-All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists (README §11).
+All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists (SPEC §11).
 
 | Constant | Value | Basis so far |
 |---|---|---|
@@ -45,9 +45,9 @@ All in `src/lib/analysis/config.ts`, all heuristics until volunteer data exists 
 | `DEPTH_SCALE` (angle → MST → label) | 65 / 55 / 48 / 41 / 28 / 10 / −10 / −30 / −50 | Label edges = classic ITA classes; MST splits heuristic (D-029). Ask volunteers for self-reported MST |
 | `ITA_MIN_B` | 4 | Skin b\* is normally 10–25 |
 | `HUE_NEUTRAL_CENTRE_DEG` / `HUE_SCALE_DEG` | 55° / 20° (tanh) | Skin hues 40–70° stay below \|p\| 0.7 calibrated; a real indoor photo saturated the old ±15° clamp (D-029) |
-| `UNDERTONE_CUTS` | ±0.10, ±0.25 | README §6.6 |
+| `UNDERTONE_CUTS` | ±0.10, ±0.25 | SPEC §6.6 |
 | `PHOTO_SCORE_CAP_CALIBRATED` / `_UNCALIBRATED` | 1 / 0.6 | Camera white balance shifts hue; an uncalibrated photo alone can't make a strong call (D-029) |
-| `PHOTO_WEIGHT_MAX` | 0.6 | README §6.6 |
+| `PHOTO_WEIGHT_MAX` | 0.6 | SPEC §6.6 |
 | `QUIZ_SPLIT_SHRINK` / `QUIZ_SPLIT_PENALTY` | 0.5 / 0.25 | 2 + 2 quiz: score × 0.5, confidence × 0.75 and quiz share × 0 (D-029) |
 | `CHEEK_REDNESS_A_MARGIN` / `_HUE_MARGIN_DEG` | 4 / 8° | Synthetic: unmade-up skin at every depth not flagged; obvious redness flagged |
 | `CHEEK_CHROMATIC_DISAGREEMENT` | 3 | Real-photo testing in M3 showed cheek differences above 3, mostly in b\* (D-026) |
@@ -67,7 +67,7 @@ In `src/lib/recommend/config.ts` (styling heuristics, not measurements; D-030). 
 |---|---|---|
 | `LOW_CONFIDENCE_THRESHOLD` | 0.5 | Below it, both metal families are shown as "best". With D-029's formulas a 2 + 2 split quiz (40%) lands below; an all-cool quiz with an uncalibrated photo (85%) is well above |
 | `LEAN_WEIGHT` | 0.5 | neutral-warm / neutral-cool sit halfway between the neutral and the warm/cool column |
-| `TIER_BEST_MIN` / `TIER_GOOD_MIN` | 0.8 / 0.55 | Reproduce README §7.2 with the data's affinity scores (tested per undertone) |
+| `TIER_BEST_MIN` / `TIER_GOOD_MIN` | 0.8 / 0.55 | Reproduce SPEC §7.2 with the data's affinity scores (tested per undertone) |
 | `STYLES_PER_CATEGORY` | 3 | Fits a phone screen per category |
 | `GEMSTONE_MIN_SCORE` / `GEMSTONES_MAX` | 0.7 / 6 | Leaning results keep their own palette; neutral gets jewel tones and pastels |
 

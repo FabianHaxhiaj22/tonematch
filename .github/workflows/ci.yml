@@ -1,4 +1,4 @@
-# CI (README §9.5). The job name `ci` is a required status check on main (docs/REPO_SETUP.md).
+# CI (SPEC §9.5). The job name `ci` is a required status check on main (docs/REPO_SETUP.md).
 name: CI
 
 on:

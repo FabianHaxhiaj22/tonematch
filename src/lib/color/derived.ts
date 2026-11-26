@@ -20,7 +20,7 @@ export function hueAngle({ a, b }: Lab): number {
 }
 
 /**
- * Individual Typology Angle, used for skin depth (README §6.4, §6.5):
+ * Individual Typology Angle, used for skin depth (SPEC §6.4, §6.5):
  *
  *   ITA° = atan((L* − 50) / b*) · 180/π
  *

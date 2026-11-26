@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// E2E runs against the production build (`pnpm build` first), as in CI (README §9.5).
+// E2E runs against the production build (`pnpm build` first), as in CI (SPEC §9.5).
 const PORT = 3100;
 const BASE_URL = `http://localhost:${PORT}`;
 
@@ -14,7 +14,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: "on-first-retry",
   },
-  // Chromium only for now; WebKit (mobile Safari) is added later (README §9.5).
+  // Chromium only for now; WebKit (mobile Safari) is added later (SPEC §9.5).
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: `pnpm start --port ${PORT}`,

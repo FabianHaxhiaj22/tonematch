@@ -1,10 +1,10 @@
 /**
- * Analysis configuration (README §6). Every threshold used by src/lib/analysis lives here as a
+ * Analysis configuration (SPEC §6). Every threshold used by src/lib/analysis lives here as a
  * named, commented constant. **Initial values are heuristics** that need calibrating on real
  * photos (docs/CALIBRATION.md); change them here, never inline in the logic.
  */
 
-// ─── Skin regions (README §6.2) ─────────────────────────────────────────────────────────────
+// ─── Skin regions (SPEC §6.2) ─────────────────────────────────────────────────────────────
 
 /**
  * Landmark indices of the skin-sampling regions.
@@ -23,7 +23,7 @@
  *   below: 101–100–142–203–206–205. Compact and convex on the map and on real landmarks (and
  *   made convex at runtime with a hull, so landmark noise can't dent it). The first choices
  *   (116/117/123…, then 117/50/187…) sat towards the face edge, where close-range perspective
- *   and head turns cut them off: on a real selfie at yaw −12° only a third survived the clip.
+ *   and head turns cut them off: on a near-frontal real selfie only about a third survived the clip.
  * - Left cheek = exact 3D mirror of the right cheek (vertex with x → −x in the .obj), so both
  *   cheeks cover the same anatomy and their disagreement is a fair lighting signal.
  * - Forehead (revised 2026-11-13 after a real-photo test, D-023): the first version used the
@@ -82,7 +82,7 @@ export const FACE_OVAL_RING = [
  */
 export const FACE_OUTLINE_INSET_FRACTION = 0.05;
 
-// ─── Pixel filtering and region statistics (README §6.2) ────────────────────────────────────
+// ─── Pixel filtering and region statistics (SPEC §6.2) ────────────────────────────────────
 
 /**
  * Per region, drop this fraction of pixels from **each** end of the L* distribution (specular
@@ -93,14 +93,14 @@ export const LUMINANCE_TRIM_HIGH = 0.1;
 
 /**
  * After the trim, drop pixels whose CIE76 ΔE*ab from the region's median Lab exceeds this
- * (blemishes, hair, brow hairs, fold shadows). README §6.2 suggests ~15.
+ * (blemishes, hair, brow hairs, fold shadows). SPEC §6.2 suggests ~15.
  */
 export const OUTLIER_DELTA_E = 15;
 
 /** A region needs at least this many valid pixels (after filtering) to be used. */
 export const MIN_VALID_PIXELS = 300;
 
-/** Weights for the overall weighted median (README §6.2). Must sum to 1. */
+/** Weights for the overall weighted median (SPEC §6.2). Must sum to 1. */
 export const REGION_WEIGHTS: Readonly<Record<RegionName, number>> = {
   leftCheek: 0.4,
   rightCheek: 0.4,
@@ -121,14 +121,14 @@ export const CHEEK_DISAGREEMENT_DELTA_E = 6;
  */
 export const CHEEK_MIN_PIXEL_RATIO = 0.4;
 
-// ─── Quality gate (README §6.1) ─────────────────────────────────────────────────────────────
+// ─── Quality gate (SPEC §6.1) ─────────────────────────────────────────────────────────────
 
 /** FACE_TOO_SMALL when the face-oval width is below this fraction of the image width. */
 export const FACE_MIN_WIDTH_FRACTION = 0.25;
 
 /**
  * Clipping levels (0–255). A pixel is dark-clipped if **any** channel ≤ CLIP_DARK_LEVEL and
- * bright-clipped if any channel ≥ CLIP_BRIGHT_LEVEL (README §6.1: "near 0 or 255 in any
+ * bright-clipped if any channel ≥ CLIP_BRIGHT_LEVEL (SPEC §6.1: "near 0 or 255 in any
  * channel"). Well-lit deep skin stays far above 5 in every channel, so it isn't flagged.
  */
 export const CLIP_DARK_LEVEL = 5;
@@ -139,7 +139,7 @@ export const FACE_CLIPPED_MAX_FRACTION = 0.05;
 
 /**
  * Whole-image histogram checks, on Rec. 709 luma (0–255). They judge **exposure**, never skin
- * lightness (README §6.1, DECISIONS D-010):
+ * lightness (SPEC §6.1, DECISIONS D-010):
  * - TOO_DARK if even the brightest 1% of the image (p99) is below IMAGE_MIN_P99_LUMA: nothing
  *   in the frame (eye whites, teeth, catchlights, clothing, background) reaches mid-tones.
  * - TOO_BRIGHT if even the darkest 1% (p1) is above IMAGE_MAX_P1_LUMA: the frame is washed out.
@@ -151,7 +151,7 @@ export const IMAGE_MIN_P99_LUMA = 90;
 export const IMAGE_MAX_P1_LUMA = 150;
 
 /**
- * Colour cast (README §6.1; revised 2026-11-13, D-023). Measured only on **near-neutral,
+ * Colour cast (SPEC §6.1; revised 2026-11-13, D-023). Measured only on **near-neutral,
  * well-exposed** background pixels (outside the face outline), so saturated objects (a red
  * curtain, a blue wall) can't read as a cast:
  * 1. Candidates: not clipped, L* in [COLOR_CAST_MIN_L, COLOR_CAST_MAX_L], chroma ≤
@@ -163,7 +163,7 @@ export const IMAGE_MAX_P1_LUMA = 150;
  * 3. COLOR_CAST when the cluster centre's chroma exceeds COLOR_CAST_MAX_CHROMA. Skip the check
  *    (no issue) if fewer than COLOR_CAST_MIN_PIXELS candidates, or cluster members, remain.
  * Limitation: a tinted wall in neutral light and a grey wall in tinted light look the same;
- * white-paper calibration (README §6.3) is the answer to that.
+ * white-paper calibration (SPEC §6.3) is the answer to that.
  */
 export const COLOR_CAST_SAMPLE_STEP = 2;
 export const COLOR_CAST_MIN_L = 35;
@@ -191,16 +191,16 @@ export const BLUR_MIN_LAPLACIAN_VARIANCE = 40;
 
 /**
  * HEAD_TILTED when |yaw| or |pitch| from the transformation matrix exceeds its limit
- * (README §6.1 started at ±20° for both). Yaw tightened to ±15° (D-023): turning the head
+ * (SPEC §6.1 started at ±20° for both). Yaw tightened to ±15° (D-023): turning the head
  * shrinks the far cheek fast. On the canonical mesh the far/near cheek pixel ratio after the
- * outline clip is 0.73 at 15°, 0.59 at 19° and 0.18 at 25°, and a real selfie at 19° (with
- * perspective) lost about 90% of the far cheek. Roll isn't limited: it doesn't change which
- * skin faces the camera.
+ * outline clip is 0.73 at 15°, 0.59 at 19° and 0.18 at 25°, and a real selfie with the head
+ * clearly turned (with perspective) lost most of the far cheek. Roll isn't limited: it doesn't
+ * change which skin faces the camera.
  */
 export const MAX_YAW_DEG = 15;
 export const MAX_PITCH_DEG = 20;
 
-// ─── White balance (README §6.3) ────────────────────────────────────────────────────────────
+// ─── White balance (SPEC §6.3) ────────────────────────────────────────────────────────────
 
 /** Radius (px, in image pixels) of the square patch averaged around the tapped point. */
 export const WB_PATCH_RADIUS = 6;
@@ -230,8 +230,8 @@ export const CHEEK_REDNESS_HUE_MARGIN_DEG = 8;
 
 /**
  * Cheeks "disagree" (for weighting) when the colour part of their difference,
- * sqrt(Δa*² + Δb*²), exceeds this. Undertone depends on colour, not lightness. A real selfie in
- * M3 testing had ΔE 3.5, mostly in b*. Heuristic.
+ * sqrt(Δa*² + Δb*²), exceeds this. Undertone depends on colour, not lightness. Real-photo
+ * testing in M3 showed cheek differences above this, mostly in b*. Heuristic.
  */
 export const CHEEK_CHROMATIC_DISAGREEMENT = 3;
 
@@ -242,9 +242,9 @@ export const CHEEK_CHROMATIC_DISAGREEMENT = 3;
  */
 export const FOREHEAD_WEIGHT_WHEN_CHEEKS_DOUBTFUL = 0.5;
 
-// ─── Depth (README §6.5) ────────────────────────────────────────────────────────────────────
+// ─── Depth (SPEC §6.5) ────────────────────────────────────────────────────────────────────
 
-/** Below this b*, ITA isn't computed (division by ~0); depth falls back to L* (README §6.4). */
+/** Below this b*, ITA isn't computed (division by ~0); depth falls back to L* (SPEC §6.4). */
 export const ITA_MIN_B = 4;
 
 export type DepthLabel = "very-light" | "light" | "medium" | "tan" | "deep" | "very-deep";
@@ -268,7 +268,7 @@ export const DEPTH_REF_B = 15;
  *   light 41–55°, intermediate 28–41°, tan 10–28°, brown −30–10°, dark < −30°; Chardon et al.
  *   1991, Del Bino & Bernerd 2013, as commonly quoted, not re-checked against the originals).
  * - MST splits inside a class (65°, 48°, −10°, −50°) are heuristic and **approximate**; the UI
- *   must label MST as approximate. Calibrate with self-reported MST from volunteers (README §11).
+ *   must label MST as approximate. Calibrate with self-reported MST from volunteers (SPEC §11).
  * Why not "nearest official swatch": the swatches are display colours (MST 1 has L* 94; measured
  * fair skin is ~65–75), so nearest-swatch read real light skin as MST 5 and almost never gave
  * MST 9–10. The official swatch colours stay in MST_SWATCHES for display (M6).
@@ -307,14 +307,14 @@ export const MST_SWATCHES: readonly string[] = [
   "#292420",
 ];
 
-// ─── Undertone (README §6.6) ────────────────────────────────────────────────────────────────
+// ─── Undertone (SPEC §6.6) ────────────────────────────────────────────────────────────────
 
 /**
  * Photo undertone score (D-029):
  *   p = cap × tanh(hueDelta(h, HUE_NEUTRAL_CENTRE_DEG) / HUE_SCALE_DEG)
  * h is the hue angle of the overall skin colour (higher = more yellow = warmer). tanh is linear
  * near the centre (p ≈ cap × Δh / scale) and only approaches ±cap far out, so real photos rarely
- * saturate; a hard clamp at ±15° saturated an indoor selfie at 38.6° (−1.00).
+ * saturate; a hard clamp at ±15° saturated a real indoor photo at the cap.
  * cap = PHOTO_SCORE_CAP_CALIBRATED with white-paper calibration, else
  * PHOTO_SCORE_CAP_UNCALIBRATED: an uncalibrated camera's white balance can shift hue by several
  * degrees, so its photo can never make a strong undertone call on its own.
@@ -325,7 +325,7 @@ export const HUE_SCALE_DEG = 20;
 export const PHOTO_SCORE_CAP_CALIBRATED = 1;
 export const PHOTO_SCORE_CAP_UNCALIBRATED = 0.6;
 
-/** Quiz answer values (README §6.6). "unsure" is skipped, never scored as neutral. */
+/** Quiz answer values (SPEC §6.6). "unsure" is skipped, never scored as neutral. */
 export const QUIZ_ANSWER_SCORES = { cool: -1, neutral: 0, warm: 1 } as const;
 
 /** Fusion: photo weight w_p = PHOTO_WEIGHT_MAX × photoConfidence; quiz weight 1 − w_p. */
@@ -344,7 +344,7 @@ export const QUIZ_SPLIT_SHRINK = 0.5;
 export const QUIZ_SPLIT_PENALTY = 0.25;
 
 /**
- * Undertone buckets on the fused score s (README §6.6, issue M). Explicit cut-points:
+ * Undertone buckets on the fused score s (SPEC §6.6, issue M). Explicit cut-points:
  * s < −0.25 cool · −0.25 ≤ s < −0.10 neutral-cool · −0.10 ≤ s ≤ 0.10 neutral ·
  * 0.10 < s ≤ 0.25 neutral-warm · s > 0.25 warm. Heuristics; calibrate.
  */
@@ -355,7 +355,7 @@ export const UNDERTONE_CUTS = {
   warmAbove: 0.25,
 } as const;
 
-// ─── Confidence (README §6.6, issue L) ──────────────────────────────────────────────────────
+// ─── Confidence (SPEC §6.6, issue L) ──────────────────────────────────────────────────────
 
 /**
  * Photo confidence (before fusion, photo evidence only) starts at 1 and is multiplied by the
@@ -383,7 +383,7 @@ export const PHOTO_LOW_PIXEL_REGION_FACTOR = 0.85;
 export const PHOTO_CHEEK_IMBALANCE_FACTOR = 0.8;
 /**
  * Cheek colour disagreement (chromatic part): factor falls linearly from 1 at 0 to
- * PHOTO_CHEEK_CHROMATIC_MIN_FACTOR at PHOTO_CHEEK_CHROMATIC_FULL and above. ΔC 3.5 → 0.825.
+ * PHOTO_CHEEK_CHROMATIC_MIN_FACTOR at PHOTO_CHEEK_CHROMATIC_FULL and above. E.g. ΔC 4 → 0.8.
  */
 export const PHOTO_CHEEK_CHROMATIC_FULL = 8;
 export const PHOTO_CHEEK_CHROMATIC_MIN_FACTOR = 0.6;

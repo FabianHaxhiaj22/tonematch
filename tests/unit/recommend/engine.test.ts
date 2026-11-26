@@ -19,7 +19,7 @@ const bestFamilies = (r: Recommendation) =>
   new Set(r.metals.filter((m) => m.tier === "best").map((m) => familyOf(m.id)));
 
 /**
- * Expected metal tiers for each undertone at normal confidence (README §7.2 with the D-030
+ * Expected metal tiers for each undertone at normal confidence (SPEC §7.2 with the D-030
  * rules). The same table must hold at every depth.
  */
 const EXPECTED: Record<UndertoneLabel, Record<string, Tier>> = {

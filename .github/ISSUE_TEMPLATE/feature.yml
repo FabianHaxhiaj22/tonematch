@@ -21,4 +21,4 @@ body:
     attributes:
       label: Privacy
       options:
-        - label: This feature doesn't need photos or image data to leave the device (README §2).
+        - label: This feature doesn't need photos or image data to leave the device (see "Privacy first" in the README).

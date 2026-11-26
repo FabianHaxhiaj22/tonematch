@@ -66,11 +66,11 @@ describe("photoUndertoneScore (cap × tanh)", () => {
     }
   });
 
-  it("the real-testing case (uncalibrated indoor selfie, hue 38.6°) no longer saturates", () => {
-    const p = photoUndertoneScore(lch(60, 18, 38.6), UNCAL);
+  it("a cool hue outside the old ±15° clamp no longer saturates (synthetic case: uncalibrated, hue 36°)", () => {
+    const p = photoUndertoneScore(lch(60, 18, 36), UNCAL);
     expect(p).toBeLessThan(0); // still cool-leaning
     expect(p).toBeGreaterThan(-0.5); // far from −1.00
-    expect(p).toBeCloseTo(-PHOTO_SCORE_CAP_UNCALIBRATED * Math.tanh(16.4 / HUE_SCALE_DEG), 9);
+    expect(p).toBeCloseTo(-PHOTO_SCORE_CAP_UNCALIBRATED * Math.tanh(19 / HUE_SCALE_DEG), 9);
   });
 
   it("real skin hues (about 40–70°) stay well inside ±1 even when calibrated", () => {
@@ -184,8 +184,8 @@ describe("fuse", () => {
     expect(f.s).toBeCloseTo(PHOTO_WEIGHT_MAX * 0.8 * p * (1 - QUIZ_SPLIT_SHRINK), 12);
   });
 
-  it("the real-testing case (photo cool, quiz 2 + 2) is no longer a plain 'cool'", () => {
-    const p = photoUndertoneScore(lch(60, 18, 38.6), UNCAL);
+  it("a cool photo with a split quiz (2 + 2) is no longer a plain 'cool' (synthetic case: hue 36°)", () => {
+    const p = photoUndertoneScore(lch(60, 18, 36), UNCAL);
     const split = scoreQuiz({ veins: "cool", daylight: "warm", metal: "cool", white: "warm" });
     expect(undertoneLabel(fuse(p, 0.7, split).s)).toBe("neutral");
   });

@@ -13,7 +13,7 @@ export default defineConfig({
     setupFiles: ["tests/setup.ts"],
     coverage: {
       provider: "v8",
-      // README §9.5: pure logic in src/lib must keep ≥ 90% coverage.
+      // SPEC §9.5: pure logic in src/lib must keep ≥ 90% coverage.
       include: ["src/lib/**/*.{ts,tsx}"],
       exclude: ["src/lib/**/*.test.{ts,tsx}"],
       reporter: ["text", "html", "lcov"],

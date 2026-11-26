@@ -1,5 +1,5 @@
 /**
- * Recommendation engine (README §7, D-030): M4's result → metal tiers, styles, gemstones and
+ * Recommendation engine (SPEC §7, D-030): M4's result → metal tiers, styles, gemstones and
  * explanation keys. Pure and deterministic; the data is passed in (data.ts loads the real files).
  *
  * Rules, in order:
@@ -40,7 +40,7 @@ import {
   type Tier,
 } from "./schema";
 
-/** What the engine needs from M4 (README §7, D-030). */
+/** What the engine needs from M4 (SPEC §7, D-030). */
 export type RecommendInput = {
   undertone: UndertoneLabel;
   depth: DepthLabel;
@@ -58,7 +58,7 @@ export const ENGINE_NOTES = ["bothCanWork", "bothCanWorkUncertain"] as const;
 export type MetalRecommendation = { id: string; tier: Tier; reasonKey: string };
 export type StyleSuggestion = { id: string; tags: StyleTag[]; labelKey: string };
 
-/** README §7.3, plus the explanation keys (summaryKey, finishKey) added in M5 (D-030). */
+/** SPEC §7.3, plus the explanation keys (summaryKey, finishKey) added in M5 (D-030). */
 export type Recommendation = {
   undertone: UndertoneLabel;
   depth: DepthLabel;

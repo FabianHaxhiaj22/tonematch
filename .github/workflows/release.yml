@@ -1,4 +1,4 @@
-# release-please (README §9.4): opens/updates a release PR from Conventional Commits on main;
+# release-please (SPEC §9.4): opens/updates a release PR from Conventional Commits on main;
 # merging it bumps package.json, updates CHANGELOG.md, tags and creates a GitHub Release.
 #
 # Uses the RELEASE_PLEASE_TOKEN secret (fine-grained PAT, this repo only), NOT GITHUB_TOKEN:
