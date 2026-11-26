@@ -136,7 +136,7 @@ Design responses to these:
 ```
 
 - MediaPipe runs in a **Web Worker** so the UI thread doesn't freeze.
-- The `ImageBitmap`/canvas is discarded after analysis. Nothing goes to `localStorage` except optional numeric results if the user clicks "remember my result".
+- The `ImageBitmap`/canvas is discarded after analysis. Nothing goes to `localStorage` except optional numeric results if the user clicks "remember my result", and the colour-theme preference once the user picks Light or Dark (D-037).
 
 ---
 
@@ -444,6 +444,7 @@ Weekly npm + GitHub Actions updates, grouped (minor/patch together), separate PR
 - Results are visual: skin swatch next to metal swatches; tier badges; short reasons.
 - All text in `src/i18n/messages/en.json` and `src/i18n/messages/sq.json`. No hard-coded strings. Albanian copy should be reviewed by a native speaker (the user).
 - WCAG 2.2 AA: contrast, focus states, keyboard nav, alt text, `aria-live` for analysis status, reduced motion.
+- Theme: Light / Dark / System switch in the header (D-037). System follows `prefers-color-scheme`; an explicit choice is remembered in `localStorage` and applied before the first paint.
 - Aesthetic: elegant, jewellery-brand feel (serif display font + clean sans body, warm-neutral palette, subtle metallic gradients). Avoid generic template look. **Chosen direction: "Atelier"** (D-034): ivory, ink and champagne gold, Cormorant Garamond + Jost. Tokens, contrast table and component rules: `docs/DESIGN.md`; `globals.css` tokens are contrast-tested.
 - Photo guide: shown as "Tips for a good photo" next to the upload (landing and `/analyze`) rather than a separate screen before it (D-034).
 

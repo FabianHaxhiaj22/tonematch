@@ -18,11 +18,15 @@ function tokens(block: string): Record<string, string> {
   );
 }
 
+const FORCED_DARK_MARKER = ':root[data-theme="dark"] {';
 const darkStart = css.indexOf(DARK_MARKER);
+const forcedDarkStart = css.indexOf(FORCED_DARK_MARKER);
 const THEMES = {
   light: tokens(css.slice(0, darkStart)),
-  dark: tokens(css.slice(darkStart, css.indexOf("@theme"))),
+  dark: tokens(css.slice(darkStart, forcedDarkStart)),
 };
+// D-037: dark is defined twice (system preference, and the user's explicit choice).
+const FORCED_DARK = tokens(css.slice(forcedDarkStart, css.indexOf("@theme")));
 
 const TEXT = 4.5; // AA, normal-size text
 const NON_TEXT = 3; // AA, focus indicators and control boundaries (1.4.11)
@@ -46,6 +50,15 @@ const PAIRS: [string, string, number, string][] = [
 ];
 
 describe("design tokens (globals.css)", () => {
+  it("the forced-dark block (data-theme) matches the system-dark block exactly", () => {
+    expect(forcedDarkStart).toBeGreaterThan(darkStart);
+    expect(FORCED_DARK).toEqual(THEMES.dark);
+  });
+
+  it("a forced light theme opts out of the system dark block", () => {
+    expect(css).toContain(':root:not([data-theme="light"]) {');
+  });
+
   it("defines the same tokens for light and dark", () => {
     expect(Object.keys(THEMES.light).length).toBeGreaterThanOrEqual(11);
     expect(Object.keys(THEMES.dark).sort()).toEqual(Object.keys(THEMES.light).sort());

@@ -4,10 +4,16 @@
  * Design tokens: direction "Atelier" (D-034, docs/DESIGN.md). Ivory paper, ink, champagne gold.
  *
  * Every colour pair used for text or controls is checked against WCAG 2.2 AA by
- * tests/unit/design/tokens.test.ts, which parses the two blocks below. Keep each token on its own
- * line as `--tm-<name>: #rrggbb;`. Light first; dark follows the system setting (SPEC §13).
+ * tests/unit/design/tokens.test.ts, which parses the blocks below. Keep each token on its own
+ * line as `--tm-<name>: #rrggbb;`.
+ *
+ * Theme (D-037): light by default; dark when the system prefers it, unless the user forced light;
+ * and dark whenever the user forced dark. A forced choice is `<html data-theme="light|dark">`,
+ * set before the first paint by THEME_INIT_SCRIPT (src/lib/theme). The two dark blocks must stay
+ * identical (the token test checks).
  */
 :root {
+  color-scheme: light;
   /* Page background (ivory paper). */
   --tm-bg: #f8f4ee;
   /* Cards and raised panels. */
@@ -31,8 +37,10 @@
   --tm-gold-b: #ecd9a8;
 }
 
+/* Dark: the system prefers it and the user hasn't forced light. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --tm-bg: #151210;
     --tm-surface: #1e1a17;
     --tm-sunken: #110e0c;
@@ -44,6 +52,34 @@
     --tm-focus: #d4b172;
     --tm-gold-a: #8c6e37;
     --tm-gold-b: #d9bc80;
+  }
+}
+
+/* Dark: the user chose it (same values as above). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --tm-bg: #151210;
+  --tm-surface: #1e1a17;
+  --tm-sunken: #110e0c;
+  --tm-ink: #f3ece2;
+  --tm-muted: #b9ac9c;
+  --tm-line: #3a322b;
+  --tm-accent: #d4b172;
+  --tm-on-ink: #151210;
+  --tm-focus: #d4b172;
+  --tm-gold-a: #8c6e37;
+  --tm-gold-b: #d9bc80;
+}
+
+/* Tailwind's `dark:` variant follows the same rule as the tokens. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-theme="dark"], :root[data-theme="dark"] *) {
+    @slot;
   }
 }
 

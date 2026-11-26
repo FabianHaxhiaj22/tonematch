@@ -186,6 +186,12 @@
     "footer": {
       "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore.",
       "copyright": "© ToneMatch"
+    },
+    "theme": {
+      "label": "Tema",
+      "light": "E çelët",
+      "dark": "E errët",
+      "system": "Sipas sistemit"
     }
   },
   "landing": {

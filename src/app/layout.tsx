@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FlowLifecycle } from "@/components/layout/FlowLifecycle";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { bodyFont, displayFont } from "./fonts";
 import "./globals.css";
 
@@ -14,7 +15,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${displayFont.variable} ${bodyFont.variable} h-full`}>
+    // suppressHydrationWarning: THEME_INIT_SCRIPT may set data-theme before React hydrates.
+    <html
+      lang="en"
+      className={`${displayFont.variable} ${bodyFont.variable} h-full`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Applies a stored light/dark choice before the first paint (no flash, D-037). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <SiteHeader />
         <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
