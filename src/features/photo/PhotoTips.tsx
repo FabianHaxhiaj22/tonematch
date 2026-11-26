@@ -7,7 +7,8 @@ import { useT } from "@/i18n/useT";
 /**
  * The photo guide (SPEC §1, §3), shown next to the upload as a disclosure. It covers what the
  * app can't detect (filters, smoothing, tinted glasses, products on the cheeks), so the UI never
- * claims to detect them. Never mentions makeup by name (D-025, D-026).
+ * claims to detect them. The cheeks tip is the only UI text allowed to mention makeup: advice
+ * before the photo (D-025), never a detection claim; results never mention it (D-026, D-034).
  */
 const TIPS = ["window", "flash", "glasses", "hair", "cheeks", "straight"] as const;
 

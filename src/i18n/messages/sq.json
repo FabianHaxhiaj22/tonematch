@@ -175,7 +175,7 @@
   "layout": {
     "skipToContent": "Kalo te përmbajtja",
     "nav": {
-      "label": "Kryesore",
+      "label": "Navigimi kryesor",
       "howItWorks": "Si funksionon",
       "privacy": "Privatësia"
     },
@@ -184,7 +184,7 @@
       "sq": "SQ"
     },
     "footer": {
-      "note": "Udhëzime stili bazuar në analizën e ngjyrave, jo një matje.",
+      "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore.",
       "copyright": "© ToneMatch"
     }
   },
@@ -192,32 +192,32 @@
     "hero": {
       "eyebrow": "Udhëzues ngjyrash për bizhuteritë",
       "titleStart": "Gjej metalet",
-      "titleEmphasis": "që i shkojnë lëkurës sate",
-      "lede": "Ngarko një selfie të bërë në dritë dite. ToneMatch e lexon tonin dhe nëntonin e lëkurës sate drejtpërdrejt në pajisjen tënde, pastaj të sugjeron metale, stile dhe gurë të çmuar që të shkojnë.",
-      "privacy": "Fotoja jote nuk largohet kurrë nga pajisja"
+      "titleEmphasis": "që i rrinë bukur lëkurës sate",
+      "lede": "Ngarko një selfie të bërë në dritën e ditës. ToneMatch e lexon tonin dhe nëntonin e lëkurës sate drejtpërdrejt në pajisjen tënde, pastaj të sugjeron metale, stile dhe gurë të çmuar që të rrinë mirë.",
+      "privacy": "Fotoja jote nuk del kurrë nga pajisja jote"
     },
     "how": {
       "eyebrow": "Në tre hapa",
       "title": "Si funksionon",
       "steps": {
         "photo": {
-          "title": "Bëj një selfie në dritë dite",
+          "title": "Bëj një selfie në dritën e ditës",
           "body": "Qëndro përballë një dritareje. Pa blic, pa filtra, pa syze, me flokët larg fytyrës."
         },
         "quiz": {
           "title": "Përgjigju katër pyetjeve të shpejta",
-          "body": "Për venat, lëkurën në dritë dite dhe ngjyrat që zgjedh. Secilën mund ta kalosh."
+          "body": "Për venat, lëkurën në dritën e ditës dhe ngjyrat që preferon. Çdo pyetje mund ta anashkalosh."
         },
         "palette": {
           "title": "Merr paletën tënde",
-          "body": "Metale të renditura për ty, me stile, gurë të çmuar dhe një vlerësim të sinqertë të besueshmërisë."
+          "body": "Metale të renditura për ty, me stile, gurë të çmuar dhe një vlerësim të ndershëm se sa i sigurt është rezultati."
         }
       }
     },
     "privacy": {
       "eyebrow": "Premtimi i privatësisë",
       "title": "Fotoja jote mbetet te ti",
-      "body": "Analiza bëhet tërësisht në shfletuesin tënd. Asgjë nuk ngarkohet, ruhet apo ndahet, dhe fotoja fshihet kur largohesh nga faqja.",
+      "body": "Analiza bëhet tërësisht në shfletuesin tënd. Asgjë nuk ngarkohet, nuk ruhet dhe nuk u jepet të tjerëve, dhe fotoja fshihet kur largohesh nga faqja.",
       "points": {
         "noUpload": {
           "title": "Pa ngarkim",
@@ -228,7 +228,7 @@
           "body": "Nuk ke nevojë të regjistrohesh."
         },
         "nothingStored": {
-          "title": "Asgjë e ruajtur",
+          "title": "Asgjë nuk ruhet",
           "body": "Pa foto, pa profil, pa gjurmim."
         }
       }
@@ -236,7 +236,7 @@
   },
   "photo": {
     "choose": "Zgjidh një foto",
-    "drop": "ose tërhiqe këtu",
+    "drop": "ose tërhiqe dhe lëshoje këtu",
     "hint": "JPG, PNG ose WebP · një fytyrë · dritë natyrale",
     "errors": {
       "empty": "Ky skedar është bosh. Të lutem zgjidh një foto tjetër.",
@@ -247,11 +247,11 @@
     "tips": {
       "title": "Këshilla për një foto të mirë",
       "items": {
-        "window": "Qëndro përballë një dritareje në dritë dite. Shmang diellin direkt dhe llambat.",
-        "flash": "Fik blicin, filtrat dhe mënyrat e zbukurimit.",
+        "window": "Qëndro përballë një dritareje në dritën e ditës. Shmang diellin e drejtpërdrejtë dhe dritën e llambave.",
+        "flash": "Fik blicin, filtrat dhe efektet e zbukurimit.",
         "glasses": "Hiq syzet, edhe ato me xhama me ngjyrë.",
         "hair": "Mbaji flokët larg faqeve dhe ballit.",
-        "cheeks": "Faqe pa produkte nëse mundesh: produktet në faqe ua ndryshojnë ngjyrën.",
+        "cheeks": "Nëse mundesh, pa grim në faqe: grimi ua ndryshon ngjyrën.",
         "straight": "Vetëm ti në foto, duke parë drejt kamerës."
       }
     }
@@ -261,7 +261,7 @@
     "title": "Fotoja jote",
     "emptyTitle": "Zgjidh një foto",
     "previewAlt": "Fotoja që zgjodhe",
-    "stays": "Ajo mbetet në këtë pajisje.",
+    "stays": "Mbetet vetëm në këtë pajisje.",
     "next": "Vazhdo te pyetjet",
     "another": "Zgjidh një foto tjetër"
   }

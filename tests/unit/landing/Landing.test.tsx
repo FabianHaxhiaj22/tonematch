@@ -33,15 +33,15 @@ describe("landing page", () => {
     render(<Home />);
     act(() => useLocaleStore.getState().setLocale("sq"));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Gjej metalet që i shkojnë lëkurës sate",
+      "Gjej metalet që i rrinë bukur lëkurës sate",
     );
     expect(screen.getByRole("region", { name: "Si funksionon" })).toBeInTheDocument();
     expect(screen.getByLabelText("Zgjidh një foto")).toBeInTheDocument();
   });
 
-  it("never mentions race, ethnicity or makeup, and never claims to detect filters", () => {
+  it("never mentions race or ethnicity, and never claims to detect filters or makeup", () => {
     const { container } = render(<Home />);
-    expect(container.textContent).not.toMatch(/race|ethnic|make-?up|we detect|detects? filters/i);
+    expect(container.textContent).not.toMatch(/race|ethnic|we detect|detects? (filters|makeup)/i);
   });
 });
 

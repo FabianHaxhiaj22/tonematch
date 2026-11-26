@@ -51,7 +51,7 @@ test.describe("landing page", () => {
     await page.getByRole("button", { name: /Shqip/ }).click();
     await expect(page.locator("html")).toHaveAttribute("lang", "sq");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Gjej metalet që i shkojnë lëkurës sate",
+      "Gjej metalet që i rrinë bukur lëkurës sate",
     );
     await axe(page);
   });
