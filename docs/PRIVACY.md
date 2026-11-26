@@ -9,6 +9,7 @@
 | Photo / camera frames | Processed in the browser only (MediaPipe WASM in a Web Worker) | No. Discarded after analysis |
 | Skin colour numbers (L*, a*, b*, scores) | Stay in the browser | Only in `localStorage` if the user clicks "remember my result" |
 | Quiz answers | Stay in the browser | Same as above |
+| Colour-theme preference ("light" or "dark") | Stays in the browser | In `localStorage` (`tm-theme`) only after the user picks Light or Dark; removed when they pick System (D-037) |
 | Numbers + quiz answers (Phase 2, opt-in) | Sent to `/api/explain` → Claude API, for the AI explanation | Not logged by the app |
 
 Never collected: images, race or ethnicity, names, account data (until Phase 3).

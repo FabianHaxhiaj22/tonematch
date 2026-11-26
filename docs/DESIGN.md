@@ -79,6 +79,10 @@ Defined as `--tm-*` custom properties (light by default, dark under `prefers-col
 - Metal gradients for illustrations live in `src/components/brand/metals.ts`. Recommendation swatches come from `src/data/metals.json`, never from the illustration colours.
 - Logo: two interlocking rings, skin (ink) meets metal (gold). `Logo.tsx` in the header, `src/app/icon.svg` as the favicon (adapts to dark browser UI), `src/app/apple-icon.png` (180 px, from `scripts/render-apple-icon.ts`).
 
+## Theme
+
+Light by default, dark when the system prefers it. The header's theme button (sun / moon / monitor icon for the current choice) opens a gold-card panel with Light, Dark and System; an explicit choice wins over the system and is remembered (D-037). Never hard-code colours in components: use the tokens, so both themes and the forced variants work.
+
 ## Motion
 
 Almost none: colour transitions and the tips chevron. Everything is cut to ~0 ms under `prefers-reduced-motion: reduce`, and smooth scrolling is only on when motion is allowed.

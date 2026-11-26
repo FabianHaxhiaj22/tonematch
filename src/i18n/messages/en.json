@@ -186,6 +186,12 @@
     "footer": {
       "note": "Style guidance based on colour analysis, not a measurement.",
       "copyright": "© ToneMatch"
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
     }
   },
   "landing": {
