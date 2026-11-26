@@ -1,30 +1,141 @@
 @import "tailwindcss";
 
-/* Placeholder tokens. The real palette and fonts (SPEC §13) are designed in M6. */
+/*
+ * Design tokens: direction "Atelier" (D-034, docs/DESIGN.md). Ivory paper, ink, champagne gold.
+ *
+ * Every colour pair used for text or controls is checked against WCAG 2.2 AA by
+ * tests/unit/design/tokens.test.ts, which parses the two blocks below. Keep each token on its own
+ * line as `--tm-<name>: #rrggbb;`. Light first; dark follows the system setting (SPEC §13).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Page background (ivory paper). */
+  --tm-bg: #f8f4ee;
+  /* Cards and raised panels. */
+  --tm-surface: #fffdf9;
+  /* Bands and recessed sections. */
+  --tm-sunken: #efe8dd;
+  /* Main text and the primary button fill. */
+  --tm-ink: #1e1a17;
+  /* Secondary text and control borders. */
+  --tm-muted: #5f554c;
+  /* Hairlines and dividers (decorative, no contrast requirement). */
+  --tm-line: #dccfbd;
+  /* Accent text, links and active states (deep champagne gold). */
+  --tm-accent: #7e5f26;
+  /* Text on an ink-filled button. */
+  --tm-on-ink: #f8f4ee;
+  /* Keyboard focus ring. */
+  --tm-focus: #7e5f26;
+  /* Metallic hairline gradient stops (decorative only). */
+  --tm-gold-a: #b8924a;
+  --tm-gold-b: #ecd9a8;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --tm-bg: #151210;
+    --tm-surface: #1e1a17;
+    --tm-sunken: #110e0c;
+    --tm-ink: #f3ece2;
+    --tm-muted: #b9ac9c;
+    --tm-line: #3a322b;
+    --tm-accent: #d4b172;
+    --tm-on-ink: #151210;
+    --tm-focus: #d4b172;
+    --tm-gold-a: #8c6e37;
+    --tm-gold-b: #d9bc80;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+@theme inline {
+  --color-bg: var(--tm-bg);
+  --color-surface: var(--tm-surface);
+  --color-sunken: var(--tm-sunken);
+  --color-ink: var(--tm-ink);
+  --color-muted: var(--tm-muted);
+  --color-line: var(--tm-line);
+  --color-accent: var(--tm-accent);
+  --color-on-ink: var(--tm-on-ink);
+  --color-focus: var(--tm-focus);
+  --color-gold-a: var(--tm-gold-a);
+  --color-gold-b: var(--tm-gold-b);
+
+  /* Fonts come from next/font (src/app/fonts.ts), self-hosted at build time. */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-jost), "Jost", system-ui, sans-serif;
+
+  /* Soft card radius. */
+  --radius-card: 16px;
+}
+
+/* Metallic gold hairline that fades out at both ends (section dividers). */
+@utility gold-rule {
+  height: 1px;
+  border: 0;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--tm-gold-a) 20%,
+    var(--tm-gold-b) 50%,
+    var(--tm-gold-a) 80%,
+    transparent
+  );
+}
+
+/* Ivory card with a fine metallic-gold border: surface on the padding box, gold on the border. */
+@utility gold-card {
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(var(--tm-surface), var(--tm-surface)) padding-box,
+    linear-gradient(
+        135deg,
+        var(--tm-gold-a),
+        var(--tm-gold-b) 45%,
+        var(--tm-gold-a) 70%,
+        var(--tm-gold-b)
+      )
+      border-box;
+}
+
+/* Small tracked capitals for eyebrows and labels. */
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background: var(--tm-bg);
+    color: var(--tm-ink);
+    font-family: var(--font-sans);
+  }
+
+  /* One visible focus style everywhere (WCAG 2.2 AA: focus visible, ≥ 3:1 against the page). */
+  :focus-visible {
+    outline: 2px solid var(--tm-focus);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }

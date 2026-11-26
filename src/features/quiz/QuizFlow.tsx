@@ -4,16 +4,19 @@
  * The 4-question undertone quiz (SPEC §6.6). One question per screen, native radio buttons
  * (keyboard and screen-reader support for free), large tap targets, no animation beyond colour
  * transitions (and none at all with prefers-reduced-motion). Strings come from the en/sq
- * message files; until M8 adds locale routing, the language is switched here.
+ * message files; the language comes from the header switch (src/store/locale.ts) until M8.
  */
 import { useEffect, useRef } from "react";
-import { LOCALES, translator, type MessageKey } from "@/i18n/messages";
+import { CONTAINER_NARROW } from "@/components/layout/container";
+import { translator, type MessageKey } from "@/i18n/messages";
+import { useT } from "@/i18n/useT";
 import {
   QUIZ_ANSWERS,
   QUIZ_QUESTIONS,
   type QuizAnswer,
   type QuizQuestion,
 } from "@/lib/analysis/undertone";
+import { useFlowStore } from "@/store/flow";
 import { SUMMARY_STEP, useQuizStore } from "@/store/quiz";
 
 const answerKey = (q: QuizQuestion, a: QuizAnswer) => `quiz.questions.${q}.${a}` as MessageKey;
@@ -24,8 +27,9 @@ const buttonClass =
   "focus-visible:outline-3 focus-visible:outline-offset-2 disabled:opacity-40";
 
 export function QuizFlow() {
-  const { answers, step, locale, answer, goTo, setLocale, reset } = useQuizStore();
-  const t = translator(locale);
+  const { answers, step, answer, goTo } = useQuizStore();
+  const startOver = useFlowStore((s) => s.startOver);
+  const t = useT();
   const headingRef = useRef<HTMLHeadingElement | HTMLLegendElement | null>(null);
   const firstRender = useRef(true);
 
@@ -39,24 +43,8 @@ export function QuizFlow() {
   }, [step]);
 
   return (
-    <main lang={locale} className="mx-auto w-full max-w-xl px-4 py-8 sm:py-12">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold sm:text-3xl">{t("quiz.title")}</h1>
-        <div role="group" aria-label={t("common.language")} className="flex gap-1">
-          {LOCALES.map((l) => (
-            <button
-              key={l}
-              type="button"
-              lang={l}
-              aria-pressed={locale === l}
-              onClick={() => setLocale(l)}
-              className="min-h-11 rounded-md px-3 text-sm font-medium underline-offset-4 focus-visible:outline-3 aria-pressed:underline"
-            >
-              {t(`common.languageNames.${l}` as MessageKey)}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className={`${CONTAINER_NARROW} py-8 sm:py-12`}>
+      <h1 className="mb-6 font-display text-3xl font-medium sm:text-4xl">{t("quiz.title")}</h1>
 
       {step < SUMMARY_STEP ? (
         <Question
@@ -101,14 +89,14 @@ export function QuizFlow() {
             })}
           </ol>
           <p className="mt-6">{t("quiz.summary.later")}</p>
-          <button type="button" onClick={reset} className={`${buttonClass} mt-6`}>
+          <button type="button" onClick={startOver} className={`${buttonClass} mt-6`}>
             {t("quiz.summary.restart")}
           </button>
         </section>
       )}
 
       <p className="mt-10 text-sm opacity-80">{t("quiz.privacy")}</p>
-    </main>
+    </div>
   );
 }
 

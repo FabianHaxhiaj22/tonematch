@@ -1,9 +1,9 @@
 /**
  * Quiz state (SPEC §4: Zustand for the analysis flow). In memory only: nothing is written to
- * storage or sent anywhere. Answers are reset when the tab closes or on "Start again".
+ * storage or sent anywhere. Answers are reset when the tab closes or on "Start again"
+ * (`startOver` in ./flow). The language lives in ./locale.
  */
 import { create } from "zustand";
-import { DEFAULT_LOCALE, type Locale } from "@/i18n/messages";
 import {
   QUIZ_QUESTIONS,
   type QuizAnswer,
@@ -17,19 +17,15 @@ export const SUMMARY_STEP = QUIZ_QUESTIONS.length;
 type QuizState = {
   answers: QuizAnswers;
   step: number;
-  locale: Locale;
   answer: (question: QuizQuestion, value: QuizAnswer) => void;
   goTo: (step: number) => void;
-  setLocale: (locale: Locale) => void;
   reset: () => void;
 };
 
 export const useQuizStore = create<QuizState>()((set) => ({
   answers: {},
   step: 0,
-  locale: DEFAULT_LOCALE,
   answer: (question, value) => set((s) => ({ answers: { ...s.answers, [question]: value } })),
   goTo: (step) => set({ step: Math.max(0, Math.min(SUMMARY_STEP, step)) }),
-  setLocale: (locale) => set({ locale }),
   reset: () => set({ answers: {}, step: 0 }),
 }));

@@ -49,7 +49,7 @@ Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 · 
 
 ## Project status
 
-Current release: **v0.2.0**. The analysis and recommendation core is built and tested; the user-facing results page comes next.
+Current release: **v0.2.0**. The analysis and recommendation core is built and tested, and the landing page with photo upload is built; the full flow to the results page comes next.
 
 - [x] Repository, tooling, CI and release automation
 - [x] Colour engine (sRGB → CIELAB, chroma, hue, ITA)
@@ -57,7 +57,8 @@ Current release: **v0.2.0**. The analysis and recommendation core is built and t
 - [x] Skin sampling, photo quality checks and white-balance maths
 - [x] Depth, undertone and confidence scoring, plus the undertone quiz (English and Albanian)
 - [x] Recommendation engine and data (metals, styles, gemstones)
-- [ ] Results page and shareable result card
+- [x] Visual design, site layout and landing page with photo upload (English and Albanian)
+- [ ] Full flow from photo to results page, and shareable result card
 - [ ] Live camera capture and white-paper calibration flow
 - [ ] Full English/Albanian interface, accessibility pass and privacy page
 - [ ] Public deployment and v1.0.0

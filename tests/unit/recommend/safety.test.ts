@@ -22,15 +22,23 @@ const start = (stem: string) => new RegExp(`(?<!\\p{L})${stem}`, "iu");
 const whole = (word: string) => new RegExp(`(?<!\\p{L})${word}(?!\\p{L})`, "iu");
 
 /** Words that must never appear (English and Albanian). Stems match word starts. */
-const BANNED: RegExp[] = [
-  // race / ethnicity / nationality
+const RACE: RegExp[] = [
   ...["race", "races", "racë", "raca", "racës", "racat", "racave"].map(whole),
   ...["racial", "racis", "racor", "racizëm", "ethnic", "etni", "nationalit", "kombësi"].map(start),
-  // makeup and cosmetics
+];
+const MAKEUP: RegExp[] = [
   ...["make-?up", "blush", "bronzer", "foundation", "concealer", "lipstick", "cosmetic"].map(start),
   ...["grim", "makijazh", "ruzh", "pudër", "pudr", "fondatin", "kozmetik", "buzëkuq"].map(start),
 ];
-const offending = (text: string) => BANNED.filter((re) => re.test(text)).map(String);
+const BANNED = [...RACE, ...MAKEUP];
+const offending = (text: string, banned: RegExp[] = BANNED) =>
+  banned.filter((re) => re.test(text)).map(String);
+
+/**
+ * The photo tips may advise against makeup on the cheeks before the photo (D-025, SPEC §3,
+ * D-034); they are never part of a recommendation. Race and ethnicity stay banned there too.
+ */
+const PHOTO_TIPS = "photo.tips.";
 
 /** Every message key a recommendation can lead the UI to show. */
 function shownKeys(r: Recommendation): string[] {
@@ -106,9 +114,15 @@ describe("recommendation output never mentions race, ethnicity or makeup", () =>
     for (const r of ALL_OUTPUTS) expect(offending(JSON.stringify(r))).toEqual([]);
   });
 
-  it("every message in both files", () => {
+  it("every message in both files (photo tips: race and ethnicity only)", () => {
     for (const [key, text] of [...Object.entries(EN), ...Object.entries(SQ)]) {
-      expect(offending(text), key).toEqual([]);
+      expect(offending(text, key.startsWith(PHOTO_TIPS) ? RACE : BANNED), key).toEqual([]);
+    }
+  });
+
+  it("no recommendation can lead to a photo tip", () => {
+    for (const r of ALL_OUTPUTS) {
+      for (const key of shownKeys(r)) expect(key.startsWith(PHOTO_TIPS), key).toBe(false);
     }
   });
 
