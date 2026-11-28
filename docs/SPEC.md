@@ -469,7 +469,17 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 | P2 | Face shape, try-on, AI explanation, multi-photo | Each as its own milestone |
 | P3 | Catalogue, affiliate, widget, gift mode, accounts | Each as its own milestone |
 
-**M6 is split into three PRs** (D-034): **M6a** design tokens, typography, layout shell, landing page with photo upload, `/analyze` photo step (preview → quiz); **M6b** the flow end to end (upload → quality checks with "analyse anyway" → quiz → results), with the photo **downscaled to a 1600 px long side and EXIF orientation applied before analysis** (D-035); **M6c** the in-browser share card.
+**M6 plan** (agreed by the owners 2026-11-28; first split in D-034). One PR per row, in this order; screenshots of the new screens go to the owners **before** each PR is opened. Release **0.3.0** after M6d.
+
+| PR | Branch | Scope |
+|---|---|---|
+| M6a ✅ | `feat/m6a-…` | Design tokens, typography, layout shell, landing page with photo upload, `/analyze` photo preview (D-034); theme switch (D-037). |
+| M6b-1 | `feat/m6b1-analysis` | On `/analyze`: prepare the image (**EXIF orientation applied, downscaled to a 1600 px long side**, D-035), detect landmarks in the worker, quality checks, skin sampling. **The photo is released after analysis**: only numbers remain, and going back to `/analyze` shows "Your photo was analysed and removed" + "Choose another photo". Quality report: blocking issues → "Choose another photo"; warnings → "Analyse anyway" (lowers confidence) or "Choose another photo". The worker and model load **only on `/analyze` after a photo is chosen** (e2e: `/`, `/quiz`, `/results` never request `/models/*`). Versioned model path with long immutable caching. Status messages ("one-time download of about 8 MB", "Finding your face", "Checking the photo"), plus a slow-connection note after `SLOW_LOAD_MS`. Motion (lazy-loaded features, `prefers-reduced-motion` respected): fades and gentle rise-ins only. Unit + e2e tests: EXIF-rotated, darkened and no-face fixtures; every request same-origin; photo gone after analysis. |
+| M6b-2 | `feat/m6b2-results` | Quiz restyled in Atelier with a step indicator. Results page from the mockup: profile, skin swatch (via `labToSrgb`), confidence, summary, metal tiers with reasons, styles in gold-bordered cards, finish advice, gemstones, notes, disclaimer. "Start with a photo" when there is no analysis. Full-flow e2e with real MediaPipe. |
+| M6c | `feat/m6c-share` | Share card (canvas, in the browser, no face, en/sq, Download + Share). Opt-in "Remember this result" (numbers only, at most 20, Zod-validated on read) with a `/my-results` page (open, delete one, delete all). |
+| M6d | `feat/m6d-pages` | `/about`, `/guide` (metals and undertones), `/faq`, `/contact` (mailto placeholder); header/footer navigation and a mobile menu. Unfinished copy is marked `⟦…⟧` and `pnpm content:check` lists it. No reviews or testimonials. |
+
+Standing decisions for M6: the contact address stays a placeholder until the owners choose one. New Albanian strings start as `needs-native-review` (D-028). Every commit and every squash merge carries the other author's `Co-authored-by:` trailer, with no AI trailers (§9.3).
 
 **M7 phone testing must cover HEIC** (D-035): how iOS Safari delivers photos from the Photos library vs the Files app (JPEG or HEIC), and Android/desktop drag and drop. Until then HEIC gets a friendly "choose a JPG or PNG" message.
 
