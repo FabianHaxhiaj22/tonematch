@@ -269,6 +269,67 @@
     "previewAlt": "The photo you chose",
     "stays": "It stays on this device.",
     "next": "Continue to the questions",
-    "another": "Choose another photo"
+    "another": "Choose another photo",
+    "status": {
+      "preparing": "Preparing your photo",
+      "loading-model": "Loading the analysis tool",
+      "finding-face": "Finding your face",
+      "checking": "Checking the photo",
+      "download": "A one-time download of about {size} MB. Your browser keeps it for next time.",
+      "slow": "This is taking a while. On a slow connection the first download can take a minute or two.",
+      "onDevice": "All of this happens on your device."
+    },
+    "report": {
+      "blockedTitle": "We couldn't use this photo",
+      "blocked": {
+        "NO_FACE": "We couldn't find a face. Choose a photo where your whole face is visible and you're looking at the camera.",
+        "MULTIPLE_FACES": "We found more than one face. Choose a photo with just you in it.",
+        "NOT_ENOUGH_SKIN": "We couldn't see enough of your cheeks and forehead. Move closer and keep your hair away from your face."
+      },
+      "reviewTitle": "Check your photo",
+      "reviewIntro": "What we noticed:",
+      "reviewChoice": "You can analyse it anyway, but your result will be less certain. A new photo usually gives a clearer answer.",
+      "anyway": "Analyse anyway",
+      "removedNote": "Your photo has been removed from this page. Only the results of the checks are kept.",
+      "issues": {
+        "FACE_TOO_SMALL": {
+          "title": "Your face is small in the photo",
+          "tip": "Move closer, so your face fills more of the frame."
+        },
+        "TOO_DARK": {
+          "title": "The photo is too dark",
+          "tip": "Face a window in daylight, or add more light."
+        },
+        "TOO_BRIGHT": {
+          "title": "The photo is too bright",
+          "tip": "Avoid direct sun and flash. Soft daylight works best."
+        },
+        "COLOR_CAST": {
+          "title": "The light is tinted",
+          "tip": "Lamps and coloured light shift skin colours. Daylight from a window works best."
+        },
+        "BLURRY": {
+          "title": "The photo looks blurry",
+          "tip": "Hold the camera steady and let it focus on your face."
+        },
+        "HEAD_TILTED": {
+          "title": "Your head is turned or tilted",
+          "tip": "Look straight at the camera, with your chin level."
+        }
+      }
+    },
+    "done": {
+      "title": "Your photo was analysed and removed",
+      "body": "Only a few colour numbers are kept, in this tab. They're gone when you start again or close the tab.",
+      "passed": "The photo passed every check.",
+      "accepted": "You chose to analyse it anyway, so your result will be less certain."
+    },
+    "failed": {
+      "loadTitle": "The analysis couldn't start",
+      "load": "The analysis tool didn't load. Check your connection and try again. Your photo is still only on this device.",
+      "retry": "Try again",
+      "decodeTitle": "We couldn't read this photo",
+      "decode": "Your browser couldn't open this file. Please choose another JPG, PNG or WebP photo."
+    }
   }
 }

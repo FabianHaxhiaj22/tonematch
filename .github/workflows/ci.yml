@@ -46,10 +46,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # MediaPipe model (downloaded) + wasm (copied from node_modules); checksums in models.lock.json.
+      # "v2": versioned folder layout public/models/<version>/ (M6b-1); bump when the layout changes.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: public/models
-          key: models-${{ hashFiles('scripts/models.lock.json') }}
+          key: models-v2-${{ hashFiles('scripts/models.lock.json') }}
 
       - name: Fetch and verify models
         run: pnpm models:fetch

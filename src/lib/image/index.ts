@@ -1,4 +1,4 @@
-/** Photo input checks (D-035): format sniffing and limits, before any decoding. */
+/** Photo input checks (D-035): format sniffing and limits, before any decoding; analysis size. */
 export * from "./config";
 export {
   checkPhotoFile,
@@ -10,3 +10,4 @@ export {
   type PhotoRejection,
   type SniffedFormat,
 } from "./fileType";
+export { fitLongSide, type FittedSize } from "./resize";

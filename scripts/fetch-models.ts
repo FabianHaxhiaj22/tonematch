@@ -2,10 +2,14 @@
  * models:fetch — fills public/models/ with the MediaPipe files the app self-hosts (SPEC §4, §17).
  *
  * 1. Copies the WASM runtime from the installed, pinned @mediapipe/tasks-vision package
- *    (node_modules/@mediapipe/tasks-vision/wasm) into public/models/wasm/.
- * 2. Downloads ONLY face_landmarker.task from a pinned, versioned URL into public/models/.
+ *    (node_modules/@mediapipe/tasks-vision/wasm) into public/models/<version>/wasm/.
+ * 2. Downloads ONLY face_landmarker.task from a pinned, versioned URL into
+ *    public/models/<version>/.
  * 3. Verifies SHA-256 checksums against scripts/models.lock.json.
+ * 4. Removes everything else in public/models/ (older versions, the unversioned pre-M6b layout).
  *
+ * <version> comes from the lock (src/lib/models/paths.ts), e.g. 1.2.3-64184e22, so the URLs
+ * change whenever a file changes and /models/* can be cached as immutable (next.config.ts).
  * Skips work when files already match. public/models/ is gitignored.
  *
  * Usage:
@@ -22,11 +26,13 @@ import {
   readFileSync,
   readdirSync,
   renameSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { modelsVersion } from "../src/lib/models/paths";
 
 type Lock = {
   tasksVisionVersion: string;
@@ -36,9 +42,11 @@ type Lock = {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LOCK_PATH = join(ROOT, "scripts", "models.lock.json");
-const OUT_DIR = join(ROOT, "public", "models");
-const WASM_OUT_DIR = join(OUT_DIR, "wasm");
+const MODELS_ROOT = join(ROOT, "public", "models");
 const DOWNLOAD_TIMEOUT_MS = 120_000;
+
+/** public/models/<version>/ for the lock as it is now. */
+const outDir = (lock: Lock) => join(MODELS_ROOT, modelsVersion(lock));
 
 const update = process.argv.includes("--update");
 
@@ -82,7 +90,8 @@ function syncWasm(lock: Lock): void {
   }
   const srcDir = join(dir, "wasm");
   const files = readdirSync(srcDir).filter((f) => f.endsWith(".js") || f.endsWith(".wasm"));
-  mkdirSync(WASM_OUT_DIR, { recursive: true });
+  const wasmOutDir = join(outDir(lock), "wasm");
+  mkdirSync(wasmOutDir, { recursive: true });
 
   const recorded: Record<string, string> = {};
   for (const file of files) {
@@ -91,7 +100,7 @@ function syncWasm(lock: Lock): void {
     if (!update && lock.wasm[file] !== srcHash) {
       fail(`checksum mismatch for wasm/${file} (installed package differs from models.lock.json)`);
     }
-    const dest = join(WASM_OUT_DIR, file);
+    const dest = join(wasmOutDir, file);
     if (fileSha256(dest) !== srcHash) copyFileSync(join(srcDir, file), dest);
     recorded[file] = srcHash;
   }
@@ -105,8 +114,7 @@ function syncWasm(lock: Lock): void {
 }
 
 async function syncModel(lock: Lock): Promise<void> {
-  const dest = join(OUT_DIR, lock.model.file);
-  if (!update && fileSha256(dest) === lock.model.sha256) {
+  if (!update && fileSha256(join(outDir(lock), lock.model.file)) === lock.model.sha256) {
     console.log(`models:fetch ✓ ${lock.model.file} (already present)`);
     return;
   }
@@ -129,17 +137,31 @@ async function syncModel(lock: Lock): Promise<void> {
     fail(`checksum mismatch for ${lock.model.file}: got ${hash}, expected ${lock.model.sha256}`);
   }
 
-  mkdirSync(OUT_DIR, { recursive: true });
+  // The folder name includes the model hash, so it's only known now (after --update).
+  const dest = join(outDir(lock), lock.model.file);
+  mkdirSync(outDir(lock), { recursive: true });
   const tmp = `${dest}.download`;
   writeFileSync(tmp, buf);
   renameSync(tmp, dest);
   console.log(`models:fetch ✓ ${lock.model.file} (${buf.length} bytes, downloaded)`);
 }
 
+/** Delete everything in public/models/ except the current version folder. */
+function removeStale(lock: Lock): void {
+  const keep = modelsVersion(lock);
+  const stale = readdirSync(MODELS_ROOT).filter((name) => name !== keep);
+  for (const name of stale) rmSync(join(MODELS_ROOT, name), { recursive: true, force: true });
+  if (stale.length) console.log(`models:fetch ✓ removed stale ${stale.join(", ")}`);
+}
+
 async function main(): Promise<void> {
   const lock = readLock();
-  syncWasm(lock);
+  // The version folder depends on the package version and the model hash, so after a deliberate
+  // upgrade (--update) record the package version first and fetch the model before the WASM.
+  if (update) lock.tasksVisionVersion = tasksVisionDir().version;
   await syncModel(lock);
+  syncWasm(lock);
+  removeStale(lock);
   if (update) {
     writeFileSync(LOCK_PATH, `${JSON.stringify(lock, null, 2)}\n`);
     console.log("models:fetch ✓ models.lock.json updated. Review and commit it.");

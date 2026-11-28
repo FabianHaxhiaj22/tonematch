@@ -135,8 +135,8 @@ Design responses to these:
                                         Claude API
 ```
 
-- MediaPipe runs in a **Web Worker** so the UI thread doesn't freeze.
-- The `ImageBitmap`/canvas is discarded after analysis. Nothing goes to `localStorage` except optional numeric results if the user clicks "remember my result", and the colour-theme preference once the user picks Light or Dark (D-037).
+- MediaPipe runs in a **Web Worker** so the UI thread doesn't freeze. Since M6b-1 the worker does all pixel work (decode with EXIF orientation, downscale to a 1600 px long side, landmarks, quality gate, skin sampling) and returns numbers only; the page never reads the photo's pixels (D-038).
+- The photo (File, object URL, bitmap, pixels) is released as soon as the analysis finishes; only the numeric result stays, in memory. Nothing goes to `localStorage` except optional numeric results if the user clicks "remember my result", and the colour-theme preference once the user picks Light or Dark (D-037).
 
 ---
 
@@ -293,25 +293,26 @@ type Recommendation = {
 │   ├── PRIVACY.md             # data flow + privacy notice source text
 │   ├── ONBOARDING.md          # setup guide for a new developer (start here)
 │   └── REPO_SETUP.md          # GitHub settings: protection, secrets, Dependabot, release-please, collaborators
-├── public/models/             # self-hosted MediaPipe wasm + face_landmarker.task (gitignored; filled by models:fetch)
+├── public/models/<version>/   # self-hosted MediaPipe wasm + face_landmarker.task (gitignored; filled by models:fetch; D-038)
 ├── scripts/                   # fetch-models.ts (+ models.lock.json checksums), validate-data.ts, render-apple-icon.ts
 ├── src/
 │   ├── app/[locale]/          # pages: /, /analyze, /quiz, /results, /privacy, /about
 │   ├── app/api/explain/route.ts   # Phase 2
-│   ├── components/            # UI: layout/ (header, footer, language switch), brand/ (logo, metal gradients); shadcn in components/ui when needed
+│   ├── components/            # UI: layout/ (header, footer, language switch), brand/ (logo, metal gradients), motion/ (LazyMotion root, Reveal), ui/ (button styles; shadcn here when needed)
 │   ├── app/dev/               # dev-only routes (`page.dev.tsx`): exist under `next dev` only, never in production builds
 │   ├── features/landing/      # landing page sections
 │   ├── features/photo/        # PhotoPicker (upload + drop) and photo tips, shared by landing and /analyze
-│   ├── features/analyze/      # photo step, camera, calibration, quality UI; landmarkerClient.ts (worker wrapper)
+│   ├── features/analyze/      # photo step, status, quality report, runAnalysis.ts (outside React); landmarkerClient.ts (worker wrapper); camera + calibration (M7)
 │   ├── features/results/      # results, share card, try-on (Phase 2)
 │   ├── lib/color/             # colour math (pure)
-│   ├── lib/analysis/          # quality, sampler, depth, undertone, fusion, config
+│   ├── lib/analysis/          # quality, sampler, depth, undertone, fusion, pipeline (worker entry), config
 │   ├── lib/recommend/         # rules engine (pure)
-│   ├── lib/image/             # photo file checks: format sniffing (JPEG/PNG/WebP, HEIC detection), size limit (pure, D-035)
+│   ├── lib/image/             # photo file checks: format sniffing (JPEG/PNG/WebP, HEIC detection), size limit, analysis size (pure, D-035)
+│   ├── lib/models/            # versioned URLs of the self-hosted MediaPipe files, cache lifetime (D-038)
 │   ├── workers/landmarker.worker.ts   # + landmarker.protocol.ts (message types)
 │   ├── data/                  # metals/styles/gemstones/copy JSON
 │   ├── i18n/                  # next-intl config + messages/en.json, messages/sq.json
-│   ├── store/                 # zustand stores: flow (photo, in memory), quiz, locale
+│   ├── store/                 # zustand stores: flow (photo, in memory), analysis (numbers only), quiz, locale
 │   └── proxy.ts               # next-intl locale routing (Next.js 16 name for middleware.ts)
 ├── tests/
 │   ├── unit/
@@ -533,7 +534,7 @@ NEXT_PUBLIC_ANALYTICS_PROVIDER=none  # none | vercel | plausible
 | `test` / `test:watch` / `test:coverage` | Vitest |
 | `e2e` | Playwright |
 | `validate:data` | Zod-validate `src/data/*.json` |
-| `models:fetch` | Copy the MediaPipe WASM files from the pinned `@mediapipe/tasks-vision` package in `node_modules` into `public/models`, download only `face_landmarker.task` from a pinned (versioned) URL, and verify SHA-256 checksums. Skips work when the files already match. `public/models/` is gitignored. |
+| `models:fetch` | Copy the MediaPipe WASM files from the pinned `@mediapipe/tasks-vision` package in `node_modules` into `public/models/<version>/`, download only `face_landmarker.task` from a pinned (versioned) URL, and verify SHA-256 checksums. `<version>` is the package version plus the model hash (D-038), so `/models/*` can be cached as immutable; older folders are removed. Skips work when the files already match. `public/models/` is gitignored. |
 
 ---
 

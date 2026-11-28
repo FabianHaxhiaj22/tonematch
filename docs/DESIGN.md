@@ -67,11 +67,24 @@ Defined as `--tm-*` custom properties (light by default, dark under `prefers-col
 ## Components
 
 - **Primary button:** `ink` fill, `on-ink` label, square corners, 14 px uppercase with 0.14 em tracking, at least 48 px tall.
+- **Outline button:** same shape as the primary, `ink` 1 px border and `ink` label on the page background. For the second of two real choices ("Analyse anyway" next to "Choose another photo").
 - **Secondary action:** an underlined `accent` text link-button, at least 44 px tall.
+- Class strings for all three live in `src/components/ui/buttons.ts` (`BUTTON_PRIMARY`, `BUTTON_OUTLINE`, `BUTTON_TEXT`), so they work on `<button>`, `<Link>` and `<label>`.
+- **Quality report** (`/analyze`): each warning is a `surface` row with a `line` border, a small `accent` diamond icon, the title in body weight 500 and the tip in `muted`. Blocking reasons and failures sit under an `accent` left rule, like upload errors. Privacy notes ("removed from this page") use the lock icon in `muted` small print.
+- **Analysis status:** a 1 px `line` track with an `accent` sweep (decorative, `aria-hidden`), the stage in the display font at 28 px with an ellipsis, notes in `muted` below; the slow-connection note gets the `accent` left rule. All text is in one `role="status"` region.
 - **Upload panel:** `surface` with a `line` border and an inner dashed hairline; turns `accent` while a file is dragged over it. Errors appear under it with an `accent` left rule and are announced (`role="alert"`).
 - **Gold card** (`gold-card` utility): `surface` on the padding box, a fine `gold-a → gold-b` gradient on the 1 px border, 16 px radius. Used for the style categories on the results page (one card per category: rings, earrings, necklaces, bracelets).
 - **Language switch:** a pill with EN / SQ; the active language is `ink`-filled. Each button's accessible name is "EN English" / "SQ Shqip" (visible code + full name, WCAG 2.5.3).
 - **Focus:** one global style, `2px solid var(--tm-focus)`, offset 3 px.
+
+## Motion
+
+Fades and gentle rise-ins only (D-038): content fades in while rising 8 px, over 0.45 s with an ease-out curve (`cubic-bezier(0.22, 1, 0.36, 1)`); items shown together (the warnings) stagger by 70 ms. Tokens in `src/components/motion/config.ts`.
+
+- Built on Motion with `LazyMotion` (features load as a separate chunk) inside `<MotionRoot>`; use `<Reveal>` rather than raw `m` components.
+- **Reduced motion:** with `prefers-reduced-motion: reduce` nothing animates, not even the fade. CSS animations use `motion-safe:`, and the global rule in `globals.css` shortens any that slip through.
+- **First paint is never invisible:** server-rendered content shows at once; only views that appear later animate (`appear={false}` on the first view).
+- No parallax, scaling, bouncing or looping motion except the progress sweep while analysing.
 
 ## Imagery
 
