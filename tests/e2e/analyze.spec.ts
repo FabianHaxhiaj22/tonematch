@@ -66,7 +66,7 @@ test.describe("loading the model", () => {
     page.on("request", (r) => {
       if (isModelRequest(r)) modelRequests.push(new URL(r.url()).pathname);
     });
-    // /results arrives in M6b-2; until then it's a 404, which must not load the model either.
+    // /results (M6b-2) shows "No results yet" without an analysis; it must not load the model either.
     for (const path of ["/", "/quiz", "/results", "/analyze"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");

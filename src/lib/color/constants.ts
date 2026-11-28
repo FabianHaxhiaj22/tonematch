@@ -50,3 +50,10 @@ export const CIE_KAPPA = 24389 / 27;
 export const WCAG_LUMINANCE_WEIGHTS = { r: 0.2126, g: 0.7152, b: 0.0722 } as const;
 /** WCAG contrast-ratio flare term: (L1 + 0.05) / (L2 + 0.05). */
 export const WCAG_CONTRAST_FLARE = 0.05;
+
+/**
+ * Slack (in 0–255 channel units) when deciding whether a converted colour lies inside the sRGB
+ * cube. Converting back from CIELAB carries floating-point error around 1e-12, so a colour that
+ * started in sRGB must not be reported as out of gamut because of it. Far below one 8-bit step.
+ */
+export const SRGB_GAMUT_TOLERANCE = 1e-6;

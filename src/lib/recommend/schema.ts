@@ -106,6 +106,12 @@ export const MetalSchema = z.strictObject({
   nameKey: MessageKeySchema,
   /** One colour, or 2–3 stops for a blended swatch (mixed metals). */
   swatch: z.array(Hex).min(1).max(3),
+  /**
+   * The metal's own short reason when the result is balanced (neutral or uncertain), where every
+   * warm and cool metal ranks alike (D-039). Required for warm and cool metals; mixed metals use
+   * the "mixed" reasons.
+   */
+  balancedReasonKey: MessageKeySchema.optional(),
   affinity: AffinitySchema,
   /** Display order within a tier when the result is balanced (no family ranked first). */
   order: z.int().positive(),
@@ -118,6 +124,15 @@ export const MetalsFileSchema = z
     const metals = file.metals;
     checkUnique(ctx, metals, (m) => m.id, "id", ["metals"]);
     checkUnique(ctx, metals, (m) => m.order, "order", ["metals"]);
+    metals.forEach((m, i) => {
+      if (m.family !== "mixed" && !m.balancedReasonKey) {
+        ctx.addIssue({
+          code: "custom",
+          message: `${m.family} metal "${m.id}" needs a balancedReasonKey`,
+          path: ["metals", i, "balancedReasonKey"],
+        });
+      }
+    });
     for (const family of ["warm", "cool"] as const) {
       if (!metals.some((m) => m.family === family)) {
         ctx.addIssue({

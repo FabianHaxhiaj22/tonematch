@@ -7,6 +7,14 @@
     },
     "brand": "ToneMatch"
   },
+  "flow": {
+    "steps": {
+      "label": "Hapat",
+      "photo": "Fotoja",
+      "questions": "Pyetjet",
+      "result": "Rezultati"
+    }
+  },
   "quiz": {
     "title": "Disa pyetje të shpejta",
     "intro": "Vetëm 4 pyetje. Nëse nuk e di përgjigjen, zgjidh „Nuk e di” dhe ajo pyetje nuk do të llogaritet.",
@@ -51,8 +59,11 @@
       "changeQuestion": "Ndrysho përgjigjen e pyetjes {number}",
       "skipped": "E anashkaluar",
       "later": "Këto përgjigje do të përdoren bashkë me foton tënde për rezultatin.",
-      "restart": "Fillo nga e para"
-    }
+      "restart": "Fillo nga e para",
+      "seeResults": "Shiko rezultatet",
+      "needPhoto": "Për rezultatet duhet edhe një foto. Përgjigjet e tua ruhen."
+    },
+    "eyebrow": "Hapi 2 · Pyetjet"
   },
   "undertone": {
     "cool": "I ftohtë",
@@ -169,7 +180,67 @@
         "best": "Të dyja familjet e metaleve mund të të rrinë mirë, dhe ky është një nga më të lehtët për t'u mbajtur.",
         "good": "Mund të të rrijë mirë; një zgjedhje më e butë se të parat.",
         "care": "Përputhet më pak. Provoje si një detaj të vogël."
+      },
+      "balancedMetal": {
+        "yellow-gold": "Metali klasik i ngrohtë, me një ngjyrë të artë të thellë.",
+        "silver": "I ftohtë dhe i ndritshëm, i lehtë për t'u mbajtur çdo ditë.",
+        "rose-gold": "Një ngrohtësi e butë rozë që i rri bukur lëkurës.",
+        "white-gold": "Një e bardhë e pastër dhe e ndritshme, me pamje të lëmuar.",
+        "platinum": "Një metal natyrshëm i bardhë, me shkëlqim të qetë.",
+        "copper-brass": "Tokësore dhe të ngrohta; të bukura si detaje të vogla."
       }
+    }
+  },
+  "results": {
+    "eyebrow": "Hapi 3 · Rezultati yt",
+    "uncertainTitle": "Të dyja mund të të rrinë mirë",
+    "reading": "Nëntoni sipas analizës: {undertone}",
+    "skin": {
+      "label": "Lëkura jote, siç duket në foto",
+      "approx": "Ngjyrat në ekran janë të përafërta."
+    },
+    "mst": {
+      "start": "MST 1",
+      "credit": "Shkalla: Monk, Ellis. “Monk Skin Tone Scale,” 2019.",
+      "source": "skintone.google",
+      "licence": "Licenca:",
+      "licenceName": "CC BY 4.0"
+    },
+    "confidence": {
+      "label": "Besueshmëria",
+      "value": "{value}%",
+      "hint": "Sa të sigurt jemi, bazuar në foton dhe përgjigjet e tua."
+    },
+    "metals": {
+      "title": "Metalet për ty"
+    },
+    "styles": {
+      "title": "Stile për t'i provuar",
+      "finish": "Lloji i sipërfaqes",
+      "categories": {
+        "rings": "Unaza",
+        "earrings": "Vathë",
+        "necklaces": "Gjerdanë",
+        "bracelets": "Byzylykë"
+      }
+    },
+    "gemstones": {
+      "title": "Gurë të çmuar",
+      "eyebrow": {
+        "warm": "Gurë që plotësojnë ngrohtësinë tënde",
+        "cool": "Gurë që plotësojnë nuancat e tua të ftohta",
+        "balanced": "Gurë për një paletë të ekuilibruar"
+      }
+    },
+    "notes": {
+      "title": "Mirë ta dish",
+      "disagreeWhy": "Fotoja dhe përgjigjet e tua nuk përputhen plotësisht, ndaj rezultati është më pak i sigurt."
+    },
+    "startAgain": "Fillo nga e para",
+    "empty": {
+      "title": "Ende nuk ka rezultate",
+      "body": "Rezultatet bashkojnë një analizë të shpejtë të fotos me katër pyetje. Fotoja analizohet në këtë pajisje dhe nuk ngarkohet askund.",
+      "action": "Fillo me një foto"
     }
   },
   "layout": {
@@ -184,7 +255,7 @@
       "sq": "SQ"
     },
     "footer": {
-      "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore.",
+      "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore. Drita dhe kamerat ndikojnë në rezultat.",
       "copyright": "© ToneMatch"
     },
     "theme": {

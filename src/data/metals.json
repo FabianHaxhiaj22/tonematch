@@ -1,52 +1,82 @@
 {
-  "_about": "Metals (SPEC §7.1–7.2, D-030). Affinity 0–1 per undertone column; tiers come from the cut-points and guard rules in src/lib/recommend/config.ts. Styling conventions, not science. Names are in src/i18n/messages under nameKey. `order` interleaves warm and cool so a balanced result doesn't list one family first.",
+  "_about": "Metals (SPEC §7.1–7.2, D-030). Affinity 0–1 per undertone column; tiers come from the cut-points and guard rules in src/lib/recommend/config.ts. Styling conventions, not science. Names are in src/i18n/messages under nameKey; balancedReasonKey is each warm/cool metal's own reason when the result is balanced (D-039). `order` interleaves warm and cool so a balanced result doesn't list one family first.",
   "metals": [
     {
       "id": "yellow-gold",
       "family": "warm",
       "nameKey": "metals.yellow-gold",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.yellow-gold",
       "swatch": ["#d4af37"],
-      "affinity": { "cool": 0.35, "neutral": 0.85, "warm": 1 },
+      "affinity": {
+        "cool": 0.35,
+        "neutral": 0.85,
+        "warm": 1
+      },
       "order": 1
     },
     {
       "id": "silver",
       "family": "cool",
       "nameKey": "metals.silver",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.silver",
       "swatch": ["#c0c0c0"],
-      "affinity": { "cool": 1, "neutral": 0.85, "warm": 0.35 },
+      "affinity": {
+        "cool": 1,
+        "neutral": 0.85,
+        "warm": 0.35
+      },
       "order": 2
     },
     {
       "id": "rose-gold",
       "family": "warm",
       "nameKey": "metals.rose-gold",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.rose-gold",
       "swatch": ["#b76e79"],
-      "affinity": { "cool": 0.6, "neutral": 0.85, "warm": 0.95 },
+      "affinity": {
+        "cool": 0.6,
+        "neutral": 0.85,
+        "warm": 0.95
+      },
       "order": 3
     },
     {
       "id": "white-gold",
       "family": "cool",
       "nameKey": "metals.white-gold",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.white-gold",
       "swatch": ["#d9d9d6"],
-      "affinity": { "cool": 0.95, "neutral": 0.85, "warm": 0.35 },
+      "affinity": {
+        "cool": 0.95,
+        "neutral": 0.85,
+        "warm": 0.35
+      },
       "order": 4
     },
     {
       "id": "copper-brass",
       "family": "warm",
       "nameKey": "metals.copper-brass",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.copper-brass",
       "swatch": ["#b87333"],
-      "affinity": { "cool": 0.25, "neutral": 0.6, "warm": 0.75 },
+      "affinity": {
+        "cool": 0.25,
+        "neutral": 0.6,
+        "warm": 0.75
+      },
       "order": 5
     },
     {
       "id": "platinum",
       "family": "cool",
       "nameKey": "metals.platinum",
+      "balancedReasonKey": "recommend.reasons.balancedMetal.platinum",
       "swatch": ["#e5e4e2"],
-      "affinity": { "cool": 0.95, "neutral": 0.85, "warm": 0.35 },
+      "affinity": {
+        "cool": 0.95,
+        "neutral": 0.85,
+        "warm": 0.35
+      },
       "order": 6
     },
     {
@@ -54,7 +84,11 @@
       "family": "mixed",
       "nameKey": "metals.mixed-metals",
       "swatch": ["#d4af37", "#c0c0c0"],
-      "affinity": { "cool": 0.7, "neutral": 1, "warm": 0.7 },
+      "affinity": {
+        "cool": 0.7,
+        "neutral": 1,
+        "warm": 0.7
+      },
       "order": 7
     }
   ]

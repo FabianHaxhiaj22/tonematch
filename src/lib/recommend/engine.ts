@@ -10,7 +10,9 @@
  *    come from TIER_BEST_MIN / TIER_GOOD_MIN.
  * 3. Guard rules, which the data can't override:
  *    - the favoured family (warm or cool) always has a "best" metal; when balanced, both do;
- *    - in neutral-warm / neutral-cool, every metal of the other family is at least "good".
+ *    - in neutral-warm / neutral-cool, every metal of the other family is at least "good";
+ *    - when a note says both families may work (photoQuizDisagree), no metal is "care", so the
+ *      tiers never contradict the note (D-039).
  * 4. **Depth** only picks finish/contrast advice and depth-filtered style items. It never
  *    changes metal tiers or gemstones (tested for every undertone × depth).
  */
@@ -75,6 +77,12 @@ export type Recommendation = {
   notes: RecommendationNote[];
 };
 
+/**
+ * M4 notes that tell the user both metal families may work. With one of them, no metal is shown
+ * as "use with care": the tiers must not contradict the note (D-039).
+ */
+export const BOTH_FAMILIES_NOTES: readonly ConfidenceNote[] = ["photoQuizDisagree"];
+
 /** Build the engine input from M4's ScoreResult. */
 export function fromScoreResult(r: ScoreResult): RecommendInput {
   return {
@@ -137,6 +145,7 @@ export function rankMetals(
   metals: readonly Metal[],
   effective: UndertoneLabel,
   reasons: RecommendData["explanations"]["metalReasons"],
+  { noCare = false }: { noCare?: boolean } = {},
 ): MetalRecommendation[] {
   const dir = direction(effective);
   const scored = metals.map((m) => {
@@ -160,6 +169,10 @@ export function rankMetals(
       if (s.m.family !== "mixed" && s.m.family !== dir && s.tier === "care") s.tier = "good";
     }
   }
+  // Guard: a note says both families may work, so nothing is "use with care".
+  if (noCare) {
+    for (const s of scored) if (s.tier === "care") s.tier = "good";
+  }
 
   // Balanced: within a tier, data order only (interleaved families), so neither family leads.
   // Directional: higher score first, then data order.
@@ -169,11 +182,19 @@ export function rankMetals(
       (dir === null ? 0 : b.score - a.score) ||
       a.m.order - b.m.order,
   );
-  return scored.map(({ m, tier }) => ({
-    id: m.id,
-    tier,
-    reasonKey: reasons[relationOf(m, dir)][tier],
-  }));
+  // Balanced (neutral or uncertain): every metal ranks alike, so each gets its own short reason
+  // (balancedReasonKey) instead of one sentence repeated down the list.
+  return scored.map(({ m, tier }) => {
+    const relation = relationOf(m, dir);
+    return {
+      id: m.id,
+      tier,
+      reasonKey:
+        relation === "balanced" && m.balancedReasonKey
+          ? m.balancedReasonKey
+          : reasons[relation][tier],
+    };
+  });
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────────────────
@@ -250,7 +271,9 @@ export function recommend(input: RecommendInput, data: RecommendData): Recommend
     confidence: input.confidence,
     summaryKey: data.explanations.summaries[uncertain ? "uncertain" : effective],
     finishKey: data.styles.finishes[input.depth],
-    metals: rankMetals(data.metals, effective, data.explanations.metalReasons),
+    metals: rankMetals(data.metals, effective, data.explanations.metalReasons, {
+      noCare: input.notes.some((n) => BOTH_FAMILIES_NOTES.includes(n)),
+    }),
     styles: selectStyles(data.styles.categories, effective, input.depth),
     gemstones: selectGemstones(data.gemstones, effective),
     notes,

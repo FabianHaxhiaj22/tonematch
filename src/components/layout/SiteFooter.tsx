@@ -4,7 +4,8 @@ import { useT } from "@/i18n/useT";
 import { CONTAINER } from "./container";
 
 /**
- * Footer: the "guidance, not a measurement" note (SPEC §1, §12) and the copyright line. Links to
+ * Footer: the "guidance, not a measurement" note, which is also the results disclaimer
+ * ("Lighting and cameras affect results", SPEC §1, §12, D-039), and the copyright line. Links to
  * the Privacy and About pages are added in M8, when those pages exist (D-034).
  */
 export function SiteFooter() {

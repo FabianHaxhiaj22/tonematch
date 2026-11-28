@@ -10,17 +10,19 @@ import { REVEAL_DURATION_S, REVEAL_EASE, REVEAL_RISE_PX, REVEAL_STAGGER_S } from
  * - `appear={false}` renders the final state straight away: use it for the first paint (server
  *   HTML must never start invisible) and animate only what appears later.
  * - With `prefers-reduced-motion: reduce` nothing animates, not even the fade.
- * - `index` staggers items revealed together.
+ * - `index` staggers items revealed together (`stagger` seconds apart; list items by default).
  */
 export function Reveal({
   children,
   appear = true,
   index = 0,
+  stagger = REVEAL_STAGGER_S,
   className,
 }: {
   children: ReactNode;
   appear?: boolean;
   index?: number;
+  stagger?: number;
   className?: string;
 }) {
   const reduced = useReducedMotion();
@@ -33,7 +35,7 @@ export function Reveal({
       transition={{
         duration: REVEAL_DURATION_S,
         ease: REVEAL_EASE,
-        delay: index * REVEAL_STAGGER_S,
+        delay: index * stagger,
       }}
     >
       {children}

@@ -90,8 +90,13 @@ describe("every undertone × depth (normal confidence)", () => {
         // Tiers are listed best → good → care.
         const ranks = r.metals.map((m) => ["best", "good", "care"].indexOf(m.tier));
         expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
-        // Each metal's reason comes from the templates for its tier.
-        for (const m of r.metals) expect(m.reasonKey).toMatch(new RegExp(`\\.${m.tier}$`));
+        // Each metal's reason comes from the templates for its tier, except in a balanced
+        // result, where warm and cool metals have their own reason (D-039).
+        for (const m of r.metals) {
+          const own = DATA.metals.find((d) => d.id === m.id)!.balancedReasonKey;
+          if (undertone === "neutral" && own) expect(m.reasonKey).toBe(own);
+          else expect(m.reasonKey).toMatch(new RegExp(`\\.${m.tier}$`));
+        }
       });
     }
   }
@@ -188,7 +193,7 @@ describe("neutral (confident)", () => {
     expect(r.notes).toEqual(["bothCanWork"]);
     expect(r.summaryKey).toBe("recommend.summary.neutral");
     expect(r.metals.find((m) => m.id === "silver")!.reasonKey).toBe(
-      "recommend.reasons.balanced.best",
+      "recommend.reasons.balancedMetal.silver",
     );
     expect(r.metals.find((m) => m.id === "mixed-metals")!.reasonKey).toBe(
       "recommend.reasons.mixed.best",
@@ -359,5 +364,66 @@ describe("helpers", () => {
       confidence: 0.62,
       notes: ["noQuizAnswers"],
     });
+  });
+});
+
+describe("balanced reasons (D-039)", () => {
+  it("each warm and cool metal has its own reason; no reason repeats", () => {
+    for (const r of [
+      recommend(input("neutral", "medium"), DATA),
+      recommend(input("warm", "medium", UNCERTAIN), DATA),
+    ]) {
+      const keys = r.metals.map((m) => m.reasonKey);
+      expect(new Set(keys).size).toBe(keys.length);
+      expect(r.metals.find((m) => m.id === "mixed-metals")!.reasonKey).toMatch(/\.mixed\./);
+    }
+  });
+
+  it("falls back to the tier template when a metal has no reason of its own", () => {
+    const data = cloneData();
+    delete data.metals.find((m) => m.id === "silver")!.balancedReasonKey;
+    const r = recommend(input("neutral", "medium"), data);
+    expect(r.metals.find((m) => m.id === "silver")!.reasonKey).toBe(
+      "recommend.reasons.balanced.best",
+    );
+  });
+
+  it("directional results keep the relation templates", () => {
+    const r = recommend(input("warm", "medium"), DATA);
+    for (const m of r.metals) expect(m.reasonKey).not.toMatch(/balancedMetal/);
+  });
+});
+
+describe("the 'both families may work' note never meets a 'care' tier (D-039)", () => {
+  const CONFIDENCES = [0.5, 0.6, 0.8, 1];
+
+  it.each(UNDERTONES)("%s with photoQuizDisagree: every metal is at least 'good'", (undertone) => {
+    for (const depth of DEPTHS) {
+      for (const confidence of CONFIDENCES) {
+        const r = recommend(input(undertone, depth, confidence, ["photoQuizDisagree"]), DATA);
+        expect(r.notes).toContain("photoQuizDisagree");
+        for (const m of r.metals) expect(m.tier, `${undertone} ${m.id}`).not.toBe("care");
+      }
+    }
+  });
+
+  it("lifted metals use the 'good' reason of their relation", () => {
+    const r = recommend(input("warm", "medium", CONFIDENT, ["photoQuizDisagree"]), DATA);
+    expect(r.metals.find((m) => m.id === "silver")).toMatchObject({
+      tier: "good",
+      reasonKey: "recommend.reasons.other.good",
+    });
+  });
+
+  it("holds even with hostile data", () => {
+    const data = cloneData();
+    for (const m of data.metals) m.affinity = { cool: 0, neutral: 0, warm: 0 };
+    const r = recommend(input("cool", "deep", CONFIDENT, ["photoQuizDisagree"]), data);
+    for (const m of r.metals) expect(m.tier).not.toBe("care");
+  });
+
+  it("without the note, a confident warm result still has 'care' metals", () => {
+    const r = recommend(input("warm", "medium"), DATA);
+    expect(r.metals.some((m) => m.tier === "care")).toBe(true);
   });
 });

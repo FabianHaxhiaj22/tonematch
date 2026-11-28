@@ -7,6 +7,14 @@
     },
     "brand": "ToneMatch"
   },
+  "flow": {
+    "steps": {
+      "label": "Steps",
+      "photo": "Photo",
+      "questions": "Questions",
+      "result": "Result"
+    }
+  },
   "quiz": {
     "title": "A few quick questions",
     "intro": "Four taps. If a question doesn't fit you, choose “Not sure”: it's skipped, not counted.",
@@ -51,8 +59,11 @@
       "changeQuestion": "Change answer to question {number}",
       "skipped": "Skipped",
       "later": "Your results will use these answers together with your photo.",
-      "restart": "Start again"
-    }
+      "restart": "Start again",
+      "seeResults": "See my results",
+      "needPhoto": "Your results also need a photo. Your answers are kept."
+    },
+    "eyebrow": "Step 2 · Questions"
   },
   "undertone": {
     "cool": "Cool",
@@ -169,7 +180,67 @@
         "best": "Both metal families can work for you, and this is one of the easiest to wear.",
         "good": "Can work for you; a softer choice than the top picks.",
         "care": "A less usual match. Try it as an accent."
+      },
+      "balancedMetal": {
+        "yellow-gold": "The classic warm metal: rich and golden.",
+        "silver": "Cool and bright, and easy to wear every day.",
+        "rose-gold": "A soft, pinkish warmth that sits gently on the skin.",
+        "white-gold": "A crisp, bright white with a polished look.",
+        "platinum": "A naturally white metal with a quiet sheen.",
+        "copper-brass": "Earthy and warm; lovely as an accent."
       }
+    }
+  },
+  "results": {
+    "eyebrow": "Step 3 · Your result",
+    "uncertainTitle": "Both can work",
+    "reading": "Undertone reading: {undertone}",
+    "skin": {
+      "label": "Your skin, as sampled",
+      "approx": "Colours on screen are approximate."
+    },
+    "mst": {
+      "start": "MST 1",
+      "credit": "Scale: Monk, Ellis. “Monk Skin Tone Scale,” 2019.",
+      "source": "skintone.google",
+      "licence": "Licence:",
+      "licenceName": "CC BY 4.0"
+    },
+    "confidence": {
+      "label": "Confidence",
+      "value": "{value}%",
+      "hint": "How sure we are, from your photo and your answers."
+    },
+    "metals": {
+      "title": "Metals for you"
+    },
+    "styles": {
+      "title": "Styles to try",
+      "finish": "Finish",
+      "categories": {
+        "rings": "Rings",
+        "earrings": "Earrings",
+        "necklaces": "Necklaces",
+        "bracelets": "Bracelets"
+      }
+    },
+    "gemstones": {
+      "title": "Gemstones",
+      "eyebrow": {
+        "warm": "Stones that echo your warmth",
+        "cool": "Stones that echo your cool tones",
+        "balanced": "Stones for a balanced palette"
+      }
+    },
+    "notes": {
+      "title": "Good to know",
+      "disagreeWhy": "Your photo and your answers pointed in different directions, so we're less sure."
+    },
+    "startAgain": "Start again",
+    "empty": {
+      "title": "No results yet",
+      "body": "Your results combine a quick photo analysis with four questions. The photo is analysed on this device and never uploaded.",
+      "action": "Start with a photo"
     }
   },
   "layout": {
@@ -184,7 +255,7 @@
       "sq": "SQ"
     },
     "footer": {
-      "note": "Style guidance based on colour analysis, not a measurement.",
+      "note": "Style guidance based on colour analysis, not a measurement. Lighting and cameras affect results.",
       "copyright": "© ToneMatch"
     },
     "theme": {
