@@ -1,15 +1,34 @@
 /**
- * Main-thread client for the landmarker worker. Creates the worker lazily (so the model only
- * loads on pages that analyse a photo) and turns messages into Promises.
+ * Main-thread client for the landmarker worker. Creates the worker lazily, on the first request,
+ * so the WASM and model only load when a photo is analysed (SPEC §11), and turns messages into
+ * Promises.
  */
-import type { DetectResponse, WorkerRequest, WorkerResponse } from "@/workers/landmarker.protocol";
+import type { PhotoAnalysis } from "@/lib/analysis/pipeline";
+import type {
+  AnalysisStage,
+  DetectResponse,
+  WorkerErrorCode,
+  WorkerRequest,
+  WorkerResponse,
+} from "@/workers/landmarker.protocol";
+import { ANALYSIS_TIMEOUT_MS, DETECT_TIMEOUT_MS } from "./config";
 
-/** First call includes downloading ~33 MB of WASM + model, so allow generous time. */
-const DETECT_TIMEOUT_MS = 60_000;
+/** A failed request. `timeout` and `worker` (the worker itself crashed) are added on this side. */
+export class LandmarkerError extends Error {
+  constructor(
+    readonly code: WorkerErrorCode | "timeout" | "worker" | "disposed",
+    message: string,
+  ) {
+    super(message);
+    this.name = "LandmarkerError";
+  }
+}
+
+export type AnalysisResult = { analysis: PhotoAnalysis; width: number; height: number };
 
 type Pending = {
-  resolve: (r: DetectResponse) => void;
-  reject: (e: Error) => void;
+  onMessage: (msg: WorkerResponse) => void;
+  reject: (e: LandmarkerError) => void;
   timer: ReturnType<typeof setTimeout>;
 };
 
@@ -26,50 +45,104 @@ export class LandmarkerClient {
       });
       this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => this.handle(event.data);
       this.worker.onerror = (event) => {
-        this.failAll(new Error(`Landmarker worker error: ${event.message || "unknown"}`));
+        this.failAll(
+          new LandmarkerError("worker", `Landmarker worker error: ${event.message || "unknown"}`),
+        );
+        // A crashed worker can't be trusted with the next request: start a fresh one then.
+        this.worker?.terminate();
+        this.worker = null;
       };
     }
     return this.worker;
   }
 
   private handle(msg: WorkerResponse): void {
-    const p = this.pending.get(msg.id);
-    if (!p) return;
-    clearTimeout(p.timer);
-    this.pending.delete(msg.id);
-    if (msg.type === "result") p.resolve(msg);
-    else p.reject(new Error(msg.message));
+    this.pending.get(msg.id)?.onMessage(msg);
   }
 
-  private failAll(error: Error): void {
+  private settle(id: number): void {
+    const p = this.pending.get(id);
+    if (!p) return;
+    clearTimeout(p.timer);
+    this.pending.delete(id);
+  }
+
+  private failAll(error: LandmarkerError): void {
     for (const [id, p] of this.pending) {
-      clearTimeout(p.timer);
+      this.settle(id);
       p.reject(error);
-      this.pending.delete(id);
     }
   }
 
-  /**
-   * Detect faces in an image. The bitmap is transferred (not copied) to the worker, which closes
-   * it after use, so the caller must not use it afterwards.
-   */
-  detect(image: ImageBitmap): Promise<DetectResponse> {
+  private request<T>(
+    message: (id: number) => { request: WorkerRequest; transfer: Transferable[] },
+    timeoutMs: number,
+    onMessage: (msg: WorkerResponse, done: (value: T) => void) => void,
+  ): Promise<T> {
     const worker = this.getWorker();
     const id = this.nextId++;
-    return new Promise<DetectResponse>((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pending.delete(id);
-        reject(new Error(`Landmarker timed out after ${DETECT_TIMEOUT_MS} ms`));
-      }, DETECT_TIMEOUT_MS);
-      this.pending.set(id, { resolve, reject, timer });
-      const request: WorkerRequest = { type: "detect", id, image };
-      worker.postMessage(request, [image]);
+        this.settle(id);
+        reject(new LandmarkerError("timeout", `Landmarker timed out after ${timeoutMs} ms`));
+      }, timeoutMs);
+      const done = (value: T) => {
+        this.settle(id);
+        resolve(value);
+      };
+      this.pending.set(id, {
+        timer,
+        reject,
+        onMessage: (msg) => {
+          if (msg.type === "error") {
+            this.settle(id);
+            reject(new LandmarkerError(msg.code, msg.message));
+          } else onMessage(msg, done);
+        },
+      });
+      const { request, transfer } = message(id);
+      worker.postMessage(request, transfer);
     });
+  }
+
+  /**
+   * Analyse a photo in the worker (M6b): decode with EXIF orientation, downscale, landmarks,
+   * quality checks, skin sampling. Resolves with numbers only. `onProgress` gets each stage.
+   */
+  analyse(
+    photo: Blob,
+    onProgress?: (stage: AnalysisStage) => void,
+    timeoutMs = ANALYSIS_TIMEOUT_MS,
+  ): Promise<AnalysisResult> {
+    return this.request<AnalysisResult>(
+      (id) => ({ request: { type: "analyse", id, photo }, transfer: [] }),
+      timeoutMs,
+      (msg, done) => {
+        if (msg.type === "progress") onProgress?.(msg.stage);
+        else if (msg.type === "analysis") {
+          done({ analysis: msg.analysis, width: msg.width, height: msg.height });
+        }
+      },
+    );
+  }
+
+  /**
+   * Dev-only: detect faces in an image. The bitmap is transferred (not copied) to the worker,
+   * which closes it after use, so the caller must not use it afterwards.
+   */
+  detect(image: ImageBitmap): Promise<DetectResponse> {
+    return this.request<DetectResponse>(
+      (id) => ({ request: { type: "detect", id, image }, transfer: [image] }),
+      DETECT_TIMEOUT_MS,
+      (msg, done) => {
+        if (msg.type === "result") done(msg);
+      },
+    );
   }
 
   /** Stop the worker and reject anything still pending. */
   dispose(): void {
-    this.failAll(new Error("Landmarker disposed"));
+    this.failAll(new LandmarkerError("disposed", "Landmarker disposed"));
     this.worker?.terminate();
     this.worker = null;
   }

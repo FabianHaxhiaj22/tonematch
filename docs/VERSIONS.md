@@ -63,11 +63,21 @@ Checked with `npm view zustand version` on 2026-11-18.
 |---|---|---|---|
 | zustand | 5.1.0 | 5.1.0 | Quiz state (memory only). |
 
+## Installed in M6b-1
+
+Checked with `npm view motion version time` on 2026-11-28.
+
+| Package | Pinned | Latest on 2026-11-28 | Notes |
+|---|---|---|---|
+| motion | 14.14.0 | 14.14.0 (released 2026-11-13) | Fades and rise-ins on `/analyze` (DESIGN.md "Motion"). Used through `LazyMotion` + `m` components, so its animation features load as a separate chunk; peers `react`/`react-dom` ^18 || ^19. Depends on `framer-motion` 14.14.0. |
+
 ## Self-hosted model
 
 | File | Source | Size | SHA-256 |
 |---|---|---|---|
 | `face_landmarker.task` | `storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/` | 3,758,596 B | `64184e22…0bc9ff` (full hash in `scripts/models.lock.json`; cross-checked against the storage MD5 on first download) |
+
+Served from `/models/<tasks-vision version>-<first 8 hex of the model SHA-256>/` (currently `/models/1.2.3-64184e22/`), cached as `immutable` for a year (D-038). What a first visit downloads (measured 2026-11-28, gzip as `next start` serves it): `vision_wasm_internal.wasm` 14.7 MB → 4.15 MB, `face_landmarker.task` 3.76 MB → 3.33 MB (already compressed), `vision_wasm_internal.js` 0.34 MB → 0.08 MB: **≈ 7.6 MB** (19 MB uncompressed). The UI says "about 8 MB" (`MODEL_DOWNLOAD_MB` in `src/lib/models/config.ts`).
 
 ## GitHub Actions (pinned to commit SHAs)
 
@@ -93,6 +103,5 @@ Checked with `npm view zustand version` on 2026-11-18.
 | Package | Latest on 2026-11-07 | Milestone |
 |---|---|---|
 | shadcn (CLI) | 4.23.0 | M6 |
-| motion | 14.10.1 | M6 |
 | next-intl | 4.15.1 (checked 2026-11-18) | M8 |
 | @anthropic-ai/sdk | 1.6.0 | Phase 2 |

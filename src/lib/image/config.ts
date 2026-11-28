@@ -48,3 +48,11 @@ export const HEIF_MIME_TYPES = [
   "image/heif-sequence",
 ] as const;
 export const HEIF_EXTENSIONS = [".heic", ".heif"] as const;
+
+/**
+ * Long side, in pixels, that a photo is downscaled to before analysis (D-035). At 1600 px a face
+ * that fills a third of a selfie's width is ~400 px wide, so each cheek region keeps thousands of
+ * pixels (MIN_VALID_PIXELS is 300), while a 48 MP photo shrinks ~20× and can't stall a mid-range
+ * phone. Smaller photos are never enlarged.
+ */
+export const ANALYSIS_MAX_LONG_SIDE_PX = 1600;

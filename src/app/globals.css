@@ -175,3 +175,14 @@
     }
   }
 }
+
+/* Indeterminate progress sweep (analysis status, AnalysisStatus.tsx). Only runs with
+   prefers-reduced-motion: no-preference (`motion-safe:`); otherwise a static, faint full bar. */
+@keyframes tm-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}

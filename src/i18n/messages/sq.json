@@ -269,6 +269,67 @@
     "previewAlt": "Fotoja që zgjodhe",
     "stays": "Mbetet vetëm në këtë pajisje.",
     "next": "Vazhdo te pyetjet",
-    "another": "Zgjidh një foto tjetër"
+    "another": "Zgjidh një foto tjetër",
+    "status": {
+      "preparing": "Po përgatitim foton",
+      "loading-model": "Po ngarkojmë mjetin e analizës",
+      "finding-face": "Po kërkojmë fytyrën",
+      "checking": "Po kontrollojmë foton",
+      "download": "Shkarkohet vetëm një herë, rreth {size} MB. Shfletuesi e ruan për herë tjetër.",
+      "slow": "Po zgjat më shumë se zakonisht. Me lidhje të ngadaltë, shkarkimi i parë mund të zgjasë një ose dy minuta.",
+      "onDevice": "E gjithë kjo ndodh në pajisjen tënde."
+    },
+    "report": {
+      "blockedTitle": "Nuk mund ta përdorim këtë foto",
+      "blocked": {
+        "NO_FACE": "Nuk gjetëm fytyrë. Zgjidh një foto ku fytyra jote duket e plotë dhe ku shikon nga kamera.",
+        "MULTIPLE_FACES": "Gjetëm më shumë se një fytyrë. Zgjidh një foto ku je vetëm ti.",
+        "NOT_ENOUGH_SKIN": "Nuk shihen mjaftueshëm faqet dhe balli. Afrohu më shumë dhe mbaji flokët larg fytyrës."
+      },
+      "reviewTitle": "Kontrollo foton",
+      "reviewIntro": "Çfarë vumë re:",
+      "reviewChoice": "Mund ta analizosh gjithsesi, por rezultati do të jetë më pak i sigurt. Një foto e re zakonisht jep një përgjigje më të qartë.",
+      "anyway": "Analizoje gjithsesi",
+      "removedNote": "Fotoja jote u hoq nga kjo faqe. Ruhen vetëm rezultatet e kontrolleve.",
+      "issues": {
+        "FACE_TOO_SMALL": {
+          "title": "Fytyra jote duket e vogël në foto",
+          "tip": "Afrohu më shumë, që fytyra të zërë më shumë vend në foto."
+        },
+        "TOO_DARK": {
+          "title": "Fotoja është shumë e errët",
+          "tip": "Qëndro përballë një dritareje në dritën e ditës, ose shto më shumë dritë."
+        },
+        "TOO_BRIGHT": {
+          "title": "Fotoja është shumë e ndriçuar",
+          "tip": "Shmang diellin e drejtpërdrejtë dhe blicin. Drita e butë e ditës është më e mira."
+        },
+        "COLOR_CAST": {
+          "title": "Drita ka një nuancë ngjyre",
+          "tip": "Llambat dhe drita me ngjyrë e ndryshojnë ngjyrën e lëkurës. Drita e ditës nga dritarja është më e mira."
+        },
+        "BLURRY": {
+          "title": "Fotoja duket e turbullt",
+          "tip": "Mbaje telefonin të qëndrueshëm dhe lëre të fokusohet te fytyra jote."
+        },
+        "HEAD_TILTED": {
+          "title": "Koka jote është e kthyer ose e anuar",
+          "tip": "Shiko drejt nga kamera, me mjekrën drejt."
+        }
+      }
+    },
+    "done": {
+      "title": "Fotoja jote u analizua dhe u hoq",
+      "body": "Ruhen vetëm disa numra ngjyrash, në këtë faqe. Fshihen kur fillon nga e para ose kur mbyll faqen.",
+      "passed": "Fotoja kaloi të gjitha kontrollet.",
+      "accepted": "Zgjodhe ta analizosh gjithsesi, ndaj rezultati do të jetë më pak i sigurt."
+    },
+    "failed": {
+      "loadTitle": "Analiza nuk mundi të nisë",
+      "load": "Mjeti i analizës nuk u ngarkua. Kontrollo lidhjen dhe provo përsëri. Fotoja jote është ende vetëm në këtë pajisje.",
+      "retry": "Provo përsëri",
+      "decodeTitle": "Nuk mundëm ta lexojmë këtë foto",
+      "decode": "Shfletuesi nuk mundi ta hapë këtë skedar. Të lutem zgjidh një foto tjetër JPG, PNG ose WebP."
+    }
   }
 }

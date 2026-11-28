@@ -14,7 +14,7 @@ ToneMatch reads the **depth** (light → deep) and **undertone** (cool, neutral 
 
 ## How it works
 
-The analysis pipeline below is implemented and tested; the screens around it (the upload/camera page and the results page) are the next milestones (see [Project status](#project-status)).
+The analysis pipeline below is implemented and tested, and runs in the browser on the photo page: upload, status while analysing, and a quality report. The results page and the camera are the next milestones (see [Project status](#project-status)).
 
 ```mermaid
 flowchart LR
@@ -49,7 +49,7 @@ Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 · 
 
 ## Project status
 
-Current release: **v0.2.0**. The analysis and recommendation core is built and tested, and the landing page with photo upload is built; the full flow to the results page comes next.
+Current release: **v0.2.0**. The analysis and recommendation core is built and tested, the landing page with photo upload is built, and an uploaded photo is now analysed on the device with a quality report; the results page comes next.
 
 - [x] Repository, tooling, CI and release automation
 - [x] Colour engine (sRGB → CIELAB, chroma, hue, ITA)
@@ -58,7 +58,8 @@ Current release: **v0.2.0**. The analysis and recommendation core is built and t
 - [x] Depth, undertone and confidence scoring, plus the undertone quiz (English and Albanian)
 - [x] Recommendation engine and data (metals, styles, gemstones)
 - [x] Visual design, site layout and landing page with photo upload (English and Albanian)
-- [ ] Full flow from photo to results page, and shareable result card
+- [x] On-device photo analysis with a quality report; the photo is discarded right after
+- [ ] Results page and shareable result card
 - [ ] Live camera capture and white-paper calibration flow
 - [ ] Full English/Albanian interface, accessibility pass and privacy page
 - [ ] Public deployment and v1.0.0

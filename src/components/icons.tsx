@@ -64,3 +64,23 @@ export function MonitorIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m8.5 12.2 2.4 2.4 4.6-5" />
+    </svg>
+  );
+}
+
+/** A small diamond with a bar: "worth a look", calmer than a warning triangle. */
+export function NoticeIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 3.5 20.5 12 12 20.5 3.5 12Z" />
+      <path d="M12 8.5v4.5" />
+      <path d="M12 15.8v.2" />
+    </svg>
+  );
+}
