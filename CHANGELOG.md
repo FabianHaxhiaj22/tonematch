@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/FabianHaxhiaj22/tonematch/compare/v0.2.0...v0.3.0) (2026-11-28)
+
+
+### Features
+
+* add design tokens, layout shell and landing page with photo upload (M6a) ([#29](https://github.com/FabianHaxhiaj22/tonematch/issues/29)) ([7102fa0](https://github.com/FabianHaxhiaj22/tonematch/commit/7102fa08b530c6394cc7b629041f33b6f75d1029))
+* analyse the photo on /analyze with a quality report, then release it (M6b-1) ([#34](https://github.com/FabianHaxhiaj22/tonematch/issues/34)) ([a208a3d](https://github.com/FabianHaxhiaj22/tonematch/commit/a208a3d9b94585d062913e1047fc713afa88a81b))
+* results page, quiz in Atelier and a flow step indicator (M6b-2) ([#35](https://github.com/FabianHaxhiaj22/tonematch/issues/35)) ([adb7e92](https://github.com/FabianHaxhiaj22/tonematch/commit/adb7e9261f1cad60c5d6ca1293bc8ea9d1a821e7))
+
+
+### Bug Fixes
+
+* add a Light / Dark / System theme switch that overrides the system setting ([#32](https://github.com/FabianHaxhiaj22/tonematch/issues/32)) ([90e0e79](https://github.com/FabianHaxhiaj22/tonematch/commit/90e0e7951d1b6ece593cc9dbf124ab3eb2ed88d0))
+
 ## [0.2.0](https://github.com/FabianHaxhiaj22/tonematch/compare/v0.1.0...v0.2.0) (2026-11-22)
 
 
