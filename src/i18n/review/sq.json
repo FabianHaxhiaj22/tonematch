@@ -1,5 +1,5 @@
 {
-  "_about": "Native-speaker review status of every Albanian (sq) string. Drafted by Claude Code, then reviewed and rewritten by a native speaker (Erdiona Tola) on 2026-11-18 (SPEC §13). The M5 recommendation strings (PR #16) were native-speaker reviewed on 2026-11-19. Values: needs-native-review | reviewed. New or changed sq strings start as needs-native-review.",
+  "_about": "Native-speaker review status of every Albanian (sq) string. Drafted by Claude Code, then reviewed and rewritten by a native speaker (Erdiona Tola) on 2026-11-18 (SPEC §13). The M5 recommendation strings (PR #16) were native-speaker reviewed on 2026-11-19. The theme switch strings (D-037) were reviewed by the owners on 2026-11-28. Values: needs-native-review | reviewed. New or changed sq strings start as needs-native-review.",
   "strings": {
     "analyze.another": "reviewed",
     "analyze.emptyTitle": "reviewed",
@@ -61,10 +61,10 @@
     "layout.nav.label": "reviewed",
     "layout.nav.privacy": "reviewed",
     "layout.skipToContent": "reviewed",
-    "layout.theme.dark": "needs-native-review",
-    "layout.theme.label": "needs-native-review",
-    "layout.theme.light": "needs-native-review",
-    "layout.theme.system": "needs-native-review",
+    "layout.theme.dark": "reviewed",
+    "layout.theme.label": "reviewed",
+    "layout.theme.light": "reviewed",
+    "layout.theme.system": "reviewed",
     "metals.copper-brass": "reviewed",
     "metals.mixed-metals": "reviewed",
     "metals.platinum": "reviewed",
