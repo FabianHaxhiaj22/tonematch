@@ -180,15 +180,23 @@
         "best": "Të dyja familjet e metaleve mund të të rrinë mirë, dhe ky është një nga më të lehtët për t'u mbajtur.",
         "good": "Mund të të rrijë mirë; një zgjedhje më e butë se të parat.",
         "care": "Përputhet më pak. Provoje si një detaj të vogël."
+      },
+      "balancedMetal": {
+        "yellow-gold": "Metali klasik i ngrohtë: i pasur dhe i artë.",
+        "silver": "I ftohtë dhe i ndritshëm, i lehtë për t'u mbajtur çdo ditë.",
+        "rose-gold": "Një ngrohtësi e butë rozë që rri lehtë mbi lëkurë.",
+        "white-gold": "Një e bardhë e pastër dhe e ndritshme, me pamje të lëmuar.",
+        "platinum": "Metal natyrshëm i bardhë, me shkëlqim të qetë.",
+        "copper-brass": "Tokësore dhe e ngrohtë; e bukur si detaj i vogël."
       }
     }
   },
   "results": {
     "eyebrow": "Hapi 3 · Rezultati yt",
     "uncertainTitle": "Të dyja mund të të rrinë mirë",
-    "reading": "Nëntoni i lexuar: {undertone}",
+    "reading": "Nëntoni sipas analizës: {undertone}",
     "skin": {
-      "label": "Lëkura jote, siç u mat nga fotoja",
+      "label": "Lëkura jote, siç duket në foto",
       "approx": "Ngjyrat në ekran janë të përafërta."
     },
     "mst": {
@@ -199,7 +207,7 @@
       "licenceName": "CC BY 4.0"
     },
     "confidence": {
-      "label": "Siguria",
+      "label": "Besueshmëria",
       "value": "{value}%",
       "hint": "Sa të sigurt jemi, bazuar në foton dhe përgjigjet e tua."
     },
@@ -208,7 +216,7 @@
     },
     "styles": {
       "title": "Stile për t'i provuar",
-      "finish": "Sipërfaqja",
+      "finish": "Lloji i sipërfaqes",
       "categories": {
         "rings": "Unaza",
         "earrings": "Vathë",
@@ -221,13 +229,12 @@
       "eyebrow": {
         "warm": "Gurë që plotësojnë ngrohtësinë tënde",
         "cool": "Gurë që plotësojnë nuancat e tua të ftohta",
-        "balanced": "Gurë për një paletë të balancuar"
+        "balanced": "Gurë për një paletë të ekuilibruar"
       }
     },
     "notes": {
       "title": "Mirë ta dish"
     },
-    "disclaimer": "Këshilla stili të bazuara në analizën e ngjyrave. Drita dhe kamerat ndikojnë në rezultat.",
     "startAgain": "Fillo nga e para",
     "empty": {
       "title": "Ende nuk ka rezultate",
@@ -247,7 +254,7 @@
       "sq": "SQ"
     },
     "footer": {
-      "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore.",
+      "note": "Këshilla stili të bazuara në analizën e ngjyrave, jo matje shkencore. Drita dhe kamerat ndikojnë në rezultat.",
       "copyright": "© ToneMatch"
     },
     "theme": {

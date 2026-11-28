@@ -7,7 +7,7 @@
  * needs: the skin colour for display (`labToSrgb`), metal/gemstone swatches and names from the
  * data, tiers grouped in order, and which note becomes the prominent "both can work" message.
  */
-import { MST_SWATCHES, type DepthLabel } from "@/lib/analysis/config";
+import { DEPTH_SCALE, type DepthLabel } from "@/lib/analysis/config";
 import type { PhotoSummary } from "@/lib/analysis/score";
 import { scorePhoto } from "@/lib/analysis/score";
 import type { QuizAnswers, UndertoneLabel } from "@/lib/analysis/undertone";
@@ -49,9 +49,17 @@ export type ResultsView = {
   confidencePercent: number;
   /** The sampled skin colour for display. Approximate: screens and cameras differ. */
   skinHex: string;
-  /** Official MST swatches 1–10, for the scale strip. */
-  mstScale: readonly { mst: number; hex: string }[];
-  summaryKey: string;
+  /**
+   * Number of steps on the MST scale (10), for the position track. The track shows a position,
+   * not colours: the official swatches are display colours, much lighter than skin measured in a
+   * photo, so next to the sampled swatch they looked like a wrong match (D-039).
+   */
+  mstSteps: number;
+  /**
+   * The one-line summary, or null when uncertain: then the heading ("Both can work") and the
+   * lead note already say it, and a third time would only repeat it (D-039).
+   */
+  summaryKey: string | null;
   finishKey: string;
   /** Tiers in order (best → good → care), empty tiers left out. */
   metalTiers: { tier: Tier; metals: MetalView[] }[];
@@ -108,8 +116,8 @@ export function buildResultsView(
     mstApprox: rec.mstApprox,
     confidencePercent: toPercent(rec.confidence),
     skinHex: rgbToHex(labToSrgb(summary.skin)),
-    mstScale: MST_SWATCHES.map((hex, i) => ({ mst: i + 1, hex })),
-    summaryKey: rec.summaryKey,
+    mstSteps: DEPTH_SCALE.length,
+    summaryKey: uncertain ? null : rec.summaryKey,
     finishKey: rec.finishKey,
     metalTiers,
     styles: CATEGORIES.map((category) => ({

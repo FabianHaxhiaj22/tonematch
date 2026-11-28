@@ -288,8 +288,10 @@ export const DEPTH_SCALE: readonly { mst: number; label: DepthLabel; minAngle: n
 ];
 
 /**
- * Official Monk Skin Tone swatch colours (MST 1–10), for display next to a result (M6), not for
- * classification. Source: the `--monk-scale-color-1…10` HSL values in the official site's bundle,
+ * Official Monk Skin Tone swatch colours (MST 1–10), not used for classification. Not shown on
+ * the results page either (D-039): they are much lighter than skin measured in a photo, so next to
+ * the sampled swatch they looked like a wrong colour match; the page shows a position instead.
+ * Source: the `--monk-scale-color-1…10` HSL values in the official site's bundle,
  * https://skintone.google/assets/index.e4e4b56c.js (fetched 2026-11-18; SHA-256 b42d16d1…),
  * converted HSL → sRGB; table with Lab and ITA in docs/DECISIONS.md D-027.
  * Scale licence: CC BY 4.0, confirmed 2026-11-28 on the official "Get started" page, which asks

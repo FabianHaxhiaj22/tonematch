@@ -25,6 +25,11 @@ function arrive(summary: PhotoSummary, answers: QuizAnswers) {
 }
 
 const h1 = () => screen.getByRole("heading", { level: 1 });
+/** The confident heading's two parts: undertone, then depth (its "·" is decorative). */
+const headingParts = () => {
+  const [undertone, depth] = [...screen.getByTestId("profile-heading").children];
+  return { undertone: undertone!.textContent, depth: depth!.textContent };
+};
 const main = () => screen.getByTestId("results");
 
 function renderPage() {
@@ -76,13 +81,37 @@ describe("ResultsPage: a confident warm result", () => {
 
   it("leads with the undertone and depth, the skin swatch and the approximate MST", () => {
     renderPage();
-    expect(h1()).toHaveTextContent("Warm · Medium");
+    expect(headingParts()).toEqual({ undertone: "Warm", depth: "·, Medium" });
+    expect(h1()).toHaveAccessibleName(/^Warm ?, Medium$/);
     expect(screen.getByText("Your skin, as sampled")).toBeInTheDocument();
     expect(screen.getByText("Colours on screen are approximate.")).toBeInTheDocument();
     expect(
       screen.getByText(/^About \d+ on the Monk Skin Tone scale \(approximate\)$/),
     ).toBeInTheDocument();
     expect(screen.queryByText(/#[0-9a-f]{6}/i)).toBeNull(); // no hex code shown (decision 3)
+  });
+
+  it("the depth separator is decorative, so a wrapped depth never starts with it", () => {
+    renderPage();
+    const depth = screen.getByTestId("profile-heading").children[1]!;
+    const dot = depth.querySelector('[aria-hidden="true"]')!;
+    expect(dot).toHaveTextContent("·");
+    // Outside the depth's left edge, clipped by the heading when the depth starts a line.
+    expect(dot).toHaveClass("absolute", "right-full");
+    expect(screen.getByTestId("profile-heading")).toHaveClass("flex-wrap", "overflow-x-clip");
+  });
+
+  it("shows the MST value as a position on a neutral track, not as colour swatches", () => {
+    renderPage();
+    const track = main().querySelector("[data-mst-track]")!;
+    const steps = [...track.children] as HTMLElement[];
+    expect(steps).toHaveLength(10);
+    const current = steps.filter((s) => s.hasAttribute("data-current"));
+    expect(current).toHaveLength(1);
+    expect(steps.indexOf(current[0]!) + 1).toBe(
+      buildResultsView(WARM_SKIN, all("warm"), loadRecommendData()).mstApprox,
+    );
+    for (const s of steps) expect(s.style.backgroundColor).toBe("");
   });
 
   it("credits the MST scale as the official page asks, with the licence link", () => {
@@ -137,17 +166,13 @@ describe("ResultsPage: a confident warm result", () => {
     expect(within(styles).getByText("Finish")).toBeInTheDocument();
   });
 
-  it("shows gemstones with a warm eyebrow, and the disclaimer", () => {
+  it("shows gemstones with a warm eyebrow; the disclaimer is left to the footer", () => {
     renderPage();
     const gems = screen.getByRole("region", { name: "Gemstones" });
     expect(within(gems).getByText("Stones that echo your warmth")).toBeInTheDocument();
     const view = buildResultsView(WARM_SKIN, all("warm"), loadRecommendData());
     expect(within(gems).getAllByRole("listitem")).toHaveLength(view.gemstones.length);
-    expect(
-      screen.getByText(
-        "Style guidance based on colour analysis. Lighting and cameras affect results.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.queryByText(/Lighting and cameras affect results/)).toBeNull();
   });
 
   it("'Start again' clears the analysis and answers and goes to /analyze", () => {
@@ -160,7 +185,7 @@ describe("ResultsPage: a confident warm result", () => {
 
   it("recomputes when an answer changes", () => {
     renderPage();
-    expect(h1()).toHaveTextContent("Warm");
+    expect(headingParts().undertone).toBe("Warm");
     act(() => useQuizStore.setState({ answers: all("cool") }));
     expect(screen.getByText("Good to know")).toBeInTheDocument();
     expect(
@@ -178,6 +203,7 @@ describe("ResultsPage: low confidence", () => {
     expect(
       screen.getByText("Undertone reading: Neutral, leaning cool · Medium"),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId("profile-heading")).toBeNull();
   });
 
   it("shows the 'both can work' message prominently, not among the notes", () => {
@@ -189,9 +215,17 @@ describe("ResultsPage: low confidence", () => {
     expect(screen.getAllByText(/For a clearer result/)).toHaveLength(1);
   });
 
-  it("uses the uncertain summary and a balanced gemstone eyebrow", () => {
+  it("says it once: heading and box, no summary line; each metal has its own reason", () => {
     renderPage();
-    expect(screen.getByText(/We couldn't tell clearly enough/)).toBeInTheDocument();
+    expect(screen.queryByText(/We couldn't tell clearly enough/)).toBeNull();
+    const reasons = [...main().querySelectorAll("[data-metal] p + p")].map((p) => p.textContent);
+    expect(reasons.length).toBe(7);
+    expect(new Set(reasons).size).toBe(reasons.length);
+    expect(screen.getByText("Cool and bright, and easy to wear every day.")).toBeInTheDocument();
+  });
+
+  it("uses a balanced gemstone eyebrow", () => {
+    renderPage();
     expect(screen.getByText("Stones for a balanced palette")).toBeInTheDocument();
   });
 });
@@ -201,7 +235,7 @@ describe("ResultsPage in Albanian", () => {
     arrive(COOL_SKIN, all("cool"));
     act(() => useLocaleStore.getState().setLocale("sq"));
     renderPage();
-    expect(h1()).toHaveTextContent("I ftohtë · Mesatare");
+    expect(headingParts()).toEqual({ undertone: "I ftohtë", depth: "·, Mesatare" });
     expect(screen.getByRole("heading", { name: "Metalet për ty" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Stile për t'i provuar" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Gurë të çmuar" })).toBeInTheDocument();
@@ -215,7 +249,7 @@ describe("ResultsPage in Albanian", () => {
     act(() => useLocaleStore.getState().setLocale("sq"));
     renderPage();
     expect(h1()).toHaveTextContent("Të dyja mund të të rrinë mirë");
-    expect(screen.getByText(/^Nëntoni i lexuar: /)).toBeInTheDocument();
+    expect(screen.getByText(/^Nëntoni sipas analizës: /)).toBeInTheDocument();
   });
 });
 

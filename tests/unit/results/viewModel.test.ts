@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { MST_SWATCHES } from "@/lib/analysis/config";
+import { DEPTH_SCALE } from "@/lib/analysis/config";
 import { scorePhoto } from "@/lib/analysis/score";
+import { QUIZ_ANSWERS, QUIZ_QUESTIONS, type QuizAnswers } from "@/lib/analysis/undertone";
 import { hexToRgb, labToSrgb, rgbToHex } from "@/lib/color";
 import en from "@/i18n/messages/en.json";
 import { flattenMessages } from "@/i18n/messages";
@@ -66,16 +67,16 @@ describe("buildResultsView: a confident warm result", () => {
   });
 
   it("has summary and finish keys that exist, and no lead note", () => {
-    expect(EN[view.summaryKey]).toBeDefined();
+    expect(EN[view.summaryKey!]).toBeDefined();
     expect(EN[view.finishKey]).toBeDefined();
     expect(view.leadNote).toBeNull();
     expect(view.notes).toEqual([]);
   });
 
-  it("carries the ten official MST swatches for the scale strip", () => {
-    expect(view.mstScale).toHaveLength(10);
-    expect(view.mstScale.map((s) => s.hex)).toEqual([...MST_SWATCHES]);
-    expect(view.mstScale.map((s) => s.mst)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  it("gives the number of MST steps for the position track (no swatch colours)", () => {
+    expect(view.mstSteps).toBe(DEPTH_SCALE.length);
+    expect(view.mstSteps).toBe(10);
+    expect(view).not.toHaveProperty("mstScale");
   });
 });
 
@@ -122,7 +123,8 @@ describe("buildResultsView: low confidence", () => {
       expect(view.leadNote).toBe("bothCanWorkUncertain");
       expect(view.notes).not.toContain("bothCanWorkUncertain");
       expect(view.palette).toBe("balanced");
-      expect(view.summaryKey).toBe("recommend.summary.uncertain");
+      // The heading and the lead note say it; no third time in a summary line.
+      expect(view.summaryKey).toBeNull();
     },
   );
 
@@ -175,5 +177,58 @@ describe("toPercent", () => {
     expect(toPercent(1)).toBe(100);
     expect(toPercent(-0.2)).toBe(0);
     expect(toPercent(1.3)).toBe(100);
+  });
+});
+
+describe("tiers never contradict the 'both families may work' note", () => {
+  /** Every quiz combination (4⁴ = 256) for a few photo hues and confidences. */
+  function* cases() {
+    const answers = (pick: number): QuizAnswers =>
+      Object.fromEntries(
+        QUIZ_QUESTIONS.map((q, i) => [q, QUIZ_ANSWERS[Math.floor(pick / 4 ** i) % 4]!]),
+      );
+    for (const skin of [
+      WARM_SKIN.skin,
+      COOL_SKIN.skin,
+      NEUTRAL_SKIN.skin,
+      { L: 40, a: 8, b: 30 },
+    ]) {
+      for (const evidence of [EVIDENCE, { ...EVIDENCE, calibrated: true }]) {
+        for (let pick = 0; pick < 256; pick++)
+          yield { summary: { skin, evidence }, answers: answers(pick) };
+      }
+    }
+  }
+
+  it("photoQuizDisagree and a 'care' tier never appear together", () => {
+    let withNote = 0;
+    for (const { summary, answers } of cases()) {
+      const view = buildResultsView(summary, answers, DATA);
+      const tiers = view.metalTiers.map((t) => t.tier);
+      if (view.notes.includes("photoQuizDisagree")) {
+        withNote++;
+        expect(tiers, JSON.stringify(answers)).not.toContain("care");
+      }
+    }
+    expect(withNote).toBeGreaterThan(50); // the sweep really covers the case
+  });
+
+  it("the warm 52% case from the screenshots: cool metals are 'Also good', not 'Use with care'", () => {
+    const view = buildResultsView(WARM_SKIN, all("cool"), DATA);
+    expect(view.notes).toContain("photoQuizDisagree");
+    expect(view.metalTiers.map((t) => t.tier)).toEqual(["best", "good"]);
+  });
+});
+
+describe("balanced results give each metal its own reason", () => {
+  it.each([
+    ["uncertain", NEUTRAL_SKIN, SPLIT],
+    ["neutral", NEUTRAL_SKIN, all("neutral")],
+  ] as const)("%s: no reason repeats down the list", (_, summary, answers) => {
+    const reasons = buildResultsView(summary, answers, DATA).metalTiers.flatMap((t) =>
+      t.metals.map((m) => m.reasonKey),
+    );
+    expect(new Set(reasons).size).toBe(reasons.length);
+    for (const r of reasons) expect(EN[r], r).toBeDefined();
   });
 });

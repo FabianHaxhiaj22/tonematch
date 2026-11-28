@@ -233,6 +233,8 @@ Validate all data files with Zod at build time (`pnpm validate:data`): one stric
 Engine rules (`src/lib/recommend/`, thresholds in its `config.ts`, D-030):
 - Below `LOW_CONFIDENCE_THRESHOLD` (0.5) no metal family is ranked over the other: both show as "best", with a "both can work" note that says how to get a clearer result.
 - `neutral-warm` / `neutral-cool` lean one way but keep the other family at "good" or better.
+- When a note says both families may work (`photoQuizDisagree`), no metal is "care": the tiers must never contradict the note (D-039, tested over every bucket and every quiz combination).
+- In a balanced result (neutral or uncertain) each warm and cool metal has its own short reason (`balancedReasonKey` in `metals.json`) instead of one sentence repeated down the list (D-039).
 - Depth only changes finish/contrast advice and delicate-vs-bold style items, never metal tiers or gemstones.
 
 ### 7.2 Default style rules (editable starting point)
@@ -436,7 +438,7 @@ Weekly npm + GitHub Actions updates, grouped (minor/patch together), separate PR
 - `Permissions-Policy` sets `camera=(self)` **site-wide** (this still blocks third-party frames), and turns off unused features (microphone, geolocation, etc.). Don't restrict the camera per route: App Router navigations don't reload the document, so a stricter policy from the landing page would still apply on `/analyze` and block the camera. Only the `/analyze` code ever requests the camera.
 - **Privacy notice page** (`/privacy`, en + sq) explaining on-device processing in plain language. Reference Albania Law No. 124/2024 and GDPR. If accounts or saved results are added (Phase 3), add consent, data export, and deletion. **Have the final privacy text reviewed by someone qualified before a public launch.** Claude Code must not present generated legal text as legal advice.
 - Camera consent: explicit button, clear explanation, works fully without the camera (upload path).
-- Disclaimer on results: "Style guidance based on colour analysis. Lighting and cameras affect results."
+- Disclaimer on results: "Style guidance based on colour analysis. Lighting and cameras affect results." Since M6b-2 it is part of the site footer's note on every page ("Style guidance based on colour analysis, not a measurement. Lighting and cameras affect results."), so the results page doesn't repeat it (D-039).
 
 ---
 

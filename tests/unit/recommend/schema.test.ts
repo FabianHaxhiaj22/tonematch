@@ -58,6 +58,15 @@ describe("metals schema", () => {
     );
   });
 
+  it("needs a balancedReasonKey for warm and cool metals, not for mixed (D-039)", () => {
+    const bad = clone(metalsJson) as unknown as { metals: Record<string, unknown>[] };
+    delete bad.metals[1]!.balancedReasonKey; // silver
+    expect(issues(MetalsFileSchema.safeParse(bad))).toContain(
+      'metals.1.balancedReasonKey: cool metal "silver" needs a balancedReasonKey',
+    );
+    expect(bad.metals.find((m) => m.family === "mixed")!.balancedReasonKey).toBeUndefined();
+  });
+
   it("rejects unknown fields (strict)", () => {
     const bad = clone(metalsJson) as unknown as { metals: Record<string, unknown>[] };
     bad.metals[0]!.label = "Yellow gold";

@@ -180,6 +180,14 @@
         "best": "Both metal families can work for you, and this is one of the easiest to wear.",
         "good": "Can work for you; a softer choice than the top picks.",
         "care": "A less usual match. Try it as an accent."
+      },
+      "balancedMetal": {
+        "yellow-gold": "The classic warm metal: rich and golden.",
+        "silver": "Cool and bright, and easy to wear every day.",
+        "rose-gold": "A soft, pinkish warmth that sits gently on the skin.",
+        "white-gold": "A crisp, bright white with a polished look.",
+        "platinum": "A naturally white metal with a quiet sheen.",
+        "copper-brass": "Earthy and warm; lovely as an accent."
       }
     }
   },
@@ -227,7 +235,6 @@
     "notes": {
       "title": "Good to know"
     },
-    "disclaimer": "Style guidance based on colour analysis. Lighting and cameras affect results.",
     "startAgain": "Start again",
     "empty": {
       "title": "No results yet",
@@ -247,7 +254,7 @@
       "sq": "SQ"
     },
     "footer": {
-      "note": "Style guidance based on colour analysis, not a measurement.",
+      "note": "Style guidance based on colour analysis, not a measurement. Lighting and cameras affect results.",
       "copyright": "© ToneMatch"
     },
     "theme": {

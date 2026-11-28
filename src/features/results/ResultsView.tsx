@@ -18,9 +18,10 @@ const key = (k: string) => k as MessageKey;
 /**
  * The results page (M6b-2), from the Atelier mockup (D-034): profile and confidence, the
  * one-line summary, metals by tier with skin + metal swatches, the styles in one gold card per
- * category, finish advice, gemstones, notes and the disclaimer. Sections fade in one after another
- * (nothing moves with prefers-reduced-motion). The view is never server-rendered (the analysis
- * only exists in this tab), so animating it on appearance never hides a first paint.
+ * category, finish advice, gemstones and notes; the disclaimer is the site footer's note (D-039).
+ * Sections fade in one after another (nothing moves with prefers-reduced-motion). The view is
+ * never server-rendered (the analysis only exists in this tab), so animating it on appearance
+ * never hides a first paint.
  */
 export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: () => void }) {
   const t = useT();
@@ -33,20 +34,36 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
       <div className={`${CONTAINER} py-12 md:py-20`}>
         <div className="grid gap-y-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-20">
           {/* ── Profile ───────────────────────────────────────────────────────────── */}
-          <Reveal {...step(0)}>
+          {/* Sticky on wide screens (when the window is tall enough to show all of it), so the
+              profile stays beside the metals instead of leaving an empty column. */}
+          <Reveal
+            {...step(0)}
+            className="lg:self-start lg:[@media(min-height:46rem)]:sticky lg:[@media(min-height:46rem)]:top-8"
+          >
             <p className="eyebrow text-accent">{t("results.eyebrow")}</p>
-            <h1 className="mt-3 font-display text-[clamp(3rem,7vw,5rem)] leading-[1.05] font-normal">
-              {view.uncertain ? (
-                t("results.uncertainTitle")
-              ) : (
-                <>
-                  {undertone}{" "}
-                  <span className="inline-block text-[clamp(1.75rem,3vw,2.25rem)] text-accent italic">
-                    · {depth}
+            {view.uncertain ? (
+              <h1 className="mt-3 font-display text-[clamp(3rem,7vw,5rem)] leading-[1.05] font-normal">
+                {t("results.uncertainTitle")}
+              </h1>
+            ) : (
+              // Undertone and depth as two flex items. When the depth doesn't fit beside the
+              // undertone it moves to its own line, and its separator dot (outside its left edge)
+              // is clipped there, so no line ever starts with "·".
+              <h1
+                data-testid="profile-heading"
+                className="mt-3 flex flex-wrap items-baseline gap-x-6 overflow-x-clip font-display text-[clamp(3rem,7vw,5rem)] leading-[1.05] font-normal"
+              >
+                <span>{undertone}</span>
+                <span className="relative text-[clamp(1.75rem,3vw,2.25rem)] text-accent italic">
+                  <span aria-hidden="true" className="absolute right-full mr-2.5">
+                    ·
                   </span>
-                </>
-              )}
-            </h1>
+                  {/* Read as "Warm, Medium"; the space sits outside the hidden comma so it
+                      survives accessible-name trimming (a leading space isn't drawn). */}
+                  <span className="sr-only">,</span> {depth}
+                </span>
+              </h1>
+            )}
             {view.uncertain && (
               <p className="mt-4 text-lg text-muted">
                 {t("results.reading", { undertone })} · {depth}
@@ -61,26 +78,25 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
               </div>
             </div>
 
+            {/* Where the depth sits on the MST scale: a position on a neutral track, not colour
+                swatches (they looked like a wrong colour match next to the sampled skin, D-039). */}
             <div className="mt-8">
-              <div aria-hidden="true" className="grid grid-cols-10 gap-1">
-                {view.mstScale.map((s) => (
+              <p className="text-sm">{t("depth.mstApprox", { value: view.mstApprox })}</p>
+              <div aria-hidden="true" className="mt-3 flex items-center gap-1" data-mst-track>
+                {Array.from({ length: view.mstSteps }, (_, i) => i + 1).map((n) => (
                   <span
-                    key={s.mst}
-                    className={`block h-7 ${s.mst === view.mstApprox ? "ring-2 ring-ink ring-offset-2 ring-offset-bg" : ""}`}
-                    style={{ backgroundColor: s.hex }}
+                    key={n}
+                    data-current={n === view.mstApprox || undefined}
+                    className={`block flex-1 rounded-full ${n === view.mstApprox ? "h-2 bg-accent" : "h-1 bg-line"}`}
                   />
                 ))}
               </div>
-              <div className="mt-3 flex items-start justify-between gap-3 text-[0.8125rem] text-muted">
-                <span aria-hidden="true" className="shrink-0">
-                  {t("results.mst.start")}
-                </span>
-                <span className="text-center">
-                  {t("depth.mstApprox", { value: view.mstApprox })}
-                </span>
-                <span aria-hidden="true" className="shrink-0">
-                  {view.mstScale.length}
-                </span>
+              <div
+                aria-hidden="true"
+                className="mt-2 flex justify-between text-[0.8125rem] text-muted"
+              >
+                <span>{t("results.mst.start")}</span>
+                <span>{view.mstSteps}</span>
               </div>
               <p className="mt-2 text-xs text-muted">
                 {t("results.mst.credit")}{" "}
@@ -112,16 +128,18 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
 
           <div>
             {/* ── Summary and the low-confidence message ───────────────────────────── */}
-            <Reveal {...step(1)}>
-              <p className="font-display text-[clamp(1.5rem,2.6vw,2rem)] leading-snug italic">
-                {t(key(view.summaryKey))}
-              </p>
-            </Reveal>
+            {view.summaryKey && (
+              <Reveal {...step(1)}>
+                <p className="font-display text-[clamp(1.5rem,2.6vw,2rem)] leading-snug italic">
+                  {t(key(view.summaryKey))}
+                </p>
+              </Reveal>
+            )}
             {view.leadNote && (
-              <Reveal {...step(2)}>
+              <Reveal {...step(1)}>
                 <div
                   data-testid="lead-note"
-                  className="mt-8 flex gap-4 border-l-2 border-accent bg-surface p-5"
+                  className="flex gap-4 border-l-2 border-accent bg-surface p-5"
                 >
                   <NoticeIcon className="mt-1 shrink-0 text-accent" />
                   <p className="text-lg">{t(key(`notes.${view.leadNote}`))}</p>
@@ -239,17 +257,14 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
         </section>
       </Reveal>
 
-      {/* ── Notes, disclaimer, start again ──────────────────────────────────────── */}
+      {/* ── Notes and start again (the disclaimer is the footer's note, D-039) ─────── */}
       <Reveal {...step(6)}>
         <div
           className={`${CONTAINER} flex flex-col gap-8 py-16 lg:flex-row lg:items-end lg:justify-between`}
         >
           <div className="max-w-2xl">
             {view.notes.length > 0 && (
-              <section
-                aria-labelledby="results-notes"
-                className="mb-6 border-l-2 border-accent pl-5"
-              >
+              <section aria-labelledby="results-notes" className="border-l-2 border-accent pl-5">
                 <h2 id="results-notes" className="eyebrow">
                   {t("results.notes.title")}
                 </h2>
@@ -260,7 +275,6 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
                 </ul>
               </section>
             )}
-            <p className="text-[0.8125rem] text-muted italic">{t("results.disclaimer")}</p>
           </div>
           <button
             type="button"

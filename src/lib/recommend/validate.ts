@@ -11,7 +11,12 @@ import { CATEGORIES, DEPTHS, UNDERTONES, type RecommendData } from "./schema";
 /** Every message key the data refers to, with where it came from. */
 export function referencedMessageKeys(data: RecommendData): { key: string; from: string }[] {
   const refs: { key: string; from: string }[] = [];
-  for (const m of data.metals) refs.push({ key: m.nameKey, from: `metals.json ${m.id}` });
+  for (const m of data.metals) {
+    refs.push({ key: m.nameKey, from: `metals.json ${m.id}` });
+    if (m.balancedReasonKey) {
+      refs.push({ key: m.balancedReasonKey, from: `metals.json ${m.id} balancedReasonKey` });
+    }
+  }
   for (const g of data.gemstones) refs.push({ key: g.nameKey, from: `gemstones.json ${g.id}` });
   for (const category of CATEGORIES) {
     for (const s of data.styles.categories[category]) {

@@ -53,7 +53,12 @@ test.describe("full flow: upload → analysis → quiz → results", () => {
     await expect(page).toHaveURL("/results");
 
     // Profile
-    await expect(h1(page)).toHaveText(/^(Cool|Neutral|Warm|Neutral, leaning (cool|warm)) · \S/);
+    const heading = page.getByTestId("profile-heading").filter({ visible: true });
+    await expect(heading.locator("> span").first()).toHaveText(
+      /^(Cool|Neutral|Warm|Neutral, leaning (cool|warm))$/,
+    );
+    await expect(page.locator("[data-mst-track] > span")).toHaveCount(10);
+    await expect(page.locator("[data-mst-track] > [data-current]")).toHaveCount(1);
     await expect(page.getByText("Your skin, as sampled")).toBeVisible();
     await expect(page.getByText("Colours on screen are approximate.")).toBeVisible();
     await expect(
@@ -63,7 +68,7 @@ test.describe("full flow: upload → analysis → quiz → results", () => {
     const percent = await page.locator("[data-percent]").getAttribute("data-percent");
     await expect(page.getByText(`${percent}%`, { exact: true })).toBeVisible();
 
-    // Summary, metals with swatch pairs, styles in four cards, gemstones, disclaimer
+    // Summary, metals with swatch pairs, styles in four cards, gemstones
     const metals = page.getByRole("region", { name: "Metals for you" });
     await expect(metals.getByRole("heading", { name: "Best for you" })).toBeVisible();
     expect(await metals.locator("[data-metal]").count()).toBe(7);
@@ -73,11 +78,11 @@ test.describe("full flow: upload → analysis → quiz → results", () => {
     await expect(
       page.getByRole("region", { name: "Gemstones" }).getByRole("listitem").first(),
     ).toBeVisible();
-    await expect(
-      page.getByText(
-        "Style guidance based on colour analysis. Lighting and cameras affect results.",
-      ),
-    ).toBeVisible();
+    // The disclaimer is said once, in the footer (D-039).
+    await expect(page.getByRole("contentinfo")).toContainText(
+      "Style guidance based on colour analysis, not a measurement. Lighting and cameras affect results.",
+    );
+    await expect(page.getByRole("main").getByText(/Lighting and cameras/)).toHaveCount(0);
 
     // Nothing left the device, and /results itself loaded no model files.
     await page.waitForLoadState("networkidle");
@@ -113,7 +118,90 @@ test.describe("full flow: upload → analysis → quiz → results", () => {
     const metalsTop = (await page.getByRole("heading", { name: "Metals for you" }).boundingBox())!
       .y;
     expect(leadTop).toBeLessThan(metalsTop);
+    // Said once: no summary line repeating it, and each metal has its own reason.
+    await expect(page.getByText(/We couldn't tell clearly enough/)).toHaveCount(0);
+    const reasons = await page.locator("[data-metal] p + p").allTextContents();
+    expect(reasons).toHaveLength(7);
+    expect(new Set(reasons).size).toBe(reasons.length);
     await axe(page);
+  });
+});
+
+test.describe("layout", () => {
+  /**
+   * The depth's separator dot sits outside the depth's left edge. Beside the undertone it shows
+   * in the gap; when the depth wraps to its own line, it starts at the heading's left edge and
+   * the dot falls outside the heading, where overflow-x: clip hides it.
+   */
+  async function headingLayout(page: Page) {
+    return page
+      .getByTestId("profile-heading")
+      .filter({ visible: true })
+      .evaluate((h) => {
+        const [undertone, depth] = [...h.children] as HTMLElement[];
+        const dot = depth!.querySelector('[aria-hidden="true"]')!.getBoundingClientRect();
+        const box = h.getBoundingClientRect();
+        const u = undertone!.getBoundingClientRect();
+        const d = depth!.getBoundingClientRect();
+        return {
+          wrapped: d.top >= u.bottom - 4,
+          depthAtLineStart: Math.abs(d.left - box.left) < 1,
+          dotOutside: dot.right <= box.left + 0.5,
+          dotBetween: dot.left >= u.right && dot.right <= d.left,
+          clipped: getComputedStyle(h).overflowX === "clip",
+        };
+      });
+  }
+
+  test("a wrapped depth goes to its own line without a leading dot (EN/SQ, desktop/phone)", async ({
+    page,
+  }) => {
+    await reachResults(page);
+    const seen = new Set<boolean>();
+    for (const width of [1440, 1024, 768, 390, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const lang of ["English", "Shqip"]) {
+        await page.getByRole("button", { name: new RegExp(lang) }).click();
+        const l = await headingLayout(page);
+        expect(l.clipped).toBe(true);
+        if (l.wrapped) {
+          expect(l.depthAtLineStart, `${width} ${lang}`).toBe(true);
+          expect(l.dotOutside, `${width} ${lang}`).toBe(true);
+        } else {
+          expect(l.dotBetween, `${width} ${lang}`).toBe(true);
+        }
+        seen.add(l.wrapped);
+      }
+    }
+    expect([...seen].sort()).toEqual([false, true]); // both layouts were checked
+  });
+
+  test("on desktop the profile stays in view beside the metals", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await reachResults(page);
+    const profile = page
+      .getByTestId("profile-heading")
+      .filter({ visible: true })
+      .locator("xpath=..");
+    // Scroll 200 px past where the profile starts (it sticks 32 px from the top; at the very end
+    // of the metals it scrolls away with its row, as sticky elements do).
+    const metalsTitle = page.getByRole("heading", { name: "Metals for you" });
+    const before = (await metalsTitle.boundingBox())!.y;
+    const start = await profile.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+    await page.evaluate((y) => window.scrollTo(0, y), start + 200);
+    await expect.poll(async () => Math.round((await profile.boundingBox())!.y)).toBe(32);
+    // …while the metals column scrolled on.
+    expect((await metalsTitle.boundingBox())!.y).toBeLessThan(before - 200);
+  });
+
+  test("on a short window the profile scrolls normally (not sticky)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 700 });
+    await reachResults(page);
+    const profile = page
+      .getByTestId("profile-heading")
+      .filter({ visible: true })
+      .locator("xpath=..");
+    expect(await profile.evaluate((el) => getComputedStyle(el).position)).toBe("static");
   });
 });
 
