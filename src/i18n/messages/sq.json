@@ -276,7 +276,7 @@
       "finding-face": "Po kërkojmë fytyrën",
       "checking": "Po kontrollojmë foton",
       "download": "Shkarkohet vetëm një herë, rreth {size} MB. Shfletuesi e ruan për herë tjetër.",
-      "slow": "Po zgjat pak. Me lidhje të ngadaltë, shkarkimi i parë mund të zgjasë një ose dy minuta.",
+      "slow": "Po zgjat më shumë se zakonisht. Me lidhje të ngadaltë, shkarkimi i parë mund të zgjasë një ose dy minuta.",
       "onDevice": "E gjithë kjo ndodh në pajisjen tënde."
     },
     "report": {
@@ -284,7 +284,7 @@
       "blocked": {
         "NO_FACE": "Nuk gjetëm fytyrë. Zgjidh një foto ku fytyra jote duket e plotë dhe ku shikon nga kamera.",
         "MULTIPLE_FACES": "Gjetëm më shumë se një fytyrë. Zgjidh një foto ku je vetëm ti.",
-        "NOT_ENOUGH_SKIN": "Nuk pamë mjaftueshëm faqet dhe ballin. Afrohu më shumë dhe mbaji flokët larg fytyrës."
+        "NOT_ENOUGH_SKIN": "Nuk shihen mjaftueshëm faqet dhe balli. Afrohu më shumë dhe mbaji flokët larg fytyrës."
       },
       "reviewTitle": "Kontrollo foton",
       "reviewIntro": "Çfarë vumë re:",
@@ -294,14 +294,14 @@
       "issues": {
         "FACE_TOO_SMALL": {
           "title": "Fytyra jote duket e vogël në foto",
-          "tip": "Afrohu më shumë, që fytyra të zërë më shumë vend në kuadër."
+          "tip": "Afrohu më shumë, që fytyra të zërë më shumë vend në foto."
         },
         "TOO_DARK": {
           "title": "Fotoja është shumë e errët",
           "tip": "Qëndro përballë një dritareje në dritën e ditës, ose shto më shumë dritë."
         },
         "TOO_BRIGHT": {
-          "title": "Fotoja është shumë e ndritshme",
+          "title": "Fotoja është shumë e ndriçuar",
           "tip": "Shmang diellin e drejtpërdrejtë dhe blicin. Drita e butë e ditës është më e mira."
         },
         "COLOR_CAST": {
@@ -310,7 +310,7 @@
         },
         "BLURRY": {
           "title": "Fotoja duket e turbullt",
-          "tip": "Mbaje kamerën të palëvizur dhe lëre të fokusojë fytyrën tënde."
+          "tip": "Mbaje telefonin të qëndrueshëm dhe lëre të fokusohet te fytyra jote."
         },
         "HEAD_TILTED": {
           "title": "Koka jote është e kthyer ose e anuar",
@@ -320,7 +320,7 @@
     },
     "done": {
       "title": "Fotoja jote u analizua dhe u hoq",
-      "body": "Ruhen vetëm disa numra ngjyrash, në këtë skedë. Fshihen kur fillon nga e para ose kur mbyll skedën.",
+      "body": "Ruhen vetëm disa numra ngjyrash, në këtë faqe. Fshihen kur fillon nga e para ose kur mbyll faqen.",
       "passed": "Fotoja kaloi të gjitha kontrollet.",
       "accepted": "Zgjodhe ta analizosh gjithsesi, ndaj rezultati do të jetë më pak i sigurt."
     },
