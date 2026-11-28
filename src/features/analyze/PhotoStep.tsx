@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CONTAINER_NARROW } from "@/components/layout/container";
+import { FlowSteps } from "@/components/layout/FlowSteps";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { Reveal } from "@/components/motion/Reveal";
 import { BUTTON_PRIMARY, BUTTON_TEXT } from "@/components/ui/buttons";
@@ -94,6 +95,7 @@ export function PhotoStep() {
 
   return (
     <MotionRoot>
+      <FlowSteps current="photo" />
       <div
         className={`${CONTAINER_NARROW} py-12 md:py-20`}
         // The size the worker analysed (after EXIF orientation and downscaling), for e2e tests:

@@ -14,7 +14,7 @@ ToneMatch reads the **depth** (light → deep) and **undertone** (cool, neutral 
 
 ## How it works
 
-The analysis pipeline below is implemented and tested, and runs in the browser on the photo page: upload, status while analysing, and a quality report. The results page and the camera are the next milestones (see [Project status](#project-status)).
+The whole flow below runs in the browser: upload, analysis with a quality report, the quiz, and a results page with metal tiers, styles and gemstones. The shareable result card and the camera are the next milestones (see [Project status](#project-status)).
 
 ```mermaid
 flowchart LR
@@ -49,7 +49,7 @@ Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 · 
 
 ## Project status
 
-Current release: **v0.2.0**. The analysis and recommendation core is built and tested, the landing page with photo upload is built, and an uploaded photo is now analysed on the device with a quality report; the results page comes next.
+Current release: **v0.2.0**. The full flow works on the device: photo upload and analysis with a quality report, the quiz, and the results page (undertone, depth, confidence, metals, styles and gemstones); the shareable result card comes next.
 
 - [x] Repository, tooling, CI and release automation
 - [x] Colour engine (sRGB → CIELAB, chroma, hue, ITA)
@@ -59,13 +59,16 @@ Current release: **v0.2.0**. The analysis and recommendation core is built and t
 - [x] Recommendation engine and data (metals, styles, gemstones)
 - [x] Visual design, site layout and landing page with photo upload (English and Albanian)
 - [x] On-device photo analysis with a quality report; the photo is discarded right after
-- [ ] Results page and shareable result card
+- [x] Results page: profile, confidence, metals with swatches, styles, gemstones (English and Albanian)
+- [ ] Shareable result card and "remember this result"
 - [ ] Live camera capture and white-paper calibration flow
 - [ ] Full English/Albanian interface, accessibility pass and privacy page
 - [ ] Public deployment and v1.0.0
 - [ ] Later: face-shape advice, AR try-on preview, optional AI explanation (numbers only), multi-photo averaging
 
-> **Screenshots and a live demo** will be added with the results page and the first public deployment.
+> **Screenshots and a live demo** will be added with the first public deployment.
+
+The Monk Skin Tone Scale is used for display under its licence: Monk, Ellis. “Monk Skin Tone Scale,” 2019. [skintone.google](https://skintone.google), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## Getting started
 

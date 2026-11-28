@@ -292,7 +292,9 @@ export const DEPTH_SCALE: readonly { mst: number; label: DepthLabel; minAngle: n
  * classification. Source: the `--monk-scale-color-1…10` HSL values in the official site's bundle,
  * https://skintone.google/assets/index.e4e4b56c.js (fetched 2026-11-18; SHA-256 b42d16d1…),
  * converted HSL → sRGB; table with Lab and ITA in docs/DECISIONS.md D-027.
- * Scale licence: CC BY 4.0 according to secondary sources (not confirmed on the official page).
+ * Scale licence: CC BY 4.0, confirmed 2026-11-28 on the official "Get started" page, which asks
+ * for the citation: Monk, Ellis. “Monk Skin Tone Scale,” 2019. https://skintone.google (shown
+ * under the strip on the results page; D-039).
  */
 export const MST_SWATCHES: readonly string[] = [
   "#f6ede4",

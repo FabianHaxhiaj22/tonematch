@@ -101,7 +101,9 @@ describe("PhotoStep (/analyze)", () => {
     expect(screen.getByText("Your face is small in the photo")).toBeInTheDocument();
     expect(screen.getByText("The photo is too dark")).toBeInTheDocument();
     expect(screen.getByText("Face a window in daylight, or add more light.")).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    // Two warnings (the step indicator's list items don't count).
+    const items = screen.getAllByRole("listitem").filter((li) => !li.closest("nav"));
+    expect(items).toHaveLength(2);
 
     fireEvent.click(screen.getByRole("button", { name: "Analyse anyway" }));
     expect(useAnalysisStore.getState().phase.status).toBe("done");

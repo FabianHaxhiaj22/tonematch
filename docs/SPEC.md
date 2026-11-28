@@ -181,6 +181,7 @@ Not detected, because there is no reliable signal: beauty filters, skin smoothin
   - Hue angle `h° = atan2(b*, a*)` in degrees. Higher = more yellow (warmer), lower = more red/pink (cooler).
   - Individual Typology Angle `ITA° = atan((L* − 50) / b*) × 180/π`, used for **depth**. **Guard against `b* ≈ 0`** (division by zero): if `b*` is below a configurable minimum (`ITA_MIN_B` in config), don't compute ITA; fall back to L\* for depth and lower confidence. Skin `b*` is normally clearly positive, so this mainly catches bad samples.
 - Unit-test against known reference conversions (pure white, pure black, mid-grey, a few published sRGB↔Lab pairs). Cross-check with `culori` in tests.
+- **Back to sRGB for display** (M6b-2, D-039): `labToSrgb` (CIELAB → XYZ → linear → sRGB, the exact inverse; the XYZ→RGB matrix is computed from the forward one, not copied rounded), `inSrgbGamut` and `rgbToHex` (clamps). Round-trip tested over 10,000 colours (error < 1e-9). Used for the skin swatch on the results page, which says that colours on screen are approximate.
 
 ### 6.5 Depth (`depth.ts`)
 - Map ITA° (primary) and L\* (secondary) to: `very-light | light | medium | tan | deep | very-deep`, and approximate an MST 1–10 index for display. Keep the mapping table in config. **Label the MST value as approximate.**
@@ -298,15 +299,16 @@ type Recommendation = {
 ├── src/
 │   ├── app/[locale]/          # pages: /, /analyze, /quiz, /results, /privacy, /about
 │   ├── app/api/explain/route.ts   # Phase 2
-│   ├── components/            # UI: layout/ (header, footer, language switch), brand/ (logo, metal gradients), motion/ (LazyMotion root, Reveal), ui/ (button styles; shadcn here when needed)
+│   ├── components/            # UI: layout/ (header, footer, language switch, flow step indicator), brand/ (logo, metal gradients), motion/ (LazyMotion root, Reveal), ui/ (button styles; shadcn here when needed)
 │   ├── app/dev/               # dev-only routes (`page.dev.tsx`): exist under `next dev` only, never in production builds
 │   ├── features/landing/      # landing page sections
 │   ├── features/photo/        # PhotoPicker (upload + drop) and photo tips, shared by landing and /analyze
 │   ├── features/analyze/      # photo step, status, quality report, runAnalysis.ts (outside React); landmarkerClient.ts (worker wrapper); camera + calibration (M7)
-│   ├── features/results/      # results, share card, try-on (Phase 2)
+│   ├── features/results/      # results page (view, swatches, confidence bar, "start with a photo"); share card (M6c), try-on (Phase 2)
 │   ├── lib/color/             # colour math (pure)
 │   ├── lib/analysis/          # quality, sampler, depth, undertone, fusion, pipeline (worker entry), config
 │   ├── lib/recommend/         # rules engine (pure)
+│   ├── lib/results/           # results view model: photo summary + answers → what the page shows (pure, D-039)
 │   ├── lib/image/             # photo file checks: format sniffing (JPEG/PNG/WebP, HEIC detection), size limit, analysis size (pure, D-035)
 │   ├── lib/models/            # versioned URLs of the self-hosted MediaPipe files, cache lifetime (D-038)
 │   ├── workers/landmarker.worker.ts   # + landmarker.protocol.ts (message types)
@@ -441,7 +443,7 @@ Weekly npm + GitHub Actions updates, grouped (minor/patch together), separate PR
 ## 13. UX, accessibility & i18n
 
 - Flow: Landing → Guide → Capture/Upload → (Calibrate?) → Quiz (4 taps) → Results → Share.
-- Progress indicator across steps; every step skippable back.
+- Progress indicator across steps (Photo · Questions · Result on /analyze, /quiz, /results; earlier steps are links back, D-039); every step skippable back.
 - Results are visual: skin swatch next to metal swatches; tier badges; short reasons.
 - All text in `src/i18n/messages/en.json` and `src/i18n/messages/sq.json`. No hard-coded strings. Albanian copy should be reviewed by a native speaker (the user).
 - WCAG 2.2 AA: contrast, focus states, keyboard nav, alt text, `aria-live` for analysis status, reduced motion.
@@ -475,8 +477,8 @@ Claude Code works through these in order. Each milestone = its own branch + PR +
 | PR | Branch | Scope |
 |---|---|---|
 | M6a ✅ | `feat/m6a-…` | Design tokens, typography, layout shell, landing page with photo upload, `/analyze` photo preview (D-034); theme switch (D-037). |
-| M6b-1 | `feat/m6b1-analysis` | On `/analyze`: prepare the image (**EXIF orientation applied, downscaled to a 1600 px long side**, D-035), detect landmarks in the worker, quality checks, skin sampling. **The photo is released after analysis**: only numbers remain, and going back to `/analyze` shows "Your photo was analysed and removed" + "Choose another photo". Quality report: blocking issues → "Choose another photo"; warnings → "Analyse anyway" (lowers confidence) or "Choose another photo". The worker and model load **only on `/analyze` after a photo is chosen** (e2e: `/`, `/quiz`, `/results` never request `/models/*`). Versioned model path with long immutable caching. Status messages ("one-time download of about 8 MB", "Finding your face", "Checking the photo"), plus a slow-connection note after `SLOW_LOAD_MS`. Motion (lazy-loaded features, `prefers-reduced-motion` respected): fades and gentle rise-ins only. Unit + e2e tests: EXIF-rotated, darkened and no-face fixtures; every request same-origin; photo gone after analysis. |
-| M6b-2 | `feat/m6b2-results` | Quiz restyled in Atelier with a step indicator. Results page from the mockup: profile, skin swatch (via `labToSrgb`), confidence, summary, metal tiers with reasons, styles in gold-bordered cards, finish advice, gemstones, notes, disclaimer. "Start with a photo" when there is no analysis. Full-flow e2e with real MediaPipe. |
+| M6b-1 ✅ | `feat/m6b1-analysis` | On `/analyze`: prepare the image (**EXIF orientation applied, downscaled to a 1600 px long side**, D-035), detect landmarks in the worker, quality checks, skin sampling. **The photo is released after analysis**: only numbers remain, and going back to `/analyze` shows "Your photo was analysed and removed" + "Choose another photo". Quality report: blocking issues → "Choose another photo"; warnings → "Analyse anyway" (lowers confidence) or "Choose another photo". The worker and model load **only on `/analyze` after a photo is chosen** (e2e: `/`, `/quiz`, `/results` never request `/models/*`). Versioned model path with long immutable caching. Status messages ("one-time download of about 8 MB", "Finding your face", "Checking the photo"), plus a slow-connection note after `SLOW_LOAD_MS`. Motion (lazy-loaded features, `prefers-reduced-motion` respected): fades and gentle rise-ins only. Unit + e2e tests: EXIF-rotated, darkened and no-face fixtures; every request same-origin; photo gone after analysis. |
+| M6b-2 ✅ | `feat/m6b2-results` | Quiz restyled in Atelier with a step indicator. Results page from the mockup: profile, skin swatch (via `labToSrgb`), confidence, summary, metal tiers with reasons, styles in gold-bordered cards, finish advice, gemstones, notes, disclaimer. "Start with a photo" when there is no analysis. Full-flow e2e with real MediaPipe. Low confidence leads with "Both can work"; the MST strip carries the official CC BY 4.0 credit (D-039). |
 | M6c | `feat/m6c-share` | Share card (canvas, in the browser, no face, en/sq, Download + Share). Opt-in "Remember this result" (numbers only, at most 20, Zod-validated on read) with a `/my-results` page (open, delete one, delete all). |
 | M6d | `feat/m6d-pages` | `/about`, `/guide` (metals and undertones), `/faq`, `/contact` (mailto placeholder); header/footer navigation and a mobile menu. Unfinished copy is marked `⟦…⟧` and `pnpm content:check` lists it. No reviews or testimonials. |
 

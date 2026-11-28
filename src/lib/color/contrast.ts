@@ -1,4 +1,5 @@
 import { WCAG_CONTRAST_FLARE, WCAG_LUMINANCE_WEIGHTS } from "./constants";
+import { hexToRgb } from "./hex";
 import { srgbChannelToLinear } from "./srgb";
 import type { Rgb255 } from "./types";
 
@@ -7,16 +8,6 @@ import type { Rgb255 } from "./types";
  * `src/app/globals.css` (tests/unit/design/tokens.test.ts) so a palette change can't silently
  * break contrast. https://www.w3.org/TR/WCAG22/#dfn-contrast-ratio
  */
-
-const HEX = /^#?([0-9a-f]{6})$/i;
-
-/** Parse `#rrggbb` (the `#` is optional, case-insensitive). Throws on anything else. */
-export function hexToRgb(hex: string): Rgb255 {
-  const m = HEX.exec(hex.trim());
-  if (!m) throw new Error(`Not a #rrggbb colour: "${hex}"`);
-  const n = Number.parseInt(m[1]!, 16);
-  return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff };
-}
 
 /** WCAG relative luminance (0 = black, 1 = white) of an sRGB colour. */
 export function relativeLuminance({ r, g, b }: Rgb255): number {
