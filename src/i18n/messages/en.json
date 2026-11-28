@@ -233,7 +233,8 @@
       }
     },
     "notes": {
-      "title": "Good to know"
+      "title": "Good to know",
+      "disagreeWhy": "Your photo and your answers pointed in different directions, so we're less sure."
     },
     "startAgain": "Start again",
     "empty": {

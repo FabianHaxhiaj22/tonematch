@@ -11,6 +11,8 @@ import { buildResultsView, toPercent } from "@/lib/results";
 import { COOL_SKIN, EVIDENCE, NEUTRAL_SKIN, SPLIT, WARM_SKIN, all } from "./fixtures";
 
 const DATA = loadRecommendData();
+/** The note codes of a view, in order. */
+const codes = (v: { notes: { code: string }[] }) => v.notes.map((n) => n.code);
 const EN = flattenMessages(en);
 
 describe("buildResultsView: a confident warm result", () => {
@@ -70,7 +72,7 @@ describe("buildResultsView: a confident warm result", () => {
     expect(EN[view.summaryKey!]).toBeDefined();
     expect(EN[view.finishKey]).toBeDefined();
     expect(view.leadNote).toBeNull();
-    expect(view.notes).toEqual([]);
+    expect(codes(view)).toEqual([]);
   });
 
   it("gives the number of MST steps for the position track (no swatch colours)", () => {
@@ -95,17 +97,17 @@ describe("buildResultsView: other outcomes", () => {
     expect(view.uncertain).toBe(false);
     expect(view.palette).toBe("balanced");
     expect(view.leadNote).toBeNull();
-    expect(view.notes).toEqual(["bothCanWork"]);
+    expect(codes(view)).toEqual(["bothCanWork"]);
   });
 
   it("photo-only results keep the engine's notes in order", () => {
     const view = buildResultsView(NEUTRAL_SKIN, {}, DATA);
-    expect(view.notes).toEqual(["noQuizAnswers", "bothCanWork"]);
+    expect(codes(view)).toEqual(["noQuizAnswers", "bothCanWork"]);
   });
 
   it("a disagreement keeps photoQuizDisagree as a note", () => {
     const view = buildResultsView(WARM_SKIN, all("cool"), DATA);
-    expect(view.notes).toContain("photoQuizDisagree");
+    expect(codes(view)).toContain("photoQuizDisagree");
   });
 });
 
@@ -121,7 +123,7 @@ describe("buildResultsView: low confidence", () => {
       expect(view.confidencePercent).toBeLessThan(50);
       expect(view.uncertain).toBe(true);
       expect(view.leadNote).toBe("bothCanWorkUncertain");
-      expect(view.notes).not.toContain("bothCanWorkUncertain");
+      expect(codes(view)).not.toContain("bothCanWorkUncertain");
       expect(view.palette).toBe("balanced");
       // The heading and the lead note say it; no third time in a summary line.
       expect(view.summaryKey).toBeNull();
@@ -205,7 +207,7 @@ describe("tiers never contradict the 'both families may work' note", () => {
     for (const { summary, answers } of cases()) {
       const view = buildResultsView(summary, answers, DATA);
       const tiers = view.metalTiers.map((t) => t.tier);
-      if (view.notes.includes("photoQuizDisagree")) {
+      if (codes(view).includes("photoQuizDisagree")) {
         withNote++;
         expect(tiers, JSON.stringify(answers)).not.toContain("care");
       }
@@ -215,7 +217,7 @@ describe("tiers never contradict the 'both families may work' note", () => {
 
   it("the warm 52% case from the screenshots: cool metals are 'Also good', not 'Use with care'", () => {
     const view = buildResultsView(WARM_SKIN, all("cool"), DATA);
-    expect(view.notes).toContain("photoQuizDisagree");
+    expect(codes(view)).toContain("photoQuizDisagree");
     expect(view.metalTiers.map((t) => t.tier)).toEqual(["best", "good"]);
   });
 });
@@ -230,5 +232,60 @@ describe("balanced results give each metal its own reason", () => {
     );
     expect(new Set(reasons).size).toBe(reasons.length);
     for (const r of reasons) expect(EN[r], r).toBeDefined();
+  });
+});
+
+describe("beside the low-confidence box, the disagreement note only explains why (D-039)", () => {
+  /** Every quiz combination on calibrated and uncalibrated photos of several hues. */
+  function* views() {
+    for (const skin of [
+      WARM_SKIN.skin,
+      COOL_SKIN.skin,
+      { L: 60, a: 6, b: 30 },
+      { L: 60, a: 20, b: 8 },
+    ]) {
+      for (const evidence of [EVIDENCE, { ...EVIDENCE, calibrated: true }]) {
+        for (let pick = 0; pick < 256; pick++) {
+          const answers = Object.fromEntries(
+            QUIZ_QUESTIONS.map((q, i) => [q, QUIZ_ANSWERS[Math.floor(pick / 4 ** i) % 4]!]),
+          ) as QuizAnswers;
+          yield buildResultsView({ skin, evidence }, answers, DATA);
+        }
+      }
+    }
+  }
+
+  it("uses the short text with the box, the full text without it", () => {
+    let short = 0;
+    let full = 0;
+    for (const view of views()) {
+      const note = view.notes.find((n) => n.code === "photoQuizDisagree");
+      if (!note) continue;
+      if (view.uncertain) {
+        expect(note.messageKey).toBe("results.notes.disagreeWhy");
+        short++;
+      } else {
+        expect(note.messageKey).toBe("notes.photoQuizDisagree");
+        full++;
+      }
+    }
+    expect(short).toBeGreaterThan(0); // both cases really occur
+    expect(full).toBeGreaterThan(0);
+  });
+
+  it("the short text is the full note without its 'both may work' sentence", () => {
+    const full = EN["notes.photoQuizDisagree"]!;
+    const why = EN["results.notes.disagreeWhy"]!;
+    expect(full.startsWith(why)).toBe(true);
+    expect(why).not.toMatch(/both/i);
+    expect(full).toMatch(/Both metal families may work for you/);
+  });
+
+  it("other notes keep their usual text", () => {
+    const view = buildResultsView(NEUTRAL_SKIN, {}, DATA);
+    expect(view.notes).toEqual([
+      { code: "noQuizAnswers", messageKey: "notes.noQuizAnswers" },
+      { code: "bothCanWork", messageKey: "notes.bothCanWork" },
+    ]);
   });
 });

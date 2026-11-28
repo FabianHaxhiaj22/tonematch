@@ -34,6 +34,9 @@ export type MetalView = {
   reasonKey: string;
 };
 
+/** A note to show under "Good to know": its code and the message to show for it. */
+export type NoteView = { code: RecommendationNote; messageKey: string };
+
 export type ResultsView = {
   /**
    * Below the engine's confidence threshold: no metal family is ranked first, the page leads
@@ -69,12 +72,23 @@ export type ResultsView = {
   palette: "warm" | "cool" | "balanced";
   /** The note shown prominently near the top ("both can work"), or null. */
   leadNote: RecommendationNote | null;
-  /** The other notes ("Good to know"), in the engine's order. */
-  notes: RecommendationNote[];
+  /**
+   * The other notes ("Good to know"), in the engine's order. While the lead note is shown, a note
+   * that would repeat it uses its shorter "why" text (SHORT_BESIDE_LEAD_NOTE).
+   */
+  notes: NoteView[];
 };
 
 /** The engine's low-confidence note: shown prominently, not among the other notes. */
 const UNCERTAIN_NOTE: RecommendationNote = "bothCanWorkUncertain";
+
+/**
+ * Notes whose usual text also says "both metal families may work". Beside the lead note, which
+ * says that already, they only explain why (owners, D-039).
+ */
+const SHORT_BESIDE_LEAD_NOTE: Partial<Record<RecommendationNote, string>> = {
+  photoQuizDisagree: "results.notes.disagreeWhy",
+};
 
 /** Whole percentage for display (0.744 → 74). */
 export function toPercent(confidence: number): number {
@@ -127,6 +141,11 @@ export function buildResultsView(
     gemstones,
     palette: lean ?? "balanced",
     leadNote: uncertain ? UNCERTAIN_NOTE : null,
-    notes: rec.notes.filter((n) => n !== UNCERTAIN_NOTE),
+    notes: rec.notes
+      .filter((n) => n !== UNCERTAIN_NOTE)
+      .map((code) => ({
+        code,
+        messageKey: (uncertain && SHORT_BESIDE_LEAD_NOTE[code]) || `notes.${code}`,
+      })),
   };
 }

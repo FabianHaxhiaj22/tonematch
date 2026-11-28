@@ -270,7 +270,7 @@ export function ResultsView({ view, onStartAgain }: { view: View; onStartAgain: 
                 </h2>
                 <ul className="mt-2 space-y-2">
                   {view.notes.map((n) => (
-                    <li key={n}>{t(key(`notes.${n}`))}</li>
+                    <li key={n.code}>{t(key(n.messageKey))}</li>
                   ))}
                 </ul>
               </section>

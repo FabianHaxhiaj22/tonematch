@@ -182,12 +182,12 @@
         "care": "Përputhet më pak. Provoje si një detaj të vogël."
       },
       "balancedMetal": {
-        "yellow-gold": "Metali klasik i ngrohtë: i pasur dhe i artë.",
+        "yellow-gold": "Metali klasik i ngrohtë, me një ngjyrë të artë të thellë.",
         "silver": "I ftohtë dhe i ndritshëm, i lehtë për t'u mbajtur çdo ditë.",
-        "rose-gold": "Një ngrohtësi e butë rozë që rri lehtë mbi lëkurë.",
+        "rose-gold": "Një ngrohtësi e butë rozë që i rri bukur lëkurës.",
         "white-gold": "Një e bardhë e pastër dhe e ndritshme, me pamje të lëmuar.",
-        "platinum": "Metal natyrshëm i bardhë, me shkëlqim të qetë.",
-        "copper-brass": "Tokësore dhe e ngrohtë; e bukur si detaj i vogël."
+        "platinum": "Një metal natyrshëm i bardhë, me shkëlqim të qetë.",
+        "copper-brass": "Tokësore dhe të ngrohta; të bukura si detaje të vogla."
       }
     }
   },
@@ -233,7 +233,8 @@
       }
     },
     "notes": {
-      "title": "Mirë ta dish"
+      "title": "Mirë ta dish",
+      "disagreeWhy": "Fotoja dhe përgjigjet e tua nuk përputhen plotësisht, ndaj rezultati është më pak i sigurt."
     },
     "startAgain": "Fillo nga e para",
     "empty": {
